@@ -1,0 +1,53 @@
+:root {
+    --primary: #3498db;
+    --dark: #2c3e50;
+    --bg-light: #f8f9fa;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5 !important;
+}
+
+/* Sidebar Menu Activo */
+.list-group-item.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    font-weight: 600;
+}
+
+/* Tablas */
+.table thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    font-weight: 700;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    color: #495057;
+}
+
+/* Badges personalizados */
+.bg-purple {
+    background-color: #6f42c1;
+    color: white;
+}
+
+/* Animaciones */
+.animate-fade {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* SweetAlert inputs fix */
+.swal2-input, .swal2-select {
+    font-size: 0.9rem !important;
+}

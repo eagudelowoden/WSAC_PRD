@@ -1,0 +1,97 @@
+/* css/estilos.css */
+body { background-color: #f0f2f5; overflow: hidden; /* Sin scroll en el body */ font-size: 0.85rem; } /* Fuente más pequeña */
+#app { height: 100vh; display: flex; flex-direction: column; }
+.main-container { flex: 1; display: flex; overflow: hidden; }
+
+/* BARRA LATERAL (Buscador + Lista) */
+.sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #d1d5db;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 10;
+}
+.search-box { padding: 10px; border-bottom: 1px solid #eee; background: #f8f9fa; }
+.user-list { overflow-y: auto; flex: 1; }
+.user-item {
+    padding: 10px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s;
+}
+.user-item:hover { background-color: #e9ecef; }
+.user-item.active { background-color: #e7f1ff; border-left: 4px solid #0d6efd; }
+.user-item h6 { margin: 0; font-size: 0.9rem; font-weight: 600; color: #333; }
+.user-item small { color: #666; font-size: 0.75rem; }
+
+/* AREA DE CONTENIDO (Formularios) */
+.content-area {
+    flex: 1;
+    overflow-y: auto; /* Scroll solo aquí */
+    padding: 20px;
+    background: #f0f2f5;
+}
+
+/* TARJETAS COMPACTAS */
+.card { border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; border-radius: 8px; }
+.card-header { 
+    background: white; border-bottom: 2px solid #f0f0f0; 
+    font-weight: 700; color: #444; padding: 10px 15px; font-size: 0.95rem;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.card-body { padding: 15px; }
+
+/* INPUTS COMPACTOS */
+.form-label { margin-bottom: 2px; font-weight: 600; color: #555; font-size: 0.75rem; }
+.form-control, .form-select { 
+    font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #ced4da;
+}
+.form-control:focus { box-shadow: none; border-color: #0d6efd; }
+
+/* GRID DE DOCUMENTOS */
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.doc-item { 
+    background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 10px; 
+    text-align: center; transition: 0.2s; 
+}
+.doc-item:hover { border-color: #0d6efd; background: white; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.doc-name { font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 5px; font-weight: 600;}
+
+
+/* Modificamos esto para fijar la altura */
+.sidebar {
+    width: 300px; /* Un poco más angosta */
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Altura total de la ventana */
+    border-right: 1px solid #dee2e6;
+    background: white;
+}
+
+/* El buscador se queda fijo arriba */
+.search-header {
+    flex-shrink: 0; /* No se encoge */
+    background: #f8f9fa;
+    padding: 11px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* La lista hace scroll SOLO en su espacio */
+.user-list {
+    flex-grow: 1; /* Ocupa el espacio sobrante */
+    overflow-y: auto; /* SCROLL INTERNO AQUÍ */
+    padding: 0;
+}
+
+/* Items más compactos */
+.user-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+.user-item:hover { background: #f0f8ff; }
+.user-item.active { background: #0d6efd; color: white !important; }
+
+/* Texto más limpio */
+.user-item h6 { font-size: 0.9rem; margin: 0; font-weight: 600; }
+.user-item small { font-size: 0.75rem; display: block; opacity: 0.8; }
+.user-item .active small { color: #e0e0e0 !important; }

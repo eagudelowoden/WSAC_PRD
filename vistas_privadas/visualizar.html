@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Colaboradores</title>
+
+    <link rel="stylesheet" href="css/view.css" />
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <div id="app" class="app-layout">
+      <header class="header-fixed">
+        <h1>📁 Gestión de Colaboradores</h1>
+        <div style="font-size: 0.85rem; color: #666">Admin Panel</div>
+      </header>
+
+      <div class="selector-bar">
+        <label><strong>Colaborador:</strong></label>
+        <select v-model="selectedId" @change="cargarUsuarioDesdeBD">
+          <option value="">-- Seleccione un usuario --</option>
+          <option v-for="u in listaUsuarios" :key="u.id" :value="u.id">
+            {{ u.nombres }} {{ u.apellidos }}
+          </option>
+        </select>
+      </div>
+
+      <main class="scrollable-content">
+        <div v-if="usuarioActual" class="main-grid">
+          <div class="left-col">
+            <section class="card info-card">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  border-bottom: 2px solid #3498db;
+                  margin-bottom: 1rem;
+                  padding-bottom: 0.5rem;
+                "
+              >
+                <h3 style="margin: 0; border: none; padding: 0">
+                  <i class="ri-user-line"></i> Datos Personales
+                </h3>
+                <button
+                  @click="guardarCambiosPersonales"
+                  class="btn-link"
+                  style="
+                    border: none;
+                    background: none;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                  "
+                >
+                  💾 Guardar Cambios
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>Nombres</label>
+                  <input v-model="usuarioActual.nombres" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Apellidos</label>
+                  <input v-model="usuarioActual.apellidos" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Cédula</label>
+                  <input v-model="usuarioActual.documento" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Correo</label>
+                  <input v-model="usuarioActual.correo" type="email" />
+                </div>
+                <div class="input-group">
+                  <label>Teléfono</label>
+                  <input v-model="usuarioActual.telefono" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Dirección</label>
+                  <input v-model="usuarioActual.direccion" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Fecha Nacimiento</label>
+                  <input v-model="usuarioActual.fechaNacimiento" type="date" />
+                </div>
+                <div class="input-group">
+                  <label>EPS</label>
+                  <input v-model="usuarioActual.epsNombre" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>AFP</label>
+                  <input v-model="usuarioActual.afpNombre" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>ARL</label>
+                  <input v-model="usuarioActual.arlNombre" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>CCF</label>
+                  <input v-model="usuarioActual.ccfNombre" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>CIUDAD</label>
+                  <input v-model="usuarioActual.ciudadNombre" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>Fecha Suscripción</label>
+                  <input v-model="usuarioActual.fechaSuscripcion" type="date" />
+                </div>
+               <div class="input-group">
+                  <label>OtroSi?</label>
+                  <input v-model="usuarioActual.otrosi" type="text" />
+                </div>
+                <div class="input-group">
+                  <label>afiliaciones_familiares?</label>
+                  <input v-model="usuarioActual.afiliaciones_familiares" type="date" />
+                </div>
+                  <div class="input-group">
+                  <label>afiliaciones_familiares</label>
+                  <input v-model="usuarioActual.afiliaciones_familiares" type="text" />
+                </div>
+              </div>
+            </section>
+
+            <section class="card form-card">
+              <h3><i class="ri-file-list-3-line"></i> Gestión Contractual</h3>
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>Cargo</label>
+                  <input
+                    v-model="form.cargo"
+                    type="text"
+                    placeholder="Ej: Analista Sr."
+                  />
+                </div>
+                <div class="input-group">
+                  <label>Salario</label>
+                  <input
+                    v-model="form.salario"
+                    type="number"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div class="input-group full-width">
+                  <label>Observaciones</label>
+                  <textarea
+                    v-model="form.observaciones"
+                    placeholder="Detalles adicionales..."
+                  ></textarea>
+                </div>
+              </div>
+              <div class="actions">
+                <button @click="rechazar" class="btn btn-danger">
+                  Rechazar
+                </button>
+                <button @click="aprobar" class="btn btn-success">
+                  Aprobar Contrato
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <div class="right-col">
+            <section class="card files-card">
+              <h3><i class="ri-attachment-line"></i> Documentos Cargados</h3>
+
+              <div
+                v-if="cargandoArchivos"
+                class="loading"
+                style="text-align: center; padding: 1rem; color: #666"
+              >
+                Cargando documentos...
+              </div>
+
+              <div
+                v-else-if="archivos.length === 0"
+                class="empty"
+                style="
+                  text-align: center;
+                  padding: 1rem;
+                  color: #999;
+                  font-style: italic;
+                "
+              >
+                No hay documentos disponibles
+              </div>
+
+              <div v-else class="file-list">
+                <div
+                  v-for="file in archivos"
+                  :key="file.name"
+                  class="file-item"
+                >
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span style="font-size: 1.2rem">📄</span>
+                    <span class="name">{{ file.name }}</span>
+                  </div>
+                  <a :href="file.url" target="_blank" class="btn-link">Ver</a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div v-else class="welcome-message">
+          <div class="empty-icon">👈</div>
+          <h2>Selecciona un colaborador</h2>
+          <p>
+            Usa la barra superior para cargar los datos desde la base de datos.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+/* --- CONFIGURACIÓN BASE --- */
+:root {
+    --primary: #3498db;
+    --dark: #2c3e50;
+    --bg: #f4f6f8;
+    --success: #2ecc71;
+    --border: #eaeaea;
+}
+
+* { box-sizing: border-box; }
+
+body, html { 
+    margin: 0; padding: 0; height: 100%; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    overflow: hidden; 
+}
+
+.app-container {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; padding: 20px;
+}
+
+/* --- TARJETA --- */
+.card.subsanar-card {
+    background: #fff;
+    border-radius: 8px;
+    /* Sombra suave y borde sutil */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
+    border: 1px solid var(--border);
+    width: 100%; max-width: 420px;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+
+.animate-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- HEADER --- */
+.card-header-clean {
+    padding: 2rem 2rem 1rem 2rem; /* Más espacio arriba */
+    background: #fff;
+    text-align: center; /* Centrar textos del header */
+}
+
+.card-header-clean h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--dark);
+    border-bottom: 3px solid var(--primary);
+    display: inline-block;
+    padding-bottom: 8px;
+    font-weight: 700;
+}
+
+.greeting {
+    margin: 0; font-size: 0.95rem; color: #666;
+}
+
+/* --- BODY --- */
+.card-body-clean { padding: 1.5rem 2rem 2rem 2rem; }
+
+/* REEMPLAZO DE .input-group PARA EVITAR CONFLICTO CON BOOTSTRAP */
+.form-group-clean {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem; /* Más espacio entre campos */
+    text-align: left;
+}
+
+.form-group-clean label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Inputs y Selects */
+.form-control {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ced4da; /* Borde estándar gris */
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #fff;
+    height: 45px; /* Altura forzada para que no se vea aplastado */
+}
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+
+/* --- ZONA DE CARGA --- */
+.file-drop-area {
+    border: 2px dashed #dde1e6;
+    border-radius: 8px;
+    padding: 1.2rem;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+.file-drop-area:hover { background: #fff; border-color: var(--primary); }
+.file-drop-area.active { border-style: solid; border-color: var(--success); background: #f0fff4; }
+
+.drop-content { display: flex; align-items: center; gap: 15px; }
+
+.icon-box { font-size: 1.8rem; color: #aab2bd; }
+.file-drop-area:hover .icon-box { color: var(--primary); }
+.file-drop-area.active .icon-box { color: var(--success); }
+
+.text-box { display: flex; flex-direction: column; justify-content: center; }
+.main-text { font-size: 0.95rem; font-weight: 600; color: #333; }
+.sub-text { font-size: 0.75rem; color: #888; }
+
+.hidden-input { display: none; }
+
+/* --- BOTONES Y FOOTER --- */
+.btn {
+    padding: 0.8rem; border: none; border-radius: 6px;
+    cursor: pointer; font-size: 1rem; font-weight: 600;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #2980b9; transform: translateY(-1px); }
+
+.footer-simple { margin-top: 1.5rem; font-size: 0.75rem; color: #999; text-align: center; }
+
+.state-container { padding: 3rem; text-align: center; }
