@@ -194,32 +194,49 @@ router.get("/archivos/:carpeta", async (req, res) => {
 router.post("/enviar", upload.any(), async (req, res) => {
     try {
         const data = req.body;
+        
+        // 1. VALIDACIÓN PREVIA: Si no hay archivos, detenemos todo.
+        // Esto soluciona tu problema: Si no hay archivos, no intentamos crear "carpetas" vacías ni registros rotos.
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'Debes adjuntar al menos un documento.' });
+        }
+
         const safeData = {
             ...data,
             afiliacionesFamiliares: data.afiliacionesFamiliares || '',
-            observaciones: data.observaciones || ''
+            observaciones: data.observaciones || '',
+            otroSi: data.otroSi || '' // Aseguramos que exista
         };
 
-        const fullName = `${safeData.nombres} ${safeData.apellidos}`.trim();
+        // SUGERENCIA: Reemplaza espacios por guiones bajos para evitar problemas en URLs de S3
+        const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, '_');
+        
+        // Usamos folderName en lugar de fullName para consistencia
+        const fullName = folderName; 
 
-        // 1. SUBIR A S3
-        if (req.files && req.files.length > 0) {
-            const uploadPromises = req.files.map(file => {
-                const fileName = `${Date.now()}_${file.originalname}`;
-                const key = `${fullName}/${fileName}`; // "Nombre Apellido/archivo.pdf"
+        // 2. SUBIR A S3
+        const uploadPromises = req.files.map(file => {
+            // Limpiamos el nombre del archivo original también para evitar caracteres raros
+            const cleanOriginalName = file.originalname.replace(/\s+/g, '_');
+            const fileName = `${Date.now()}_${cleanOriginalName}`;
+            
+            const key = `${folderName}/${fileName}`; // Ej: "Juan_Perez/123456_cedula.pdf"
 
-                const command = new PutObjectCommand({
-                    Bucket: BUCKET_NAME,
-                    Key: key,
-                    Body: file.buffer,
-                    ContentType: file.mimetype
-                });
-                return s3Client.send(command);
+            const command = new PutObjectCommand({
+                Bucket: BUCKET_NAME, // Asegúrate que esta variable esté definida arriba
+                Key: key,
+                Body: file.buffer,
+                ContentType: file.mimetype
             });
-            await Promise.all(uploadPromises);
-        }
+            return s3Client.send(command);
+        });
+        
+        await Promise.all(uploadPromises);
 
-        // 2. GUARDAR EN BASE DE DATOS
+        // 3. GUARDAR EN BASE DE DATOS (Corregido el orden de valores)
+        // NOTA: He eliminado 'otroSi' del array porque no está en tu lista de columnas INSERT.
+        // Si necesitas guardar 'otroSi', debes agregar la columna en el INSERT primero.
+        
         const sql = `
             INSERT INTO usuarios (
                 nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
@@ -228,23 +245,39 @@ router.post("/enviar", upload.any(), async (req, res) => {
         `;
 
         const valores = [
-            safeData.nombres, safeData.apellidos, safeData.documento, safeData.telefono,
-            safeData.direccion, safeData.correo, safeData.fechaNacimiento,
-            safeData.afiliacionesFamiliares, safeData.epsNombre, safeData.arlNombre,
-            safeData.afpNombre, safeData.ccfNombre,safeData.otroSi, fullName
+            safeData.nombres, 
+            safeData.apellidos, 
+            safeData.documento, 
+            safeData.telefono,
+            safeData.direccion, 
+            safeData.correo, 
+            safeData.fechaNacimiento,
+            safeData.afiliacionesFamiliares, 
+            safeData.epsNombre, 
+            safeData.arlNombre,
+            safeData.afpNombre, 
+            safeData.ccfNombre,
+            // AQUÍ ESTABA EL ERROR:
+            // Antes tenías 'safeData.otroSi' aquí, empujando a 'fullName' fuera.
+            // Ahora pasamos directamente la carpeta.
+            fullName 
         ];
 
         db.query(sql, valores, async (err) => {
-            if (err) return res.status(500).json({ status: 'error', message: err.message });
+            if (err) {
+                console.error("Error SQL:", err);
+                return res.status(500).json({ status: 'error', message: 'Error guardando en base de datos: ' + err.message });
+            }
 
+            // Enviar correo
             try {
                 await correoOutlook.sendMail({
                     from: "eagudelo@woden.com.co",
                     to: safeData.correo,
-                    subject: "Registro exitoso - WMS",
-                    html: `<h3>Hola ${safeData.nombres},</h3><p>Documentos recibidos y almacenados en la nube.</p>`
+                    subject: "Registro exitoso",
+                    html: `<h3>Hola ${safeData.nombres},</h3><p>Documentos recibidos y almacenados correctamente.</p>`
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Error correo:", e); }
 
             res.status(200).json({ status: 'ok', message: 'Registro exitoso.' });
         });

@@ -245,7 +245,7 @@ router.post("/enviar", upload.any(), (req, res) => {
             await correoOutlook.sendMail({
                 from: "eagudelo@woden.com.co",
                 to: safeData.correo,
-                subject: "Registro exitoso - WMS",
+                subject: "Registro exitoso",
                 html: `<h3>Hola ${safeData.nombres},</h3><p>Documentos recibidos.</p>`
             });
         } catch (e) { console.error(e); }
@@ -278,7 +278,7 @@ router.post("/solicitar-subsanar", (req, res) => {
                 await correoOutlook.sendMail({
                     from: "eagudelo@woden.com.co",
                     to: usuario.correo,
-                    subject: "⚠️ Acción Requerida: Corregir Documentos - WMS",
+                    subject: "⚠️ Acción Requerida: Corregir Documentos",
                     html: `
                         <div style="font-family: Arial, padding: 20px;">
                             <h3 style="color: #d35400;">Hola ${usuario.nombres},</h3>

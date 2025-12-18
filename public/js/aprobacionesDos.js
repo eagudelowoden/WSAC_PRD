@@ -217,6 +217,16 @@ createApp({
       usuarios: [],
       selectedId: "",
       usuarioActual: null,
+      filtroEstado: "todos",
+      filtroPendiente: "pendientes",
+      filtroEstadoOptions: [
+        { value: "todos", text: "Todos" },
+        { value: "hoy", text: "Registrados Hoy" },
+        { value: "pendientes", text: "Pendientes" },
+        { value: "aprobados", text: "Aprobados" },
+      ],
+      aprobacion: "",
+      busqueda: "",
 
       form: {
         cargo: "",
@@ -234,14 +244,58 @@ createApp({
   },
   computed: {
     usuariosFiltrados() {
-      if (!this.busqueda) return this.usuarios;
-      const texto = this.busqueda.toLowerCase();
-      return this.usuarios.filter(
-        (u) =>
-          (u.nombres && u.nombres.toLowerCase().includes(texto)) ||
-          (u.apellidos && u.apellidos.toLowerCase().includes(texto)) ||
-          (u.documento && u.documento.includes(texto))
-      );
+      let lista = this.usuarios;
+
+      // -----------------------------------------------------
+      // 1. FILTRO POR ESTADO (Todos vs Hoy)
+      // -----------------------------------------------------
+      if (this.filtroEstado === "hoy") {
+        const fechaHoy = new Date();
+
+        const hoyString =
+          fechaHoy.getFullYear() +
+          "-" +
+          String(fechaHoy.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(fechaHoy.getDate()).padStart(2, "0");
+
+        lista = lista.filter((u) => {
+          if (!u.fechaRegistro) return false;
+          return u.fechaRegistro.split("T")[0] === hoyString;
+        });
+      } else if (this.filtroEstado === "todos") {
+        lista = lista.filter((u) => {
+          const estado = u.aprobacion;
+
+         
+          console.log(`User: ${u.nombres} - Aprobacion: ${estado}`);
+
+          return (
+            estado == null || estado === "" || estado == "0" || estado == "1"
+          );
+        });
+      } else if (this.filtroEstado === "pendientes") {
+        lista = lista.filter((u) => u.aprobacion === "1");
+      }
+
+      // -----------------------------------------------------
+      // 2. FILTRO POR BÚSQUEDA
+      // -----------------------------------------------------
+      if (this.busqueda) {
+        const texto = this.busqueda.toLowerCase().trim();
+        lista = lista.filter((u) => {
+          const nombre = (u.nombres || "").toLowerCase();
+          const apellido = (u.apellidos || "").toLowerCase();
+          const cedula = (u.documento || "").toString();
+          return (
+            nombre.includes(texto) ||
+            apellido.includes(texto) ||
+            cedula.includes(texto)
+          );
+        });
+      }
+
+      return lista;
     },
   },
   mounted() {
@@ -299,6 +353,7 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
+        userData.aprobacion = userData.aprobacion;
 
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
@@ -313,6 +368,8 @@ createApp({
         this.form.otroSi = userData.otroSi || "";
         this.form.segmento_contrato = userData.segmento_contrato || "";
         const pdfGuardado = userData.descripcion_cargo || "";
+
+        console.log("Usuario cargado:", this.usuarioActual.aprobacion);
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)

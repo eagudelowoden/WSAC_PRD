@@ -4,7 +4,6 @@ const API_URL = "/api";
 const Router_URL = "/routes";
 const Pdf = "/servicePdf";
 
-
 // =======================================================
 // 1. DEFINIMOS LA LÓGICA DE SEGMENTOS AQUÍ MISMO
 // =======================================================
@@ -139,52 +138,64 @@ const SegmentosMixin = {
         Swal.fire("Error", "No se pudo borrar el archivo", "error");
       }
     },
-async vincularPdfAlExpediente() {
-    // Validaciones iniciales
-    if (!this.usuarioActual || !this.form.descripcion_cargo) {
-        Swal.fire("Atención", "Seleccione primero la descripción del cargo arriba.", "warning");
+    async vincularPdfAlExpediente() {
+      // Validaciones iniciales
+      if (!this.usuarioActual || !this.form.descripcion_cargo) {
+        Swal.fire(
+          "Atención",
+          "Seleccione primero la descripción del cargo arriba.",
+          "warning"
+        );
         return;
-    }
+      }
 
-    Swal.fire({
+      Swal.fire({
         title: "Vinculando documento...",
         text: `Copiando ${this.form.descripcion_cargo} al expediente de S3`,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
-    });
+      });
 
-    try {
+      try {
         const response = await fetch("/api/vincular-cargo-pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                idColaborador: this.usuarioActual.id,
-                archivoPdf: this.form.descripcion_cargo,
-                segmento: this.form.segmento_contrato // Importante para saber en qué subcarpeta de S3 buscar
-            }),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            idColaborador: this.usuarioActual.id,
+            archivoPdf: this.form.descripcion_cargo,
+            segmento: this.form.segmento_contrato, // Importante para saber en qué subcarpeta de S3 buscar
+          }),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            Swal.fire({
-                icon: "success",
-                title: "¡Vinculado!",
-                text: "La descripción de cargo ahora es parte del expediente del colaborador.",
-                timer: 2000,
-                showConfirmButton: false,
-            });
+          Swal.fire({
+            icon: "success",
+            title: "¡Vinculado!",
+            text: "La descripción de cargo ahora es parte del expediente del colaborador.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
 
-            // Refrescamos la lista de archivos (columna derecha) para que aparezca el nuevo PDF
-            await this.cargarUsuarioDesdeBD(); 
+          // Refrescamos la lista de archivos (columna derecha) para que aparezca el nuevo PDF
+          await this.cargarUsuarioDesdeBD();
         } else {
-            Swal.fire("Error", data.message || "No se pudo copiar el archivo", "error");
+          Swal.fire(
+            "Error",
+            data.message || "No se pudo copiar el archivo",
+            "error"
+          );
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error en vinculación:", error);
-        Swal.fire("Error", "No hay conexión con el servicio de documentos.", "error");
-    }
-},
+        Swal.fire(
+          "Error",
+          "No hay conexión con el servicio de documentos.",
+          "error"
+        );
+      }
+    },
     // --- B. GENERADOR DE WORD ---
     async cargarPlantillas() {
       try {
@@ -198,59 +209,63 @@ async vincularPdfAlExpediente() {
 
     // Dentro de methods en admin.js
 
-async generarDocumentoWord() {
-    if (!this.usuarioActual || !this.form.descripcion_cargo) {
-        Swal.fire("Atención", "Selecciona primero la Descripción del Cargo en el paso anterior.", "warning");
+    async generarDocumentoWord() {
+      if (!this.usuarioActual || !this.form.descripcion_cargo) {
+        Swal.fire(
+          "Atención",
+          "Selecciona primero la Descripción del Cargo en el paso anterior.",
+          "warning"
+        );
         return;
-    }
+      }
 
-    this.docGenerado = null;
+      this.docGenerado = null;
 
-    Swal.fire({
+      Swal.fire({
         title: "Procesando...",
         text: "Generando contrato basado en " + this.form.descripcion_cargo,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
-    });
+      });
 
-    try {
+      try {
         // --- AQUÍ ESTÁ EL TRUCO ---
         // Si el archivo es "GERENTE.pdf", esto lo convierte en solo "GERENTE"
         // para que el backend busque "GERENTE.docx"
         const nombreLimpio = this.form.descripcion_cargo.replace(".pdf", "");
 
         const response = await fetch("/api/docs/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                idColaborador: this.usuarioActual.id,
-                nombrePlantilla: nombreLimpio, // Enviamos el nombre sin el .pdf
-                archivoCargoPDF: this.form.descripcion_cargo, // Enviamos el PDF completo para la copia
-                segmento: this.form.segmento_contrato
-            }),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            idColaborador: this.usuarioActual.id,
+            nombrePlantilla: nombreLimpio, // Enviamos el nombre sin el .pdf
+            archivoCargoPDF: this.form.descripcion_cargo, // Enviamos el PDF completo para la copia
+            segmento: this.form.segmento_contrato,
+          }),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            Swal.fire({
-                icon: "success",
-                title: "¡Expediente Creado!",
-                text: "Se ha vinculado la descripción y generado el contrato.",
-                timer: 2000,
-                showConfirmButton: false,
-            });
+          Swal.fire({
+            icon: "success",
+            title: "¡Expediente Creado!",
+            text: "Se ha vinculado la descripción y generado el contrato.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
 
-            await this.cargarUsuarioDesdeBD();
+          await this.cargarUsuarioDesdeBD();
         } else {
-            // Aquí es donde te salía "Plantilla no encontrada"
-            Swal.fire("Error", data.message || "No se pudo procesar", "error");
+          // Aquí es donde te salía "Plantilla no encontrada"
+          Swal.fire("Error", data.message || "No se pudo procesar", "error");
         }
-    } catch (error) {
+      } catch (error) {
         console.error(error);
         Swal.fire("Error", "Error de red al conectar con S3", "error");
-    }
-}
+      }
+    },
   },
 };
 
@@ -263,11 +278,10 @@ createApp({
 
   data() {
     return {
-      busqueda: "",
       usuarios: [],
       selectedId: "",
       usuarioActual: null,
-      filtroEstado: 'todos',
+      filtroEstado: "todos",
       busqueda: "",
 
       form: {
@@ -285,56 +299,60 @@ createApp({
     };
   },
   computed: {
-usuariosFiltrados() {
-    let lista = this.usuarios;
+    usuariosFiltrados() {
+      let lista = this.usuarios;
 
-    // -----------------------------------------------------
-    // 1. FILTRO POR ESTADO / FECHA
-    // -----------------------------------------------------
-    if (this.filtroEstado === 'hoy') {
+      // -----------------------------------------------------
+      // 1. FILTRO POR ESTADO / FECHA
+      // -----------------------------------------------------
+      if (this.filtroEstado === "hoy") {
         // CORRECCIÓN: Usamos fecha LOCAL, no UTC (toISOString falla por la tarde)
         const fechaHoy = new Date();
         // Formato YYYY-MM-DD local manual para asegurar compatibilidad
-        const hoyString = fechaHoy.getFullYear() + '-' + 
-                         String(fechaHoy.getMonth() + 1).padStart(2, '0') + '-' + 
-                         String(fechaHoy.getDate()).padStart(2, '0');
+        const hoyString =
+          fechaHoy.getFullYear() +
+          "-" +
+          String(fechaHoy.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(fechaHoy.getDate()).padStart(2, "0");
 
-        lista = lista.filter(u => {
-            if (!u.fechaRegistro) return false;
-            // Tomamos solo la parte YYYY-MM-DD de la fecha del usuario
-            const fechaUser = u.fechaRegistro.split('T')[0]; 
-            return fechaUser === hoyString;
-        });
-
-    } else if (this.filtroEstado === 'pendientes') {
-        // Mostrar solo: vacíos, null, 0 o 1. (Oculta aprobados si son 2)
-        lista = lista.filter(u => {
-            const estado = u.aprobacion; 
-            // La comparación la hacemos flexible (==) por si viene como texto "0" o número 0
-            return estado == null || estado == '' || estado == 0 || estado == 1;
-        });
-    }
-
-    // -----------------------------------------------------
-    // 2. FILTRO POR BÚSQUEDA (Texto)
-    // -----------------------------------------------------
-    if (this.busqueda) {
-        const texto = this.busqueda.toLowerCase().trim(); // Trim quita espacios accidentales
-        
         lista = lista.filter((u) => {
-            // BLINDAJE: Usamos (u.campo || '') para que no falle si el campo es null
-            const nombre = (u.nombres || '').toLowerCase();
-            const apellido = (u.apellidos || '').toLowerCase();
-            const cedula = (u.documento || '').toString(); // Convertimos a string por si acaso
-
-            return nombre.includes(texto) || 
-                   apellido.includes(texto) || 
-                   cedula.includes(texto);
+          if (!u.fechaRegistro) return false;
+          // Tomamos solo la parte YYYY-MM-DD de la fecha del usuario
+          const fechaUser = u.fechaRegistro.split("T")[0];
+          return fechaUser === hoyString;
         });
-    }
-    
-    return lista;
-},
+      } else if (this.filtroEstado === "pendientes") {
+        // Mostrar solo: vacíos, null, 0 o 1. (Oculta aprobados si son 2)
+        lista = lista.filter((u) => {
+          const estado = u.aprobacion;
+          // La comparación la hacemos flexible (==) por si viene como texto "0" o número 0
+          return estado == null || estado == "" || estado == 0 || estado == 1;
+        });
+      }
+
+      // -----------------------------------------------------
+      // 2. FILTRO POR BÚSQUEDA (Texto)
+      // -----------------------------------------------------
+      if (this.busqueda) {
+        const texto = this.busqueda.toLowerCase().trim(); // Trim quita espacios accidentales
+
+        lista = lista.filter((u) => {
+          // BLINDAJE: Usamos (u.campo || '') para que no falle si el campo es null
+          const nombre = (u.nombres || "").toLowerCase();
+          const apellido = (u.apellidos || "").toLowerCase();
+          const cedula = (u.documento || "").toString(); // Convertimos a string por si acaso
+
+          return (
+            nombre.includes(texto) ||
+            apellido.includes(texto) ||
+            cedula.includes(texto)
+          );
+        });
+      }
+
+      return lista;
+    },
   },
   mounted() {
     this.obtenerListaUsuarios();
