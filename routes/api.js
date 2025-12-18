@@ -231,7 +231,7 @@ router.post("/enviar", upload.any(), async (req, res) => {
             safeData.nombres, safeData.apellidos, safeData.documento, safeData.telefono,
             safeData.direccion, safeData.correo, safeData.fechaNacimiento,
             safeData.afiliacionesFamiliares, safeData.epsNombre, safeData.arlNombre,
-            safeData.afpNombre, safeData.ccfNombre, fullName
+            safeData.afpNombre, safeData.ccfNombre,safeData.otroSi, fullName
         ];
 
         db.query(sql, valores, async (err) => {
@@ -358,7 +358,8 @@ router.put("/usuario/:id", async (req, res) => { // OJO: Ahora es async
                 observaciones = ?, 
                 segmento_contrato = ?, 
                 descripcion_cargo = ?, 
-                aprobacion = ? 
+                aprobacion = ?,
+                otro_si = ?
             WHERE id = ?
         `;
 
@@ -372,6 +373,7 @@ router.put("/usuario/:id", async (req, res) => { // OJO: Ahora es async
             data.segmento_contrato,
             data.descripcion_cargo,
             data.aprobacion,
+            data.otroSi,
             id
         ];
 

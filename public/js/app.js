@@ -73,6 +73,7 @@ createApp({
                 userData.arlNombre = userData.arl;
                 userData.afpNombre = userData.afp;
                 userData.ccfNombre = userData.ccf;
+                userData.otroSi = userData.otro_si;
 
                 // Formatear fecha para que el input type="date" la lea bien (YYYY-MM-DD)
                 if (userData.fechaNacimiento) {

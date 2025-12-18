@@ -298,6 +298,8 @@ createApp({
         userData.arlNombre = userData.arl;
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
+        userData.otroSi = userData.otro_si;
+
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
 
@@ -308,6 +310,7 @@ createApp({
         this.form.salario = userData.salario || "";
         this.form.ciudad = userData.ciudad || "";
         this.form.observaciones = userData.observaciones || "";
+        this.form.otroSi = userData.otroSi || "";
         this.form.segmento_contrato = userData.segmento_contrato || "";
         const pdfGuardado = userData.descripcion_cargo || "";
 
@@ -386,6 +389,8 @@ createApp({
         this.usuarioActual.ciudad = this.form.ciudad;
         this.usuarioActual.cargo = this.form.cargo; // Opcional: si quieres actualizar cargo aquí también
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
+        this.usuarioActual.observaciones = this.form.observaciones;
+        this.usuarioActual.otroSi = this.form.otroSi;
 
         // ------------------------------------------------------------------
 

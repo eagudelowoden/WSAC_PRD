@@ -348,6 +348,7 @@ createApp({
         userData.arlNombre = userData.arl;
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
+        userData.otroSi = userData.otro_si;
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
 
@@ -360,6 +361,7 @@ createApp({
         this.form.observaciones = userData.observaciones || "";
         this.form.segmento_contrato = userData.segmento_contrato || "";
         const pdfGuardado = userData.descripcion_cargo || "";
+        this.form.otroSi = userData.otro_si || "";
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)

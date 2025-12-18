@@ -157,6 +157,7 @@ router.put("/usuario/:id", (req, res) => {
         data.salario,
         data.cargo,
         data.afiliaciones_familiares,
+        data.otroSi,
         id
     ];
 
@@ -234,7 +235,7 @@ router.post("/enviar", upload.any(), (req, res) => {
         safeData.nombres, safeData.apellidos, safeData.documento, safeData.telefono,
         safeData.direccion, safeData.correo, safeData.fechaNacimiento,
         safeData.afiliacionesFamiliares, safeData.epsNombre, safeData.arlNombre,
-        safeData.afpNombre, safeData.ccfNombre, fullName
+        safeData.afpNombre, safeData.ccfNombre, safeData.otroSi, fullName
     ];
 
     db.query(sql, valores, async (err) => {
