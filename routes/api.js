@@ -268,7 +268,7 @@ router.post("/enviar", upload.any(), async (req, res) => {
                 console.error("Error SQL:", err);
                 return res.status(500).json({ status: 'error', message: 'Error guardando en base de datos: ' + err.message });
             }
-
+            //Correcciones generales
             // Enviar correo
             try {
                 await correoOutlook.sendMail({

@@ -60,6 +60,7 @@ router.post('/generate', async (req, res) => {
         console.error("Error generando:", error);
         res.status(500).json({ status: 'error', message: error.toString() });
     }
+    //Corecciones generales
 });
 
 // ============================================================
