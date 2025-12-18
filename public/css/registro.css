@@ -1,35 +1,154 @@
-
-    body { background: #f5f7fa; }
-    .container-box {
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,.1);
-        margin-top: 40px;
-    }
-    h3.section-title {
-        border-left: 5px solid #0d6efd;
-        padding-left: 10px;
-        margin-top: 30px;
-    }
-/* --- AGREGAR AL FINAL DE TU CSS --- */
-
-/* Animación suave para el selector */
-.animate-fade {
-    animation: slideFade 0.3s ease-out;
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #858796;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --input-bg: #f8f9fa;
+    --border-radius: 12px;
 }
 
+body {
+    background-color: var(--bg-color);
+    font-family: 'Poppins', sans-serif;
+    color: #444;
+    padding-bottom: 40px;
+}
+
+/* Contenedor Principal */
+.container-box {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-top: 50px;
+    border-top: 5px solid var(--primary-color);
+    animation: slideFade 0.6s ease-out;
+}
+
+h2 {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+/* Títulos de Sección */
+.section-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.2rem;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 15px;
+    margin: 30px 0 20px 0;
+    background: linear-gradient(90deg, rgba(78, 115, 223, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 0 5px 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Etiquetas */
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #5a5c69;
+    margin-bottom: 8px;
+}
+
+/* Inputs de Texto y Selects */
+.form-control {
+    background-color: var(--input-bg);
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
+}
+
+/* Inputs de Archivo (Estilo moderno tipo Dropzone) */
+input[type="file"].form-control {
+    padding: 10px;
+    border: 2px dashed #d1d3e2;
+    background-color: #fafbfc;
+    height: auto;
+    cursor: pointer;
+}
+
+input[type="file"].form-control:hover {
+    background-color: #f1f2f6;
+    border-color: var(--primary-color);
+}
+
+/* Botón de envío */
+.btn-submit {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+    padding: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 50px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+}
+
+/* Animación */
 @keyframes slideFade {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Ajuste para el switch de Bootstrap */
-.form-check-input:checked {
-    background-color: var(--primary);
-    border-color: var(--primary);
+/* Responsive */
+@media (max-width: 768px) {
+    .container-box {
+        padding: 20px;
+        margin-top: 20px;
+    }
 }
 
-.form-check-input:focus {
-    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+/* Estilos para la lista de archivos acumulados */
+.file-list-container {
+    margin-top: 10px;
+}
+
+.file-item {
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    animation: slideFade 0.3s ease;
+}
+
+.file-item .btn-remove {
+    color: #e74a3b;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.file-item .btn-remove:hover {
+    color: #c0392b;
 }

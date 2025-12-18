@@ -15,6 +15,51 @@ const RUTA_SEGMENTOS = process.env.SEGMENTOS;
 const URL_BASE = process.env.URL_BASE;
 const fsPromises = require('fs').promises; 
 const { vincularDescripcionCargo } = require("../services/cargoPdfService");
+const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+
+const uploadSeguro = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
+    fileFilter: (req, file, cb) => {
+        const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        if (ALLOWED_TYPES.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error(`Tipo de archivo incorrecto: ${file.originalname}`));
+        }
+    }
+});
+// FUNCIÓN AUXILIAR: Detectar el ADN real del archivo (Magic Numbers)
+const validarFirmaReal = (buffer) => {
+    if (!buffer || buffer.length < 4) return false;
+    
+    // Convertimos los primeros 4 bytes a Hexadecimal
+    const hex = buffer.toString('hex', 0, 4).toUpperCase();
+    
+    // Firmas conocidas:
+    // FFD8FF = JPG/JPEG
+    // 89504E47 = PNG
+    // 25504446 = PDF (%PDF)
+    
+    if (hex.startsWith('FFD8FF')) return true;   // Es JPG
+    if (hex.startsWith('89504E47')) return true; // Es PNG
+    if (hex.startsWith('25504446')) return true; // Es PDF
+    
+    return false; // Es un impostor (EXE, JS, PHP, SH, etc.)
+};
+const uploadMiddleware = uploadSeguro.fields([
+    { name: 'cedula', maxCount: 1 },
+    { name: 'estudios', maxCount: 5 },
+    { name: 'laborales', maxCount: 5 },
+    { name: 'cesantias', maxCount: 1 },
+    { name: 'cuenta', maxCount: 1 },
+    { name: 'epsDocs', maxCount: 5 },
+    { name: 'referencias', maxCount: 2 },
+    { name: 'agenteCampo', maxCount: 5 },
+    { name: 'hv', maxCount: 1 },
+    { name: 'habeas', maxCount: 1 },
+    { name: 'consentimiento', maxCount: 1 }
+]);
 
 
 // ==========================================
@@ -191,13 +236,33 @@ router.get("/archivos/:carpeta", async (req, res) => {
 // ==========================================
 // 4. RUTA PRINCIPAL DE REGISTRO (/enviar)
 // ==========================================
-router.post("/enviar", upload.any(), async (req, res) => {
+router.post("/enviar", (req, res, next) => {
+    // Middleware wrapper para capturar errores de Multer limpiamente
+    uploadMiddleware(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({ status: 'error', message: `Error subiendo archivos: ${err.message}` });
+        } else if (err) {
+            return res.status(400).json({ status: 'error', message: err.message });
+        }
+        next();
+    });
+}, async (req, res) => {
+
     try {
         const data = req.body;
-        
-        // 1. VALIDACIÓN PREVIA: Si no hay archivos, detenemos todo.
-        // Esto soluciona tu problema: Si no hay archivos, no intentamos crear "carpetas" vacías ni registros rotos.
-        if (!req.files || req.files.length === 0) {
+
+        // --- TRUCO: Aplanar archivos ---
+        // Como usamos upload.fields(), req.files es un Objeto { cedula: [...], hv: [...] }
+        // Lo convertimos a un Array simple para usar tu lógica de S3 existente.
+        let filesArray = [];
+        if (req.files) {
+            Object.values(req.files).forEach(files => {
+                filesArray = filesArray.concat(files);
+            });
+        }
+
+        // 1. VALIDACIÓN
+        if (filesArray.length === 0) {
             return res.status(400).json({ status: 'error', message: 'Debes adjuntar al menos un documento.' });
         }
 
@@ -205,25 +270,22 @@ router.post("/enviar", upload.any(), async (req, res) => {
             ...data,
             afiliacionesFamiliares: data.afiliacionesFamiliares || '',
             observaciones: data.observaciones || '',
-            otroSi: data.otroSi || '' // Aseguramos que exista
+            otroSi: data.otroSi || '' 
         };
 
-        // SUGERENCIA: Reemplaza espacios por guiones bajos para evitar problemas en URLs de S3
+        // Sanitizar nombre de carpeta (reemplazar espacios por guiones bajos)
         const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, '_');
-        
-        // Usamos folderName en lugar de fullName para consistencia
         const fullName = folderName; 
 
-        // 2. SUBIR A S3
-        const uploadPromises = req.files.map(file => {
-            // Limpiamos el nombre del archivo original también para evitar caracteres raros
+        // 2. SUBIR A S3 (Usamos filesArray que creamos arriba)
+        const uploadPromises = filesArray.map(file => {
             const cleanOriginalName = file.originalname.replace(/\s+/g, '_');
             const fileName = `${Date.now()}_${cleanOriginalName}`;
             
-            const key = `${folderName}/${fileName}`; // Ej: "Juan_Perez/123456_cedula.pdf"
+            const key = `${folderName}/${fileName}`; 
 
             const command = new PutObjectCommand({
-                Bucket: BUCKET_NAME, // Asegúrate que esta variable esté definida arriba
+                Bucket: BUCKET_NAME,
                 Key: key,
                 Body: file.buffer,
                 ContentType: file.mimetype
@@ -233,10 +295,7 @@ router.post("/enviar", upload.any(), async (req, res) => {
         
         await Promise.all(uploadPromises);
 
-        // 3. GUARDAR EN BASE DE DATOS (Corregido el orden de valores)
-        // NOTA: He eliminado 'otroSi' del array porque no está en tu lista de columnas INSERT.
-        // Si necesitas guardar 'otroSi', debes agregar la columna en el INSERT primero.
-        
+        // 3. GUARDAR EN BASE DE DATOS
         const sql = `
             INSERT INTO usuarios (
                 nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
@@ -257,27 +316,24 @@ router.post("/enviar", upload.any(), async (req, res) => {
             safeData.arlNombre,
             safeData.afpNombre, 
             safeData.ccfNombre,
-            // AQUÍ ESTABA EL ERROR:
-            // Antes tenías 'safeData.otroSi' aquí, empujando a 'fullName' fuera.
-            // Ahora pasamos directamente la carpeta.
-            fullName 
+            fullName // Guardamos la carpeta correctamente
         ];
 
         db.query(sql, valores, async (err) => {
             if (err) {
                 console.error("Error SQL:", err);
-                return res.status(500).json({ status: 'error', message: 'Error guardando en base de datos: ' + err.message });
+                return res.status(500).json({ status: 'error', message: 'Error guardando en BD: ' + err.message });
             }
-            //Correcciones generales
-            // Enviar correo
+
+            // Enviar correo de confirmación
             try {
                 await correoOutlook.sendMail({
                     from: "eagudelo@woden.com.co",
                     to: safeData.correo,
                     subject: "Registro exitoso",
-                    html: `<h3>Hola ${safeData.nombres},</h3><p>Documentos recibidos y almacenados correctamente.</p>`
+                    html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos y almacenados correctamente.</p>`
                 });
-            } catch (e) { console.error("Error correo:", e); }
+            } catch (e) { console.error("Error enviando correo:", e); }
 
             res.status(200).json({ status: 'ok', message: 'Registro exitoso.' });
         });
@@ -287,49 +343,6 @@ router.post("/enviar", upload.any(), async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Error procesando solicitud' });
     }
 });
-
-// ==========================================
-// 5. RUTAS DE GESTIÓN (PUT / DELETE)
-// ==========================================
-
-// Actualizar usuario
-// UBICACIÓN: routes/api.js -> router.put("/usuario/:id")
-
-// router.put("/usuario/:id", (req, res) => {
-//     const id = req.params.id;
-//     const data = req.body;
-
-//     const sql = `
-//         UPDATE usuarios SET 
-//             nombres = ?, apellidos = ?, documento = ?, telefono = ?, direccion = ?, 
-//             correo = ?, fechaNacimiento = ?, eps = ?, arl = ?, afp = ?, ccf = ?, 
-//             ciudad = ?, salario = ?, cargo = ?, afiliaciones_familiares = ?,
-//             observaciones = ?, 
-//             segmento_contrato = ?, 
-//             descripcion_cargo = ?, 
-//             aprobacion = ? 
-//         WHERE id = ?
-//     `;
-
-//     const valores = [
-//         data.nombres, data.apellidos, data.documento, data.telefono, data.direccion,
-//         data.correo, data.fechaNacimiento, data.epsNombre, data.arlNombre, 
-//         data.afpNombre, data.ccfNombre, data.ciudad, data.salario, 
-//         data.cargo, data.afiliaciones_familiares,
-//         // ESTOS SON LOS CAMPOS QUE NECESITAS PARA APROBAR:
-//         data.observaciones,
-//         data.segmento_contrato,
-//         data.descripcion_cargo,
-//         data.aprobacion, // Aquí llegará el 1
-//         id
-//     ];
-
-//     db.query(sql, valores, (err, result) => {
-//         if (err) return res.status(500).json({ status: 'error', message: err.message });
-//         res.json({ status: 'ok', message: 'Datos actualizados correctamente' });
-//     });
-// });
-// UBICACIÓN: routes/api.js (Reemplaza router.put completo)
 
 router.put("/usuario/:id", async (req, res) => { // OJO: Ahora es async
     const id = req.params.id;

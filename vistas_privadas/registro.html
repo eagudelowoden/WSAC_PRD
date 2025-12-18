@@ -1,294 +1,265 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de Documentos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Documentos</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/css/registro.css">
 
-<style>
-    :root {
-        --primary-color: #4e73df;
-        --secondary-color: #858796;
-        --bg-color: #f3f4f6;
-        --card-bg: #ffffff;
-        --input-bg: #f8f9fa;
-        --border-radius: 12px;
-    }
 
-    body {
-        background-color: var(--bg-color);
-        font-family: 'Poppins', sans-serif;
-        color: #444;
-        padding-bottom: 40px;
-    }
-
-    /* Contenedor Principal */
-    .container-box {
-        background: var(--card-bg);
-        padding: 40px;
-        border-radius: var(--border-radius);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        margin-top: 50px;
-        border-top: 5px solid var(--primary-color);
-        animation: slideFade 0.6s ease-out;
-    }
-
-    h2 {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 30px;
-    }
-
-    /* Títulos de Sección */
-    .section-title {
-        color: var(--primary-color);
-        font-weight: 600;
-        font-size: 1.2rem;
-        border-left: 4px solid var(--primary-color);
-        padding-left: 15px;
-        margin: 30px 0 20px 0;
-        background: linear-gradient(90deg, rgba(78, 115, 223, 0.05) 0%, rgba(255,255,255,0) 100%);
-        padding-top: 5px;
-        padding-bottom: 5px;
-        border-radius: 0 5px 5px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* Etiquetas */
-    .form-label {
-        font-weight: 500;
-        font-size: 0.9rem;
-        color: #5a5c69;
-        margin-bottom: 8px;
-    }
-
-    /* Inputs de Texto y Selects */
-    .form-control {
-        background-color: var(--input-bg);
-        border: 1px solid #e3e6f0;
-        border-radius: 8px;
-        padding: 12px 15px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        background-color: #fff;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
-    }
-
-    /* Inputs de Archivo (Estilo moderno tipo Dropzone) */
-    input[type="file"].form-control {
-        padding: 10px;
-        border: 2px dashed #d1d3e2;
-        background-color: #fafbfc;
-        height: auto;
-        cursor: pointer;
-    }
-    
-    input[type="file"].form-control:hover {
-        background-color: #f1f2f6;
-        border-color: var(--primary-color);
-    }
-
-    /* Botón de envío */
-    .btn-submit {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        border: none;
-        padding: 15px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        border-radius: 50px;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
-    }
-
-    /* Animación */
-    @keyframes slideFade {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .container-box {
-            padding: 20px;
-            margin-top: 20px;
-        }
-    }
-</style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="container-box">
+    <div class="container">
+        <div class="container-box">
 
-        <h2 class="text-center">
-            <i class="bi bi-folder2-open text-primary"></i> Registro de Documentos
-        </h2>
-        <p class="text-center text-muted mb-4">Por favor completa la información y adjunta los soportes requeridos.</p>
+            <h2 class="text-center">
+                <i class="bi bi-folder2-open text-primary"></i> Registro de Documentos
+            </h2>
+            <p class="text-center text-muted mb-4">Por favor completa la información y adjunta los soportes requeridos.
+            </p>
 
-        <form id="formularioRegistro" action="/api/enviar" method="POST" enctype="multipart/form-data">
+            <form id="formularioRegistro" action="/api/enviar" method="POST" enctype="multipart/form-data">
 
-            <div class="section-title">
-                <i class="bi bi-person-lines-fill"></i> Datos Personales
-            </div>
-
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Nombres Completos *</label>
-                    <input type="text" class="form-control" name="nombres" placeholder="Ej: Juan Carlos" required>
+                <div class="section-title">
+                    <i class="bi bi-person-lines-fill"></i> Datos Personales
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Apellidos Completos *</label>
-                    <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez" required>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres Completos *</label>
+                        <input type="text" class="form-control" name="nombres" placeholder="Ej: Juan Carlos" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos Completos *</label>
+                        <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez"
+                            required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Documento de Identidad *</label>
+                        <input type="text" class="form-control" name="documento" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Número de teléfono *</label>
+                        <input type="text" class="form-control" name="telefono" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Correo Electrónico *</label>
+                        <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com" required>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Dirección de Residencia *</label>
+                        <input type="text" class="form-control" name="direccion" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha de Nacimiento *</label>
+                        <input type="date" class="form-control" name="fechaNacimiento" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">EPS *</label>
+                        <input type="text" class="form-control" name="epsNombre" placeholder="Ej: Sanitas" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">ARL *</label>
+                        <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">AFP *</label>
+                        <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">CCF *</label>
+                        <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" required>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Documento de Identidad *</label>
-                    <input type="text" class="form-control" name="documento" required>
+                <div class="section-title mt-5">
+                    <i class="bi bi-cloud-arrow-up-fill"></i> Carga de Documentos
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Número de teléfono *</label>
-                    <input type="text" class="form-control" name="telefono" required>
+                <div class="alert alert-light border-0 shadow-sm mb-4" role="alert">
+                    <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos
+                        sean legibles (PDF o Imagen).</small>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Correo Electrónico *</label>
-                    <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com" required>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Cédula (150%) *</label>
+                        <input type="file" class="form-control" name="cedula" accept=".pdf, .jpg, .jpeg, .png" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Certificados estudio / Grado (Max 5)</label>
+                        <input type="file" class="form-control" name="estudios" id="input-estudios" multiple
+                            onchange="manejarArchivos(this, 'lista-estudios', 5)">
+                        <div id="lista-estudios" class="file-list-container"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Certificados laborales</label>
+                        <input type="file" class="form-control" name="laborales">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Fondo de cesantías y pensión</label>
+                        <input type="file" class="form-control" name="cesantias">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Certificado Bancario *</label>
+                        <input type="file" class="form-control" name="cuenta" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Certificados EPS (Max 5) *</label>
+                        <input type="file" class="form-control" name="epsDocs" id="input-epsDocs" multiple required
+                            onchange="manejarArchivos(this, 'lista-epsDocs', 5)">
+                        <div id="lista-epsDocs" class="file-list-container"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">2 Referencias Personales</label>
+                        <input type="file" class="form-control" name="referencias" multiple>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Agente de campo (SOAT, Licencia...)</label>
+                        <input type="file" class="form-control" name="agenteCampo" multiple>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Hoja de Vida *</label>
+                        <input type="file" class="form-control" name="hv" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">HABEAS DATA *</label>
+                        <input type="file" class="form-control" name="habeas" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">CONSENTIMIENTO INFORMADO *</label>
+                        <input type="file" class="form-control" name="consentimiento" required>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <label class="form-label">¿Afiliación de familiares?</label>
+                        <input type="text" class="form-control" name="afiliacionesFamiliares"
+                            placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required>
+                    </div>
                 </div>
 
-                <div class="col-md-8">
-                    <label class="form-label">Dirección de Residencia *</label>
-                    <input type="text" class="form-control" name="direccion" required>
-                </div>
+                <hr class="my-5">
 
-                <div class="col-md-4">
-                    <label class="form-label">Fecha de Nacimiento *</label>
-                    <input type="date" class="form-control" name="fechaNacimiento" required>
-                </div>
+                <button type="submit" class="btn btn-primary btn-submit w-100">
+                    <i class="bi bi-send-fill me-2"></i> Enviar Formulario
+                </button>
 
-                <div class="col-md-3">
-                    <label class="form-label">EPS *</label>
-                    <input type="text" class="form-control" name="epsNombre" placeholder="Ej: Sanitas" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">ARL *</label>
-                    <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">AFP *</label>
-                    <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">CCF *</label>
-                    <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" required>
-                </div>
-            </div>
-
-            <div class="section-title mt-5">
-                <i class="bi bi-cloud-arrow-up-fill"></i> Carga de Documentos
-            </div>
-            
-            <div class="alert alert-light border-0 shadow-sm mb-4" role="alert">
-                <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos sean legibles (PDF o Imagen).</small>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label">Cédula (150%) *</label>
-                    <input type="file" class="form-control" name="cedula" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Certificados estudio / Grado (Max 5)</label>
-                    <input type="file" class="form-control" name="estudios" multiple>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Certificados laborales</label>
-                    <input type="file" class="form-control" name="laborales">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Fondo de cesantías y pensión</label>
-                    <input type="file" class="form-control" name="cesantias">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Certificado Bancario *</label>
-                    <input type="file" class="form-control" name="cuenta" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Certificado EPS (Max 5) *</label>
-                    <input type="file" class="form-control" name="epsDocs" multiple required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">2 Referencias Personales</label>
-                    <input type="file" class="form-control" name="referencias" multiple>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Agente de campo (SOAT, Licencia...)</label>
-                    <input type="file" class="form-control" name="agenteCampo" multiple>
-                </div>
-
-                <div class="col-md-12">
-                    <label class="form-label">Hoja de Vida *</label>
-                    <input type="file" class="form-control" name="hv" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">HABEAS DATA *</label>
-                    <input type="file" class="form-control" name="habeas" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">CONSENTIMIENTO INFORMADO *</label>
-                    <input type="file" class="form-control" name="consentimiento" required>
-                </div>
-
-                <div class="col-12 mt-4">
-                    <label class="form-label">¿Afiliación de familiares?</label>
-                    <input type="text" class="form-control" name="afiliacionesFamiliares" placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required>
-                </div>
-            </div>
-
-            <hr class="my-5">
-
-            <button type="submit" class="btn btn-primary btn-submit w-100">
-                <i class="bi bi-send-fill me-2"></i> Enviar Formulario
-            </button>
-
-        </form>
+            </form>
+        </div>
+        <!-- Fin contenedor principal -->
     </div>
-    <!-- Fin contenedor principal -->
-</div>
 
 <script>
+    // 1. ALMACÉN DE ARCHIVOS
+    // Aquí guardaremos los archivos acumulados para cada campo
+    const bancoArchivos = {
+        estudios: [],
+        epsDocs: [],
+        referencias: [],
+        agenteCampo: []
+        // Los campos simples (cédula, hv, etc) no necesitan esto, funcionan normal
+    };
+
+    // 2. FUNCIÓN PARA ACUMULAR ARCHIVOS (Se llama desde el HTML onchange)
+    function manejarArchivos(input, idContenedorLista, maxArchivos) {
+        const nombreCampo = input.name;
+        const nuevosArchivos = Array.from(input.files);
+        const contenedor = document.getElementById(idContenedorLista);
+        
+        // Verificar límite
+        if (bancoArchivos[nombreCampo].length + nuevosArchivos.length > maxArchivos) {
+            Swal.fire('Atención', `Solo puedes subir un máximo de ${maxArchivos} archivos para este campo.`, 'warning');
+            input.value = ''; // Limpiar selección actual
+            return;
+        }
+
+        // Acumular archivos en nuestro banco
+        nuevosArchivos.forEach(file => {
+            bancoArchivos[nombreCampo].push(file);
+        });
+
+        // Actualizar la vista visual
+        renderizarLista(nombreCampo, contenedor);
+
+        // Limpiar el input para permitir seleccionar el mismo archivo u otros nuevos
+        input.value = ''; 
+    }
+
+    // 3. FUNCIÓN PARA DIBUJAR LA LISTA
+    function renderizarLista(nombreCampo, contenedor) {
+        contenedor.innerHTML = ''; // Limpiar vista actual
+
+        bancoArchivos[nombreCampo].forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.innerHTML = `
+                <span><i class="bi bi-file-earmark-text me-2"></i>${file.name}</span>
+                <i class="bi bi-x-circle-fill btn-remove" onclick="borrarArchivo('${nombreCampo}', ${index}, '${contenedor.id}')" title="Eliminar"></i>
+            `;
+            contenedor.appendChild(item);
+        });
+    }
+
+    // 4. FUNCIÓN PARA BORRAR UN ARCHIVO DE LA LISTA
+    window.borrarArchivo = function(nombreCampo, index, idContenedor) {
+        bancoArchivos[nombreCampo].splice(index, 1); // Quitar del array
+        const contenedor = document.getElementById(idContenedor);
+        renderizarLista(nombreCampo, contenedor); // Redibujar
+    };
+
+    // 5. ENVÍO DEL FORMULARIO
     document.getElementById('formularioRegistro').addEventListener('submit', async function(e) {
         e.preventDefault(); 
+        
+        // Validación manual para campos 'required' que ahora gestionamos nosotros
+        // Como limpiamos el input.value, el 'required' de HTML fallará o dirá que está vacío.
+        // Verificamos si nuestro banco tiene archivos para los campos obligatorios múltiples
+        if(bancoArchivos.epsDocs.length === 0) {
+            return Swal.fire('Falta información', 'Debes adjuntar al menos un certificado de EPS.', 'warning');
+        }
+        
         const formData = new FormData(this);
-        const PORT = '';
         const URL_BASE = ''; 
+
+        // --- MAGIA AQUÍ ---
+        // 1. Borramos lo que el formulario capturó automáticamente de los inputs múltiples (que estará vacío o incompleto)
+        formData.delete('estudios');
+        formData.delete('epsDocs');
+        formData.delete('referencias');
+        formData.delete('agenteCampo');
+
+        // 2. Agregamos manualmente nuestros archivos acumulados
+        bancoArchivos.estudios.forEach(file => formData.append('estudios', file));
+        bancoArchivos.epsDocs.forEach(file => formData.append('epsDocs', file));
+        bancoArchivos.referencias.forEach(file => formData.append('referencias', file));
+        bancoArchivos.agenteCampo.forEach(file => formData.append('agenteCampo', file));
 
         try {
             Swal.fire({
@@ -321,7 +292,7 @@
                     confirmButtonText: 'Aceptar',
                     confirmButtonColor: '#4e73df'
                 }).then(() => {
-                    document.getElementById('formularioRegistro').reset();
+                    location.reload(); // Recargamos para limpiar todo limpio
                 });
             } else {
                 throw new Error(data.message || 'Error desconocido');
@@ -340,4 +311,5 @@
 </script>
 
 </body>
+
 </html>
