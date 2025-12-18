@@ -1,225 +1,328 @@
 /* css/estilos.css */
-body { background-color: #f0f2f5; overflow: hidden; /* Sin scroll en el body */ font-size: 0.85rem; } /* Fuente más pequeña */
-#app { height: 100vh; display: flex; flex-direction: column; }
+body {
+  background-color: #f0f2f5;
+  overflow: hidden; /* Sin scroll en el body */
+  font-size: 0.85rem;
+} /* Fuente más pequeña */
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 .main-container {
-    display: flex;
-    height: calc(100vh - 56px); /* 56px es aprox la altura del navbar */
-    overflow: hidden; /* Evita que toda la página haga scroll */
+  display: flex;
+  height: calc(100vh - 56px); /* 56px es aprox la altura del navbar */
+  overflow: hidden; /* Evita que toda la página haga scroll */
 }
 
 /* BARRA LATERAL (Buscador + Lista) */
 /* 1. Estructura Fija del Sidebar */
 .sidebar {
-    width: 280px;            /* Ancho fijo cómodo */
-    height: 100%;            /* Ocupa toda la altura del padre */
-    background-color: #ffffff;
-    border-right: 1px solid #f0f0f0;
-    display: flex;
-    flex-direction: column;  /* Organiza header arriba, lista abajo */
-    z-index: 100;
+  width: 280px; /* Ancho fijo cómodo */
+  height: 100%; /* Ocupa toda la altura del padre */
+  background-color: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column; /* Organiza header arriba, lista abajo */
+  z-index: 100;
 }
-.search-box { padding: 10px; border-bottom: 1px solid #eee; background: #f8f9fa; }
-.user-list { overflow-y: auto; flex: 1; }
+.search-box {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+}
+.user-list {
+  overflow-y: auto;
+  flex: 1;
+}
 .user-item {
-    padding: 10px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s;
+  padding: 10px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: 0.2s;
 }
-.user-item:hover { background-color: #e9ecef; }
-.user-item.active { background-color: #e7f1ff; border-left: 4px solid #0d6efd; }
-.user-item h6 { margin: 0; font-size: 0.9rem; font-weight: 600; color: #333; }
-.user-item small { color: #666; font-size: 0.75rem; }
+.user-item:hover {
+  background-color: #e9ecef;
+}
+.user-item.active {
+  background-color: #e7f1ff;
+  border-left: 4px solid #0d6efd;
+}
+.user-item h6 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+.user-item small {
+  color: #666;
+  font-size: 0.75rem;
+}
 
 /* AREA DE CONTENIDO (Formularios) */
 .content-area {
-    flex: 1;
-    overflow-y: auto; /* Scroll solo aquí */
-    padding: 20px;
-    background: #f0f2f5;
+  flex: 1;
+  overflow-y: auto; /* Scroll solo aquí */
+  padding: 20px;
+  background: #f0f2f5;
 }
 
 /* TARJETAS COMPACTAS */
-.card { border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; border-radius: 8px; }
-.card-header { 
-    background: white; border-bottom: 2px solid #f0f0f0; 
-    font-weight: 700; color: #444; padding: 10px 15px; font-size: 0.95rem;
-    display: flex; justify-content: space-between; align-items: center;
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
+  border-radius: 8px;
 }
-.card-body { padding: 15px; }
+.card-header {
+  background: white;
+  border-bottom: 2px solid #f0f0f0;
+  font-weight: 700;
+  color: #444;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-body {
+  padding: 15px;
+}
 
 /* INPUTS COMPACTOS */
-.form-label { margin-bottom: 2px; font-weight: 600; color: #555; font-size: 0.75rem; }
-.form-control, .form-select { 
-    font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #ced4da;
+.form-label {
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.75rem;
 }
-.form-control:focus { box-shadow: none; border-color: #0d6efd; }
+.form-control,
+.form-select {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+.form-control:focus {
+  box-shadow: none;
+  border-color: #0d6efd;
+}
 
 /* GRID DE DOCUMENTOS */
-.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-.doc-item { 
-    background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 10px; 
-    text-align: center; transition: 0.2s; 
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
 }
-.doc-item:hover { border-color: #0d6efd; background: white; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-.doc-name { font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 5px; font-weight: 600;}
-
+.doc-item {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  transition: 0.2s;
+}
+.doc-item:hover {
+  border-color: #0d6efd;
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+.doc-name {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 5px;
+  font-weight: 600;
+}
 
 /* Modificamos esto para fijar la altura */
 .sidebar {
-    width: 300px; /* Un poco más angosta */
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* Altura total de la ventana */
-    border-right: 1px solid #dee2e6;
-    background: white;
+  width: 300px; /* Un poco más angosta */
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Altura total de la ventana */
+  border-right: 1px solid #dee2e6;
+  background: white;
 }
 
 /* Header del buscador (fijo arriba) */
 /* 2. Cabecera (Buscador) */
 .search-header {
-    padding: 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #f0f0f0;
-    flex-shrink: 0; /* No permitimos que se encoja */
+  padding: 15px 15px 10px 15px; /* Ajustamos padding inferior */
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0; /* No permitimos que se encoja */
 }
 
 /* Lista de usuarios (zona flexible con scroll) */
 .user-list {
-    flex-grow: 1;    /* Ocupa todo el espacio que sobra */
-    overflow-y: auto; /* Scroll SOLO aquí si no cabe */
-    overflow-x: hidden;
-    padding: 0;
+  flex-grow: 1; /* Ocupa todo el espacio que sobra */
+  overflow-y: auto; /* Scroll SOLO aquí si no cabe */
+  overflow-x: hidden;
+  padding: 0;
 }
 .search-input:focus {
-    box-shadow: none;
-    border-color: #ced4da;
+  box-shadow: none;
+  border-color: #ced4da;
 }
 
 /* Items más compactos */
 .user-item {
-    padding: 8px 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
 }
 /* 3. Contenedor de la Lista (El arreglo del bug) */
 .user-list-container {
-    flex: 1;                 /* Ocupa todo el espacio restante vertical */
-    overflow-y: auto;        /* Habilita el scroll interno */
-    padding: 10px;
-    background-color: #f8f9fa; /* Fondo gris muy suave para diferenciar */
+  flex: 1; /* Ocupa todo el espacio restante vertical */
+  overflow-y: auto; /* Habilita el scroll interno */
+  padding: 10px;
+  background-color: #f8f9fa; /* Fondo gris muy suave para diferenciar */
 }
 /* Scrollbar Personalizado (Más bonito) */
 .user-list-container::-webkit-scrollbar {
-    width: 5px;
+  width: 5px;
 }
 .user-list-container::-webkit-scrollbar-thumb {
-    background-color: #dee2e6;
-    border-radius: 4px;
+  background-color: #dee2e6;
+  border-radius: 4px;
 }
 
 /* 4. Tarjeta de Usuario (User Card) */
 .user-card {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    margin-bottom: 8px;
-    background: #ffffff;
-    border-radius: 12px;     /* Bordes redondeados */
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Sombra sutil */
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #ffffff;
+  border-radius: 12px; /* Bordes redondeados */
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); /* Sombra sutil */
 }
 
 .user-card:hover {
-    transform: translateY(-2px); /* Pequeña elevación al pasar mouse */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  transform: translateY(-2px); /* Pequeña elevación al pasar mouse */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Estado Activo (Seleccionado) */
 .user-card.active {
-    background-color: #eef2ff; /* Azul muy pálido */
-    border-color: #c7d2fe;
+  background-color: #eef2ff; /* Azul muy pálido */
+  border-color: #c7d2fe;
 }
 
 /* 5. Avatar con Iniciales */
 .user-avatar {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5); /* Gradiente morado/azul */
-    color: white;
-    border-radius: 50%; /* Círculo perfecto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.9rem;
-    margin-right: 12px;
-    flex-shrink: 0;
-    text-transform: uppercase;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(
+    135deg,
+    #6366f1,
+    #4f46e5
+  ); /* Gradiente morado/azul */
+  color: white;
+  border-radius: 50%; /* Círculo perfecto */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-right: 12px;
+  flex-shrink: 0;
+  text-transform: uppercase;
 }
 
 /* Estado Activo cambia el color del avatar */
 .user-card.active .user-avatar {
-    background: linear-gradient(135deg, #0d6efd, #0a58ca); /* Azul bootstrap */
+  background: linear-gradient(135deg, #0d6efd, #0a58ca); /* Azul bootstrap */
 }
 
 /* 6. Tipografía */
 .user-info {
-    flex-grow: 1;
-    overflow: hidden; /* Para que el texto largo no rompa */
+  flex-grow: 1;
+  overflow: hidden; /* Para que el texto largo no rompa */
 }
 
 .user-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
 }
-
+.btn-xs {
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
 .user-doc {
-    font-size: 0.75rem;
-    margin-top: 2px;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
 
 /* Animación suave de entrada */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
-.user-item:hover { background: #f0f8ff; }
-.user-item.active { background: #0d6efd; color: white !important; }
+.user-item:hover {
+  background: #f0f8ff;
+}
+.user-item.active {
+  background: #0d6efd;
+  color: white !important;
+}
 
 /* Texto más limpio */
-.user-item h6 { font-size: 0.9rem; margin: 0; font-weight: 600; }
-.user-item small { font-size: 0.75rem; display: block; opacity: 0.8; }
-.user-item .active small { color: #e0e0e0 !important; }
+.user-item h6 {
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 600;
+}
+.user-item small {
+  font-size: 0.75rem;
+  display: block;
+  opacity: 0.8;
+}
+.user-item .active small {
+  color: #e0e0e0 !important;
+}
 
 /* @media es la regla mágica para responsive */
 @media (max-width: 768px) {
-    
-    /* 1. Hacemos la barra lateral más angosta */
-    .sidebar {
-        width: 220px; /* Bajamos de 300px a 220px */
-    }
+  /* 1. Hacemos la barra lateral más angosta */
+  .sidebar {
+    width: 220px; /* Bajamos de 300px a 220px */
+  }
 
-    /* 2. Achicamos el texto de los items */
-    .user-item {
-        padding: 8px 10px; /* Menos relleno */
-    }
-    
-    .user-item h6 {
-        font-size: 0.85rem; /* Nombre más pequeño */
-        margin-bottom: 0;
-    }
+  /* 2. Achicamos el texto de los items */
+  .user-item {
+    padding: 8px 10px; /* Menos relleno */
+  }
 
-    .user-item small {
-        font-size: 0.7rem; /* Cédula más pequeña */
-    }
+  .user-item h6 {
+    font-size: 0.85rem; /* Nombre más pequeño */
+    margin-bottom: 0;
+  }
 
-    /* Opcional: Ocultar el ícono de check si ocupa mucho espacio */
-    .user-item i.bi-check-circle-fill {
-        font-size: 0.8rem;
-    }
+  .user-item small {
+    font-size: 0.7rem; /* Cédula más pequeña */
+  }
+
+  /* Opcional: Ocultar el ícono de check si ocupa mucho espacio */
+  .user-item i.bi-check-circle-fill {
+    font-size: 0.8rem;
+  }
 }

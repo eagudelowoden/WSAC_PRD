@@ -267,6 +267,8 @@ createApp({
       usuarios: [],
       selectedId: "",
       usuarioActual: null,
+      filtroEstado: 'todos',
+      busqueda: "",
 
       form: {
         cargo: "",
@@ -283,16 +285,56 @@ createApp({
     };
   },
   computed: {
-    usuariosFiltrados() {
-      if (!this.busqueda) return this.usuarios;
-      const texto = this.busqueda.toLowerCase();
-      return this.usuarios.filter(
-        (u) =>
-          (u.nombres && u.nombres.toLowerCase().includes(texto)) ||
-          (u.apellidos && u.apellidos.toLowerCase().includes(texto)) ||
-          (u.documento && u.documento.includes(texto))
-      );
-    },
+usuariosFiltrados() {
+    let lista = this.usuarios;
+
+    // -----------------------------------------------------
+    // 1. FILTRO POR ESTADO / FECHA
+    // -----------------------------------------------------
+    if (this.filtroEstado === 'hoy') {
+        // CORRECCIÓN: Usamos fecha LOCAL, no UTC (toISOString falla por la tarde)
+        const fechaHoy = new Date();
+        // Formato YYYY-MM-DD local manual para asegurar compatibilidad
+        const hoyString = fechaHoy.getFullYear() + '-' + 
+                         String(fechaHoy.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(fechaHoy.getDate()).padStart(2, '0');
+
+        lista = lista.filter(u => {
+            if (!u.fechaRegistro) return false;
+            // Tomamos solo la parte YYYY-MM-DD de la fecha del usuario
+            const fechaUser = u.fechaRegistro.split('T')[0]; 
+            return fechaUser === hoyString;
+        });
+
+    } else if (this.filtroEstado === 'pendientes') {
+        // Mostrar solo: vacíos, null, 0 o 1. (Oculta aprobados si son 2)
+        lista = lista.filter(u => {
+            const estado = u.aprobacion; 
+            // La comparación la hacemos flexible (==) por si viene como texto "0" o número 0
+            return estado == null || estado == '' || estado == 0 || estado == 1;
+        });
+    }
+
+    // -----------------------------------------------------
+    // 2. FILTRO POR BÚSQUEDA (Texto)
+    // -----------------------------------------------------
+    if (this.busqueda) {
+        const texto = this.busqueda.toLowerCase().trim(); // Trim quita espacios accidentales
+        
+        lista = lista.filter((u) => {
+            // BLINDAJE: Usamos (u.campo || '') para que no falle si el campo es null
+            const nombre = (u.nombres || '').toLowerCase();
+            const apellido = (u.apellidos || '').toLowerCase();
+            const cedula = (u.documento || '').toString(); // Convertimos a string por si acaso
+
+            return nombre.includes(texto) || 
+                   apellido.includes(texto) || 
+                   cedula.includes(texto);
+        });
+    }
+    
+    return lista;
+},
   },
   mounted() {
     this.obtenerListaUsuarios();

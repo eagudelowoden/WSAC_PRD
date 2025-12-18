@@ -44,43 +44,66 @@
 
 
     <div class="main-container">
-      <div class="sidebar">
-        <div class="search-header">
-          <h5 class="mb-2"><i class="bi bi-people"></i> Colaboradores</h5>
-          <div class="input-group input-group-sm">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" v-model="busqueda" placeholder="Filtrar..." />
-          </div>
-        </div>
+<div class="sidebar shadow-sm">
+  <div class="search-header">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="fw-bold text-dark m-0">
+        <span class="text-primary">Colaboradores</span>
+      </h5>
+      <span class="badge bg-light text-secondary rounded-pill border">
+        {{ usuariosFiltrados.length }}
+      </span>
+    </div>
+    
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0 text-muted">
+        <i class="bi bi-search"></i>
+      </span>
+      <input 
+        type="text" 
+        class="form-control border-start-0 ps-0 search-input" 
+        v-model="busqueda" 
+        placeholder="Buscar por nombre o cédula..." 
+      />
+    </div>
+  </div>
 
-        <div class="user-list">
-
-    <div v-if="cargandoUsuarios" class="p-4 text-center">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="text-muted small mt-2">Buscando colaboradores...</p>
+  <div class="user-list-container">
+    
+    <div v-if="cargandoUsuarios" class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+        <p class="small">Cargando...</p>
     </div>
 
-    <div v-else-if="usuariosFiltrados.length === 0" class="p-4 text-center text-muted small">
-        <i class="bi bi-search display-6 opacity-25"></i>
-        <p class="mt-2">Sin resultados</p>
+    <div v-else-if="usuariosFiltrados.length === 0" class="text-center py-5 text-muted opacity-50">
+      <i class="bi bi-people display-4"></i>
+      <p class="small mt-2">No se encontraron colaboradores</p>
     </div>
 
-    <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-item" 
+    <div v-else 
+         v-for="u in usuariosFiltrados" 
+         :key="u.id" 
+         class="user-card animate-fade-in"
          :class="{ 'active': usuarioActual && usuarioActual.id === u.id }" 
          @click="seleccionarUsuario(u.id)">
-         
-         <div class="d-flex justify-content-between align-items-center">
-             <h6>{{ u.nombres }} {{ u.apellidos }}</h6>
-             <i v-if="usuarioActual && usuarioActual.id === u.id" class="bi bi-check-circle-fill"></i>
-         </div>
-         <small>CC: {{ u.documento }}</small>
+      
+      <div class="user-avatar">
+        {{ u.nombres.charAt(0) }}{{ u.apellidos.charAt(0) }}
+      </div>
 
+      <div class="user-info">
+        <h6 class="user-name text-truncate">{{ u.nombres }} {{ u.apellidos }}</h6>
+        <div class="d-flex align-items-center justify-content-between">
+          <small class="user-doc text-muted">CC: {{ u.documento }}</small>
+          
+          <i v-if="usuarioActual && usuarioActual.id === u.id" 
+             class="bi bi-check-circle-fill text-primary fade-in"></i>
+        </div>
+      </div>
     </div>
 
+  </div>
 </div>
-      </div>
 
       <div class="content-area">
         <div v-if="!usuarioActual"
