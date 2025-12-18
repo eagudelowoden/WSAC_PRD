@@ -106,9 +106,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Certificados estudio / Grado (Max 5)</label>
-                        <input type="file" class="form-control" name="estudios" id="input-estudios" multiple
-                            onchange="manejarArchivos(this, 'lista-estudios', 5)">
-                        <div id="lista-estudios" class="file-list-container"></div>
+                        <input type="file" class="form-control" name="estudios" multiple>
                     </div>
 
                     <div class="col-md-6">
@@ -127,10 +125,8 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Certificados EPS (Max 5) *</label>
-                        <input type="file" class="form-control" name="epsDocs" id="input-epsDocs" multiple required
-                            onchange="manejarArchivos(this, 'lista-epsDocs', 5)">
-                        <div id="lista-epsDocs" class="file-list-container"></div>
+                        <label class="form-label">Certificado EPS (Max 5) *</label>
+                        <input type="file" class="form-control" name="epsDocs" multiple required>
                     </div>
 
                     <div class="col-md-6">
@@ -176,139 +172,61 @@
         <!-- Fin contenedor principal -->
     </div>
 
-<script>
-    // 1. ALMACÉN DE ARCHIVOS
-    // Aquí guardaremos los archivos acumulados para cada campo
-    const bancoArchivos = {
-        estudios: [],
-        epsDocs: [],
-        referencias: [],
-        agenteCampo: []
-        // Los campos simples (cédula, hv, etc) no necesitan esto, funcionan normal
-    };
+    <script>
+        document.getElementById('formularioRegistro').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const PORT = '';
+            const URL_BASE = '';
 
-    // 2. FUNCIÓN PARA ACUMULAR ARCHIVOS (Se llama desde el HTML onchange)
-    function manejarArchivos(input, idContenedorLista, maxArchivos) {
-        const nombreCampo = input.name;
-        const nuevosArchivos = Array.from(input.files);
-        const contenedor = document.getElementById(idContenedorLista);
-        
-        // Verificar límite
-        if (bancoArchivos[nombreCampo].length + nuevosArchivos.length > maxArchivos) {
-            Swal.fire('Atención', `Solo puedes subir un máximo de ${maxArchivos} archivos para este campo.`, 'warning');
-            input.value = ''; // Limpiar selección actual
-            return;
-        }
-
-        // Acumular archivos en nuestro banco
-        nuevosArchivos.forEach(file => {
-            bancoArchivos[nombreCampo].push(file);
-        });
-
-        // Actualizar la vista visual
-        renderizarLista(nombreCampo, contenedor);
-
-        // Limpiar el input para permitir seleccionar el mismo archivo u otros nuevos
-        input.value = ''; 
-    }
-
-    // 3. FUNCIÓN PARA DIBUJAR LA LISTA
-    function renderizarLista(nombreCampo, contenedor) {
-        contenedor.innerHTML = ''; // Limpiar vista actual
-
-        bancoArchivos[nombreCampo].forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            item.innerHTML = `
-                <span><i class="bi bi-file-earmark-text me-2"></i>${file.name}</span>
-                <i class="bi bi-x-circle-fill btn-remove" onclick="borrarArchivo('${nombreCampo}', ${index}, '${contenedor.id}')" title="Eliminar"></i>
-            `;
-            contenedor.appendChild(item);
-        });
-    }
-
-    // 4. FUNCIÓN PARA BORRAR UN ARCHIVO DE LA LISTA
-    window.borrarArchivo = function(nombreCampo, index, idContenedor) {
-        bancoArchivos[nombreCampo].splice(index, 1); // Quitar del array
-        const contenedor = document.getElementById(idContenedor);
-        renderizarLista(nombreCampo, contenedor); // Redibujar
-    };
-
-    // 5. ENVÍO DEL FORMULARIO
-    document.getElementById('formularioRegistro').addEventListener('submit', async function(e) {
-        e.preventDefault(); 
-        
-        // Validación manual para campos 'required' que ahora gestionamos nosotros
-        // Como limpiamos el input.value, el 'required' de HTML fallará o dirá que está vacío.
-        // Verificamos si nuestro banco tiene archivos para los campos obligatorios múltiples
-        if(bancoArchivos.epsDocs.length === 0) {
-            return Swal.fire('Falta información', 'Debes adjuntar al menos un certificado de EPS.', 'warning');
-        }
-        
-        const formData = new FormData(this);
-        const URL_BASE = ''; 
-
-        // --- MAGIA AQUÍ ---
-        // 1. Borramos lo que el formulario capturó automáticamente de los inputs múltiples (que estará vacío o incompleto)
-        formData.delete('estudios');
-        formData.delete('epsDocs');
-        formData.delete('referencias');
-        formData.delete('agenteCampo');
-
-        // 2. Agregamos manualmente nuestros archivos acumulados
-        bancoArchivos.estudios.forEach(file => formData.append('estudios', file));
-        bancoArchivos.epsDocs.forEach(file => formData.append('epsDocs', file));
-        bancoArchivos.referencias.forEach(file => formData.append('referencias', file));
-        bancoArchivos.agenteCampo.forEach(file => formData.append('agenteCampo', file));
-
-        try {
-            Swal.fire({
-                title: 'Enviando...',
-                text: 'Subiendo documentos y datos...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            const response = await fetch(`${URL_BASE}/api/enviar`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const textResponse = await response.text();
-            console.log("Respuesta:", textResponse); 
-
-            let data;
             try {
-                data = JSON.parse(textResponse);
-            } catch (jsonError) {
-                throw new Error("El servidor no devolvió JSON.");
-            }
-
-            if (response.ok && data.status === 'ok') {
                 Swal.fire({
-                    icon: 'success',
-                    title: '¡Recibido!',
-                    text: data.message,
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#4e73df'
-                }).then(() => {
-                    location.reload(); // Recargamos para limpiar todo limpio
+                    title: 'Enviando...',
+                    text: 'Subiendo documentos y datos...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
                 });
-            } else {
-                throw new Error(data.message || 'Error desconocido');
-            }
 
-        } catch (error) {
-            console.error('ERROR:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Ups...',
-                text: error.message,
-                confirmButtonColor: '#e74a3b'
-            });
-        }
-    });
-</script>
+                const response = await fetch(`${URL_BASE}/api/enviar`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const textResponse = await response.text();
+                console.log("Respuesta:", textResponse);
+
+                let data;
+                try {
+                    data = JSON.parse(textResponse);
+                } catch (jsonError) {
+                    throw new Error("El servidor no devolvió JSON.");
+                }
+
+                if (response.ok && data.status === 'ok') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Recibido!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: '#4e73df'
+                    }).then(() => {
+                        document.getElementById('formularioRegistro').reset();
+                    });
+                } else {
+                    throw new Error(data.message || 'Error desconocido');
+                }
+
+            } catch (error) {
+                console.error('ERROR:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ups...',
+                    text: error.message,
+                    confirmButtonColor: '#e74a3b'
+                });
+            }
+        });
+    </script>
 
 </body>
 
