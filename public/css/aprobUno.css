@@ -98,3 +98,277 @@
   max-height: calc(100vh - 250px);
   overflow-y: auto;
 }
+/* Colores de acento para la card */
+.text-orange { color: var(--orange-accent) !important; }
+
+.icon-circle-sm {
+    width: 32px;
+    height: 32px;
+    background: rgba(243, 112, 33, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* Inputs suaves */
+.form-control:focus, .form-select:focus {
+    background-color: #fff !important;
+    box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.2);
+    border: 1px solid var(--orange-accent) !important;
+}
+
+/* Separador estético */
+.separator-dashed {
+    border-top: 2px dashed rgba(0,0,0,0.05);
+    height: 1px;
+}
+[data-bs-theme="dark"] .separator-dashed {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
+/* Botones con estilo moderno */
+.btn-warning-soft {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+.btn-warning-soft:hover { background-color: #ffc107; color: #000; }
+
+.btn-success-modern {
+    background-color: #576fb3;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.btn-danger-modern {
+    background-color: #e6b634;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+/* Ajustes para Modo Oscuro en Inputs */
+[data-bs-theme="dark"] .bg-light {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: #eee;
+}
+[data-bs-theme="dark"] .btn-warning-soft {
+    color: #ffca2c;
+}
+
+/* Estilo para los labels de los formularios */
+.form-label-custom {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--orange-accent);
+    margin-bottom: 0.4rem;
+    display: block;
+}
+
+/* Inputs personalizados */
+.form-custom {
+    background-color: var(--bs-tertiary-bg); /* Se adapta a modo claro/oscuro */
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.form-custom:focus {
+    background-color: var(--bs-body-bg);
+    border-color: var(--orange-accent);
+    box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.15);
+}
+
+/* Switch personalizado */
+.custom-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.custom-switch .form-check-input:checked {
+    background-color: var(--orange-accent);
+    border-color: var(--orange-accent);
+}
+
+/* Estilo para la caja de seguridad social */
+.bg-light-subtle {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+[data-bs-theme="dark"] .bg-light-subtle {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.text-primary-custom {
+    color: var(--primary-blue) !important;
+}
+/* Texto muy pequeño para etiquetas */
+.ultra-small {
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+}
+
+/* Grid Compacto */
+.doc-explorer-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+/* Tarjetas de archivo pequeñas */
+.doc-card-compact {
+    background: var(--bs-body-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: 0.2s;
+}
+
+.doc-icon-area {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #dc3545;
+    background: rgba(0,0,0,0.02);
+    position: relative;
+}
+
+.doc-btn-view {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(26, 35, 126, 0.9);
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: bold;
+    text-decoration: none;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.doc-card-compact:hover .doc-btn-view { opacity: 1; }
+
+.doc-name-text {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px;
+    color: var(--text-main);
+}
+
+/* Botones miniatura */
+.btn-icon-sm {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+.btn-icon-sm:hover { background: rgba(0,0,0,0.05); }
+
+/* Ajuste de márgenes en listas */
+.border-bottom-dashed {
+    border-bottom: 1px dashed rgba(0,0,0,0.06) !important;
+}
+/* Grid a Ancho Completo */
+.doc-explorer-grid-full {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+}
+
+/* Tarjeta de Archivo Estilo Premium */
+.doc-card-modern {
+    background: var(--bs-body-bg);
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.06);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.doc-card-modern:hover {
+    transform: translateY(-8px);
+    border-color: var(--orange-accent);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
+}
+
+.doc-preview {
+    height: 110px;
+    background: rgba(0,0,0,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    color: #dc3545; /* Rojo PDF */
+    position: relative;
+}
+
+/* Overlay de acciones */
+.doc-actions {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(26, 35, 126, 0.85); /* Deep Navy */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.doc-card-modern:hover .doc-actions {
+    opacity: 1;
+}
+
+.doc-footer {
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.doc-filename {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-main);
+}
+
+/* Colores y Utilidades */
+.icon-circle-sm {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+[data-bs-theme="dark"] .doc-footer {
+    background: #1e293b;
+}
