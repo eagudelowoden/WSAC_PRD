@@ -10,6 +10,7 @@ const Pdf = "/servicePdf";
 const SegmentosMixin = {
   data() {
     return {
+
       listaSegmentos: [], // Carpetas de segmentos
       listaCargosPDF: [], // Archivos PDF dentro del segmento
       listaPlantillas: [], // Archivos Word para generar contratos
@@ -280,6 +281,8 @@ createApp({
 
   data() {
     return {
+      filtroNombre: '', // Variable para el buscador
+      archivos: [] ,     // Tu lista original de archivos
       usuarios: [],
       selectedId: "",
       usuarioActual: null,
@@ -303,6 +306,18 @@ createApp({
     };
   },
   computed: {
+
+    archivosFiltrados() {
+      if (!this.filtroNombre) {
+        return this.archivos;
+      }
+      const busqueda = this.filtroNombre.toLowerCase();
+      return this.archivos.filter(archivo => 
+        archivo.name.toLowerCase().includes(busqueda)
+      );
+    },
+
+    
     usuariosFiltrados() {
       let lista = this.usuarios;
 
@@ -354,6 +369,7 @@ createApp({
           );
         });
       }
+      
 
       return lista;
     },

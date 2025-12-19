@@ -372,3 +372,104 @@
 [data-bs-theme="dark"] .doc-footer {
     background: #1e293b;
 }
+
+
+/* Transiciones suaves para las filas */
+.hover-row {
+  transition: all 0.2s ease;
+  border-color: #eee !important;
+}
+
+.hover-row:hover {
+  border-color: #cbdcf8 !important;
+  background-color: #f8faff !important;
+  transform: translateY(-1px);
+}
+
+/* Scrollbar minimalista */
+.custom-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border-radius: 10px;
+}
+
+/* Ajustes de tipografía */
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Deshabilitado suave */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.my-custom-header {
+  background-color: #4e73df !important; /* Cambia este código por el color que desees */
+  color: white !important;
+  border-bottom: 1px solid rgba(0,0,0,.125);
+  font-weight: 600;
+}
+
+/* Opcional: un degradado moderno */
+.bg-gradient-custom {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+
+/* Espaciado de letras para el header */
+.tracking-wider {
+  letter-spacing: 0.07rem;
+  font-size: 0.75rem;
+}
+
+/* Contenedor del archivo individual */
+.file-card {
+  background-color: #fdfdfd;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.file-card:hover {
+  background-color: #ffffff;
+  border-color: #0d6efd !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+/* Texto del nombre del archivo */
+.file-name-text {
+  font-size: 0.7rem;
+  line-height: 1.2;
+  display: block;
+}
+
+/* Botón "Ver" sutil */
+.btn-view-file {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.btn-view-file:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Contenedor del icono */
+.file-icon-container {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

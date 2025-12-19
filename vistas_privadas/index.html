@@ -323,102 +323,126 @@
 
             <div class="card border-info mt-3">
               <div class="card border-info mt-3">
-                <div class="card-header bg-info text-white">
+               <div class="card-header my-custom-header">
                   <i class="bi bi-file-earmark-word"></i> Documentos Generados
                 </div>
-                <div class="card-body">
-                  <div class="card bg-light p-3 mb-3">
-                    <div class="card bg-light p-3 mb-3 border-dashed">
-                      <label class="form-label small fw-bold text-uppercase text-muted">Documento a Vincular:</label>
-
-                      <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-white rounded border">
-                        <i class="bi bi-file-earmark-pdf-fill text-danger h4 m-0"></i>
-                        <span class="small fw-bold text-dark">
-                          {{ form.descripcion_cargo || 'Seleccione un cargo arriba...' }}
-                        </span>
+                <div class="card-body p-0">
+                  <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
+                    <div class="p-1 bg-white">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="small fw-bold text-muted text-uppercase mb-0">
+                          <i class="bi bi-paperclip me-1"></i>Vincular Documento
+                        </label>
+                        <span v-if="cargandoCargos" class="spinner-border spinner-border-sm text-primary"></span>
                       </div>
 
-                      <div class="d-grid">
-                        <button class="btn btn-primary btn-sm shadow-sm"
+                      <div class="d-flex align-items-center p-2 mb-2 rounded-3 border"
+                        :class="form.descripcion_cargo ? 'bg-light border-primary-subtle' : 'bg-light opacity-75'">
+                        <i class="bi bi-file-earmark-pdf-fill"
+                          :class="form.descripcion_cargo ? 'text-danger' : 'text-muted'" style="font-size: 1.2rem;"></i>
+                        <div class="ms-2 text-truncate">
+                          <div class="fw-bold text-dark small text-truncate" style="max-width: 200px;">
+                            {{ form.descripcion_cargo || 'Sin cargo seleccionado' }}
+                          </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm ms-auto shadow-sm px-3"
                           :disabled="!form.descripcion_cargo || !usuarioActual || cargandoCargos"
-                          @click="vincularPdfAlExpediente">
-                          <i class="bi bi-cloud-arrow-up-fill me-1"></i>
-                          Vincular Descripción al Expediente
+                          @click="vincularPdfAlExpediente" style="border-radius: 8px; font-size: 0.75rem;">
+                          <i class="bi bi-link-45deg"></i> Agregar Documento
                         </button>
                       </div>
 
-                      <small v-if="form.descripcion_cargo" class="text-muted mt-2 d-block" style="font-size: 0.7rem;">
-                        <i class="bi bi-info-circle"></i> Se copiará este archivo a la carpeta del colaborador en S3.
-                      </small>
+                      <div v-if="form.descripcion_cargo" class="text-muted" style="font-size: 0.65rem;">
+                        <i class="bi bi-cloud-upload"></i> Destino: Carpeta S3 del colaborador
+                      </div>
                     </div>
 
-                    <div v-if="listaContratos.length > 0" class="mt-3 border-top pt-2">
+                    <div v-if="listaContratos.length > 0" class="bg-light border-top p-3">
+                      <div class="px-1 mb-1 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-muted" style="font-size: 0.7rem;">HISTORIAL ({{ listaContratos.length
+                          }})</span>
+                      </div>
 
-                      <h6 class="small fw-bold text-muted mb-2 ps-1">
-                        <i class="bi bi-clock-history"></i> Historial ({{ listaContratos.length }})
-                      </h6>
+                      <div class="custom-scroll" style="max-height: 110px; overflow-y: auto;">
+                        <div v-for="(doc, index) in listaContratos" :key="index"
+                          class="d-flex align-items-center justify-content-between bg-white rounded-2 border p-1 mb-1 hover-row">
 
-                      <div class="bg-light border rounded" style="max-height: 150px; overflow-y: auto;">
-                        <ul class="list-group list-group-flush">
-                          <li v-for="(doc, index) in listaContratos" :key="index"
-                            class="list-group-item d-flex justify-content-between align-items-center p-1 bg-transparent">
+                          <div class="d-flex align-items-center text-truncate pe-2">
+                            <i class="bi bi-file-pdf text-danger mx-1" style="font-size: 0.9rem;"></i>
+                            <span class="small text-truncate text-muted" style="font-size: 0.75rem;" :title="doc.name">
+                              {{ doc.name }}
+                            </span>
+                          </div>
 
-                            <div class="d-flex align-items-center text-truncate" style="max-width: 70%;">
-                              <i class="bi bi-file-earmark-pdf-fill text-danger me-2 small"></i>
-                              <span class="small text-truncate" :title="doc.name">
-                                {{ doc.name }}
-                              </span>
-                            </div>
-
-                            <div>
-                              <a :href="doc.url" target="_blank"
-                                class="btn btn-link btn-sm p-0 me-2 text-decoration-none" title="Ver">
-                                <i class="bi bi-eye-fill text-secondary"></i>
-                              </a>
-
-                              <button @click.prevent="eliminarContrato(doc.name)"
-                                class="btn btn-link btn-sm p-0 text-decoration-none" title="Eliminar"
-                                :disabled="usuarioSys.rol !== 'editor'">
-                                <i class="bi bi-trash-fill text-danger"></i>
-                              </button>
-                            </div>
-
-                          </li>
-                        </ul>
+                          <div class="d-flex gap-1 px-1">
+                            <a :href="doc.url" target="_blank" class="btn btn-sm p-0 px-1 border-0" title="Ver">
+                              <i class="bi bi-eye text-primary" style="font-size: 0.8rem;"></i>
+                            </a>
+                            <button @click.prevent="eliminarContrato(doc.name)" class="btn btn-sm p-0 px-1 border-0"
+                              :disabled="usuarioSys.rol !== 'editor'">
+                              <i class="bi bi-trash-fill text-danger" style="font-size: 0.8rem;"></i>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="col-12">
-                  <div class="card">
-                    <div class="card-header">
-                      <span><i class="bi bi-folder2-open"></i> Archivos
-                        Cargados</span>
-                      <span class="badge bg-secondary" v-if="archivos.length">{{ archivos.length }} docs</span>
-                    </div>
-                    <div class="card-body">
-                      <div v-if="cargandoArchivos" class="text-center py-3">
-                        <div class="spinner-border spinner-border-sm text-primary"></div>
-                      </div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card-header border-0 d-flex justify-content-between align-items-center py-3" style="background-color: #2c3e50;">
+    <span class="text-white fw-bold small text-uppercase tracking-wider">
+      <i class="bi bi-folder2-open me-2 text-info"></i> Archivos Cargados
+    </span>
+    <span v-if="archivosFiltrados.length" class="badge rounded-pill bg-info text-dark px-3">
+      {{ archivosFiltrados.length }} docs
+    </span>
+  </div>
 
-                      <div v-else-if="archivos.length === 0" class="text-center text-muted py-3 small">
-                        Sin archivos disponibles.
-                      </div>
+  <div class="card-body bg-white p-3">
+    
+    <div v-if="archivos.length > 0" class="mb-3">
+      <div class="input-group input-group-sm border rounded-3 overflow-hidden shadow-sm">
+        <span class="input-group-text bg-white border-0">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="text" 
+               v-model="filtroNombre" 
+               class="form-control border-0 ps-0 shadow-none" 
+               placeholder="Buscar por nombre de archivo..."
+               style="font-size: 0.85rem;">
+        <button v-if="filtroNombre" @click="filtroNombre = ''" class="btn btn-white border-0 btn-sm">
+          <i class="bi bi-x-lg text-muted"></i>
+        </button>
+      </div>
+    </div>
 
-                      <div v-else class="doc-grid">
-                        <div class="doc-item" v-for="file in archivos" :key="file.name">
-                          <div class="text-danger h4 mb-1">
-                            <i class="bi bi-file-earmark-pdf-fill"></i>
-                          </div>
-                          <div class="doc-name" :title="file.name">
-                            {{ file.name }}
-                          </div>
-                          <a :href="file.url" target="_blank" class="btn btn-xs btn-outline-primary w-100 mt-2"
-                            style="font-size: 0.7rem">Ver</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+    <div v-if="cargandoArchivos" class="text-center py-4">
+      <div class="spinner-border spinner-border-sm text-primary"></div>
+    </div>
+
+    <div v-else-if="archivosFiltrados.length === 0" class="text-center py-4">
+      <i class="bi bi-patch-question h2 text-light d-block"></i>
+      <span class="text-muted small">No se encontraron archivos con ese nombre.</span>
+    </div>
+
+    <div v-else class="row g-2">
+      <div class="col-6 col-md-4 col-lg-3" v-for="file in archivosFiltrados" :key="file.name">
+        <div class="file-card p-2 text-center rounded-3 border h-100 transition-all">
+          <div class="file-icon-container mb-1">
+             <i class="bi bi-file-earmark-pdf-fill text-danger h3"></i>
+          </div>
+          <div class="file-name-text small fw-medium text-dark text-truncate px-1" :title="file.name">
+            {{ file.name }}
+          </div>
+          <a :href="file.url" target="_blank" class="btn btn-sm btn-light border w-100 mt-2 py-1 btn-view-file">
+            <i class="bi bi-eye-fill me-1"></i> Ver
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
                 </div>
               </div>
             </div>
