@@ -25,14 +25,37 @@
             </div>
         </div>
         
-        <div class="d-flex gap-2">
-            <button @click="toggleTheme" class="btn btn-theme-toggle rounded-pill">
-                <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
-            </button>
-            <a href="/panel-administrativo" class="btn btn-back rounded-pill px-3">
-                <i class="bi bi-arrow-left-short"></i> Salir
-            </a>
-        </div>
+       <div class="d-flex align-items-center gap-3 p-2 bg-white-glass shadow-sm rounded-pill border px-3">
+    <div class="d-none d-md-flex align-items-center me-2 border-end pe-3">
+        <span class="badge bg-primary-subtle text-primary rounded-circle p-2 me-2">
+            <i class="bi bi-grid-fill" style="font-size: 0.8rem;"></i>
+        </span>
+        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Navegación</span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button @click="toggleTheme" 
+            class="btn btn-action-modern rounded-pill shadow-sm" 
+            :class="isDarkMode ? 'btn-dark' : 'btn-light'"
+            title="Cambiar Modo">
+            <i :class="isDarkMode ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
+        </button>
+
+        <a href="/panel-aprobacionesDos" 
+            class="btn btn-action-modern btn-light rounded-pill shadow-sm px-3"
+            title="Ir a Aprobaciones">
+            <i class="bi bi-check2-all text-success me-1"></i>
+            <span class="small fw-bold d-none d-sm-inline">A Nomina y Contratacion</span>
+        </a>
+
+        <a href="/panel-administrativo" 
+            class="btn btn-action-modern btn-back-modern rounded-pill shadow-sm px-3"
+            title="Volver al Panel Principal">
+            <i class="bi bi-house-door-fill me-1"></i>
+            <span class="small fw-bold d-none d-sm-inline">A Seleccion</span>
+        </a>
+    </div>
+</div>
     </header>
 
     <div class="row g-4">

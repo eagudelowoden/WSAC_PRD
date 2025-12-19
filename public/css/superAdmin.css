@@ -113,3 +113,59 @@ body {
 
 /* Ajustes SweetAlert */
 .swal2-popup { border-radius: 20px !important; font-size: 0.9rem !important; }
+
+
+/* Efecto Cristal para el contenedor */
+.bg-white-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Modo oscuro para el contenedor */
+[data-bs-theme="dark"] .bg-white-glass {
+    background: rgba(33, 37, 41, 0.8);
+    border-color: #444 !important;
+}
+
+/* Botones con estilo moderno */
+.btn-action-modern {
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-action-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* Botón Volver específico */
+.btn-back-modern {
+    background-color: #f8fafc;
+    color: #475569;
+}
+
+[data-bs-theme="dark"] .btn-back-modern {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+/* Animación sutil de entrada */
+.animate-fade {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo para los iconos */
+.btn-action-modern i {
+    font-size: 1.1rem;
+}

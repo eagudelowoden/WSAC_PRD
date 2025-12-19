@@ -33,40 +33,98 @@ createApp({
     },
 
     // --- LÓGICA USUARIOS ---
-    async abrirModalUsuario() {
-      const { value: formValues } = await Swal.fire({
-        title: "Nuevo Usuario",
-        html:
-          '<input id="swal-nombre" class="swal2-input" placeholder="Nombre Completo">' +
-          '<input id="swal-user" class="swal2-input" placeholder="Usuario (Login)">' +
-          '<input id="swal-pass" type="password" class="swal2-input" placeholder="Contraseña">' +
-          '<select id="swal-rol" class="swal2-select" style="display:flex; margin: 1em auto; width: 80%; padding: .5em;">' +
-          '<option value="editor">Editor</option>' +
-          '<option value="aprobador">Aprobador</option>' + // <--- AQUÍ ESTÁ EL NUEVO ROL
-          '<option value="superadmin">Super Admin</option>' +
-          "</select>",
-        focusConfirm: false,
-        showCancelButton: true,
-        preConfirm: () => {
-          return {
-            nombre: document.getElementById("swal-nombre").value,
-            usuario: document.getElementById("swal-user").value,
-            password: document.getElementById("swal-pass").value,
-            rol: document.getElementById("swal-rol").value,
-          };
-        },
-      });
-
-      if (formValues) {
-        const res = await fetch("/api/admin/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formValues),
-        });
-        this.cargarDatos();
-        Swal.fire("Creado", "Usuario agregado correctamente", "success");
-      }
+async abrirModalUsuario() {
+  const { value: formValues } = await Swal.fire({
+    title: '<span class="fw-bold" style="color: #1e293b; font-size: 1.25rem;">Nuevo Usuario</span>',
+    html: `
+      <div class="text-start px-3" style="font-family: 'Segoe UI', sans-serif;">
+        <div class="mb-2">
+          <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Nombre Completo</label>
+          <input id="swal-nombre" class="swal-custom-input" placeholder="Ej. Juan Pérez">
+        </div>
+        <div class="mb-2">
+          <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Usuario (Login)</label>
+          <input id="swal-user" class="swal-custom-input" placeholder="jperez">
+        </div>
+        <div class="mb-2">
+          <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Contraseña</label>
+          <input id="swal-pass" type="password" class="swal-custom-input" placeholder="••••••••">
+        </div>
+        <div class="mb-1">
+          <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Rol de Sistema</label>
+          <select id="swal-rol" class="swal-custom-select">
+            <option value="editor">Editor (Carga datos)</option>
+            <option value="aprobador">Aprobador (Valida contratos)</option>
+            <option value="superadmin">Super Admin (Control total)</option>
+          </select>
+        </div>
+      </div>
+      <style>
+        .swal-custom-input, .swal-custom-select {
+          width: 100%;
+          padding: 10px 15px;
+          margin: 5px 0 10px 0;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          font-size: 0.9rem;
+          outline: none;
+          transition: all 0.2s;
+          display: block;
+          box-sizing: border-box;
+        }
+        .swal-custom-input:focus, .swal-custom-select:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .swal2-actions { margin-top: 20px !important; }
+      </style>
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Crear Usuario",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#3b82f6",
+    cancelButtonColor: "#f1f5f9",
+    customClass: {
+      confirmButton: 'btn-confirm-swal',
+      cancelButton: 'btn-cancel-swal'
     },
+    // Aplicamos un pequeño truco para que los botones se vean modernos
+    didOpen: () => {
+      const cancelBtn = Swal.getCancelButton();
+      cancelBtn.style.color = '#64748b';
+      cancelBtn.style.fontWeight = '600';
+    },
+    focusConfirm: false,
+    preConfirm: () => {
+      const nombre = document.getElementById("swal-nombre").value;
+      const usuario = document.getElementById("swal-user").value;
+      const password = document.getElementById("swal-pass").value;
+      const rol = document.getElementById("swal-rol").value;
+
+      if (!nombre || !usuario || !password) {
+        Swal.showValidationMessage(`Por favor completa todos los campos`);
+        return false;
+      }
+      return { nombre, usuario, password, rol };
+    },
+  });
+
+  if (formValues) {
+    const res = await fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formValues),
+    });
+    this.cargarDatos();
+    Swal.fire({
+      icon: "success",
+      title: "¡Creado!",
+      text: "Usuario agregado correctamente",
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }
+},
 
     async eliminarUsuario(id) {
       const result = await Swal.fire({
@@ -113,5 +171,6 @@ createApp({
       });
       this.cargarDatos();
     },
+    
   },
 }).mount("#app");
