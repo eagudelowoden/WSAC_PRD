@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,142 +11,148 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="css/superadmin.css">
 </head>
+
 <body>
 
-<div id="app" class="container py-4">
-    
-    <header class="admin-header d-flex justify-content-between align-items-center p-3 mb-4 shadow-sm rounded-4">
-        <div class="d-flex align-items-center">
-            <div class="icon-box-admin me-3">
-                <i class="bi bi-shield-lock-fill"></i>
-            </div>
-            <div>
-                <h5 class="fw-bold mb-0">Panel Super Admin</h5>
-                <small class="opacity-75">Configuración de seguridad y alertas</small>
-            </div>
-        </div>
-        
-       <div class="d-flex align-items-center gap-3 p-2 bg-white-glass shadow-sm rounded-pill border px-3">
-    <div class="d-none d-md-flex align-items-center me-2 border-end pe-3">
-        <span class="badge bg-primary-subtle text-primary rounded-circle p-2 me-2">
-            <i class="bi bi-grid-fill" style="font-size: 0.8rem;"></i>
-        </span>
-        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Navegación</span>
-    </div>
+    <div id="app" class="container py-4">
 
-    <div class="d-flex gap-2">
-        <button @click="toggleTheme" 
-            class="btn btn-action-modern rounded-pill shadow-sm" 
-            :class="isDarkMode ? 'btn-dark' : 'btn-light'"
-            title="Cambiar Modo">
-            <i :class="isDarkMode ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
-        </button>
-
-        <a href="/panel-aprobacionesDos" 
-            class="btn btn-action-modern btn-light rounded-pill shadow-sm px-3"
-            title="Ir a Aprobaciones">
-            <i class="bi bi-check2-all text-success me-1"></i>
-            <span class="small fw-bold d-none d-sm-inline">A Nomina y Contratacion</span>
-        </a>
-
-        <a href="/panel-administrativo" 
-            class="btn btn-action-modern btn-back-modern rounded-pill shadow-sm px-3"
-            title="Volver al Panel Principal">
-            <i class="bi bi-house-door-fill me-1"></i>
-            <span class="small fw-bold d-none d-sm-inline">A Seleccion</span>
-        </a>
-    </div>
-</div>
-    </header>
-
-    <div class="row g-4">
-        <div class="col-md-3">
-            <nav class="nav-sidebar p-2 rounded-4 shadow-sm h-100">
-                <div class="nav flex-column nav-pills">
-                    <button class="nav-link mb-2 py-3" :class="{ active: tab === 'users' }" @click="tab = 'users'">
-                        <i class="bi bi-person-badge-fill me-2"></i> Usuarios
-                    </button>
-                    <button class="nav-link py-3" :class="{ active: tab === 'emails' }" @click="tab = 'emails'">
-                        <i class="bi bi-send-check-fill me-2"></i> Alertas Email
-                    </button>
+        <header class="admin-header d-flex justify-content-between align-items-center p-3 mb-4 shadow-sm rounded-4">
+            <div class="d-flex align-items-center">
+                <div class="icon-box-admin me-3">
+                    <i class="bi bi-shield-lock-fill"></i>
                 </div>
-            </nav>
-        </div>
-
-        <div class="col-md-9">
-            <div v-if="tab === 'users'" class="card border-0 shadow-sm rounded-4 animate-fade">
-                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-people-fill text-orange me-2"></i>Gestión de Personal</h6>
-                    <button class="btn btn-orange btn-sm rounded-3 px-3" @click="abrirModalUsuario">
-                        <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
-                    </button>
+                <div>
+                    <h5 class="fw-bold mb-0">Panel Super Admin</h5>
+                    <small class="opacity-75">Configuración de seguridad y alertas</small>
                 </div>
-                <div class="card-body px-4 pb-4">
-                    <div class="table-responsive mt-3">
-                        <table class="table table-custom align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Colaborador</th>
-                                    <th>ID Acceso</th>
-                                    <th>Nivel de Rol</th>
-                                    <th class="text-center">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="u in usuarios" :key="u.id">
-                                    <td class="fw-bold text-primary-custom">{{ u.nombre }}</td>
-                                    <td><span class="font-monospace small opacity-75">{{ u.usuario }}</span></td>
-                                    <td>
-                                        <span class="badge-role" :class="u.rol">
-                                            {{ u.rol }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button class="btn-action-delete" @click="eliminarUsuario(u.id)">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 p-2 bg-white-glass shadow-sm rounded-pill border px-3">
+                <div class="d-none d-md-flex align-items-center me-2 border-end pe-3">
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2 me-2">
+                        <i class="bi bi-grid-fill" style="font-size: 0.8rem;"></i>
+                    </span>
+                    <span class="small fw-bold text-muted text-uppercase"
+                        style="font-size: 0.65rem; letter-spacing: 1px;">Navegación</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button @click="toggleTheme" class="btn btn-action-modern rounded-pill shadow-sm"
+                        :class="isDarkMode ? 'btn-dark' : 'btn-light'" title="Cambiar Modo">
+                        <i
+                            :class="isDarkMode ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
+                    </button>
+
+                    <a href="/panel-aprobacionesDos" class="btn btn-action-modern btn-light rounded-pill shadow-sm px-3"
+                        title="Ir a Aprobaciones">
+                        <i class="bi bi-check2-all text-success me-1"></i>
+                        <span class="small fw-bold d-none d-sm-inline">A Nomina y Contratacion</span>
+                    </a>
+
+                    <a href="/panel-administrativo"
+                        class="btn btn-action-modern btn-back-modern rounded-pill shadow-sm px-3"
+                        title="Volver al Panel Principal">
+                        <i class="bi bi-house-door-fill me-1"></i>
+                        <span class="small fw-bold d-none d-sm-inline">A Seleccion</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <nav class="nav-sidebar p-2 rounded-4 shadow-sm h-100">
+                    <div class="nav flex-column nav-pills">
+                        <button class="nav-link mb-2 py-3" :class="{ active: tab === 'users' }" @click="tab = 'users'">
+                            <i class="bi bi-person-badge-fill me-2"></i> Usuarios
+                        </button>
+                        <button class="nav-link py-3" :class="{ active: tab === 'emails' }" @click="tab = 'emails'">
+                            <i class="bi bi-send-check-fill me-2"></i> Alertas Email
+                        </button>
                     </div>
-                </div>
+                </nav>
             </div>
 
-            <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de Notificación</h6>
-                </div>
-                <div class="card-body p-4">
-                    <form @submit.prevent="agregarEmail" class="row g-2 mb-4">
-                        <div class="col">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-0"><i class="bi bi-envelope"></i></span>
-                                <input type="email" v-model="nuevoEmail" class="form-control border-0 bg-light" placeholder="correo@empresa.com" required>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-orange px-4">Suscribir</button>
-                        </div>
-                    </form>
-
-                    <div class="email-list">
-                        <div v-for="email in emails" class="email-item d-flex justify-content-between align-items-center p-3 mb-2 rounded-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-check2-circle text-success me-3"></i>
-                                <span>{{ email }}</span>
-                            </div>
-                            <button class="btn-action-delete btn-sm" @click="eliminarEmail(email)">
-                                <i class="bi bi-x-circle-fill"></i>
-                            </button>
+            <div class="col-md-9">
+                <div v-if="tab === 'users'" class="card border-0 shadow-sm rounded-4 animate-fade">
+                    <div
+                        class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-people-fill text-orange me-2"></i>Gestión de Personal
+                        </h6>
+                        <button class="btn btn-orange btn-sm rounded-3 px-3" @click="abrirModalUsuario">
+                            <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
+                        </button>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        <div class="table-responsive mt-3">
+                            <table class="table table-custom align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Colaborador</th>
+                                        <th>ID Acceso</th>
+                                        <th>Nivel de Rol</th>
+                                        <th class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="u in usuarios" :key="u.id">
+                                        <td class="fw-bold text-primary-custom">{{ u.nombre }}</td>
+                                        <td><span class="font-monospace small opacity-75">{{ u.usuario }}</span></td>
+                                        <td>
+                                            <span class="badge-role" :class="u.rol">
+                                                {{ u.rol }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn-action-delete" @click="eliminarUsuario(u.id)">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+
+                <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de
+                            Notificación</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <form @submit.prevent="agregarEmail" class="row g-2 mb-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="bi bi-envelope"></i></span>
+                                    <input type="email" v-model="nuevoEmail" class="form-control border-0 bg-light"
+                                        placeholder="correo@empresa.com" required>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-orange px-4">Suscribir</button>
+                            </div>
+                        </form>
+
+                        <div class="email-list">
+                            <div v-for="email in emails"
+                                class="email-item d-flex justify-content-between align-items-center p-3 mb-2 rounded-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check2-circle text-success me-3"></i>
+                                    <span>{{ email }}</span>
+                                </div>
+                                <button class="btn-action-delete btn-sm" @click="eliminarEmail(email)">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-   <script src="js/superAdmin.js"></script>
+    <script src="js/superAdmin.js"></script>
 </body>
 
 </html>
