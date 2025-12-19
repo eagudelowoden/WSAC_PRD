@@ -162,8 +162,12 @@
                       <input type="text" class="form-control form-custom" v-model="usuarioActual.telefono" />
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label-custom"><i class="bi bi-calendar-event me-1"></i> Nacimiento</label>
+                      <label class="form-label-custom"><i class="bi bi-calendar-event me-1"></i>Fecha Nacimiento</label>
                       <input type="date" class="form-control form-custom" v-model="usuarioActual.fechaNacimiento" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-custom"><i class="bi bi-calendar-event me-1"></i>Fecha Suscripción</label>
+                      <input type="date" class="form-control form-custom" v-model="usuarioActual.fechaSuscripcion" />
                     </div>
 
                     <div class="col-md-6">
@@ -176,7 +180,8 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label-custom"><i class="bi bi-person me-1"></i> Afiliaciones Familiares</label>
-                      <input type="text" class="form-control form-custom" v-model="usuarioActual.afiliaciones_familiares" />
+                      <input type="text" class="form-control form-custom"
+                        v-model="usuarioActual.afiliaciones_familiares" />
                     </div>
 
                     <div class="col-12 mt-4">
