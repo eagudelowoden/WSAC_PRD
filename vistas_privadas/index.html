@@ -174,6 +174,10 @@
                       <label class="form-label-custom"><i class="bi bi-geo-alt me-1"></i> Dirección Residencia</label>
                       <input type="text" class="form-control form-custom" v-model="usuarioActual.direccion" />
                     </div>
+                    <div class="col-md-6">
+                      <label class="form-label-custom"><i class="bi bi-person me-1"></i> Afiliaciones Familiares</label>
+                      <input type="text" class="form-control form-custom" v-model="usuarioActual.afiliaciones_familiares" />
+                    </div>
 
                     <div class="col-12 mt-4">
                       <div
@@ -201,16 +205,29 @@
                       </div>
                     </div>
 
-                    <div class="col-md-4">
-                      <div class="card border-0 bg-light p-3 rounded-4 h-100">
-                        <label class="form-label-custom d-block mb-2">Estado Otro Sí</label>
-                        <div class="form-check form-switch custom-switch">
-                          <input class="form-check-input" type="checkbox" id="checkOtroSi"
-                            v-model="usuarioActual.otroSi" true-value="1" false-value="0">
-                          <label class="form-check-label fw-bold"
-                            :class="usuarioActual.otroSi == '1' ? 'text-orange' : 'text-muted'" for="checkOtroSi">
-                            {{ usuarioActual.otroSi == '1' ? 'ACTIVO' : 'INACTIVO' }}
-                          </label>
+                    <div class="col-md-3">
+                      <div class="status-badge-container p-2 rounded-3 border transition-all"
+                        :class="usuarioActual.otroSi == '1' ? 'bg-orange-light border-orange' : 'bg-light border-gray'">
+
+                        <label class="d-block mb-1 text-muted fw-bold" style="font-size: 0.65rem; ">
+                          Estado Otro Sí
+                        </label>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                          <div class="form-check form-switch m-0 p-0 d-flex align-items-center">
+                            <input class="form-check-input custom-mini-switch m-0" type="checkbox" id="checkOtroSi"
+                              v-model="usuarioActual.otroSi" true-value="1" false-value="0">
+
+                            <label class="form-check-label ms-2 fw-bold"
+                              :class="usuarioActual.otroSi == '1' ? 'text-orange' : 'text-muted'" for="checkOtroSi"
+                              style="font-size: 0.75rem;">
+                              {{ usuarioActual.otroSi == '1' ? 'ACTIVO' : 'INACTIVO' }}
+                            </label>
+                          </div>
+
+                          <i class="bi"
+                            :class="usuarioActual.otroSi == '1' ? 'bi-check-circle-fill text-orange' : 'bi-circle text-muted'"
+                            style="font-size: 0.9rem;"></i>
                         </div>
                       </div>
                     </div>
@@ -223,6 +240,11 @@
                           v-model="usuarioActual.afiliaciones_familiares"
                           placeholder="Nombres de familiares vinculados..." />
                       </div>
+                    </div>
+
+                     <div class="col-md-6">
+                      <label class="form-label-custom"><i class="bi bi-geo-alt me-1"></i> Dirección Residencia</label>
+                      <input type="text" class="form-control form-custom" v-model="usuarioActual.direccion" />
                     </div>
                   </div>
                 </div>
@@ -300,9 +322,9 @@
                   </div>
 
                   <div class="d-grid gap-2 mt-2">
-                   <button class="btn btn-slim btn-edit-slim shadow-sm" @click="solicitarCorreccion">
-  <i class="bi bi-pen"></i> Solicitar Corrección
-</button>
+                    <button class="btn btn-slim btn-edit-slim shadow-sm" @click="solicitarCorreccion">
+                      <i class="bi bi-pen"></i> Solicitar Corrección
+                    </button>
                     <div class="row g-2 mt-2">
                       <div class="col-6">
                         <button class="btn btn-slim btn-approve-slim" @click="aprobar">
