@@ -1,77 +1,85 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin | Configuración</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
-    <link rel="stylesheet" href="/css/superadmin.css">
+    <link rel="stylesheet" href="css/superadmin.css">
 </head>
-<body class="bg-light">
+<body>
 
-<div id="app" class="container py-5">
+<div id="app" class="container py-4">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="text-dark fw-bold">Panel Super Admin</h2>
-            <p class="text-muted">Gestión de acceso y notificaciones del sistema</p>
+    <header class="admin-header d-flex justify-content-between align-items-center p-3 mb-4 shadow-sm rounded-4">
+        <div class="d-flex align-items-center">
+            <div class="icon-box-admin me-3">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0">Panel Super Admin</h5>
+                <small class="opacity-75">Configuración de seguridad y alertas</small>
+            </div>
         </div>
-        <a href="/panel-administrativo" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
-    </div>
+        
+        <div class="d-flex gap-2">
+            <button @click="toggleTheme" class="btn btn-theme-toggle rounded-pill">
+                <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
+            </button>
+            <a href="/panel-administrativo" class="btn btn-back rounded-pill px-3">
+                <i class="bi bi-arrow-left-short"></i> Salir
+            </a>
+        </div>
+    </header>
 
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="list-group list-group-flush">
-                    <button class="list-group-item list-group-item-action py-3" 
-                        :class="{ active: tab === 'users' }" @click="tab = 'users'">
-                        <i class="bi bi-people-fill me-2"></i> Usuarios del Sistema
+    <div class="row g-4">
+        <div class="col-md-3">
+            <nav class="nav-sidebar p-2 rounded-4 shadow-sm h-100">
+                <div class="nav flex-column nav-pills">
+                    <button class="nav-link mb-2 py-3" :class="{ active: tab === 'users' }" @click="tab = 'users'">
+                        <i class="bi bi-person-badge-fill me-2"></i> Usuarios
                     </button>
-                    <button class="list-group-item list-group-item-action py-3" 
-                        :class="{ active: tab === 'emails' }" @click="tab = 'emails'">
-                        <i class="bi bi-envelope-paper-fill me-2"></i> Notificaciones
+                    <button class="nav-link py-3" :class="{ active: tab === 'emails' }" @click="tab = 'emails'">
+                        <i class="bi bi-send-check-fill me-2"></i> Alertas Email
                     </button>
                 </div>
-            </div>
+            </nav>
         </div>
 
         <div class="col-md-9">
-            
-            <div v-if="tab === 'users'" class="card shadow-sm border-0 animate-fade">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="m-0 fw-bold text-primary">Usuarios Registrados</h5>
-                    <button class="btn btn-primary btn-sm" @click="abrirModalUsuario">
-                        <i class="bi bi-plus-lg"></i> Nuevo Usuario
+            <div v-if="tab === 'users'" class="card border-0 shadow-sm rounded-4 animate-fade">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-people-fill text-orange me-2"></i>Gestión de Personal</h6>
+                    <button class="btn btn-orange btn-sm rounded-3 px-3" @click="abrirModalUsuario">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
                     </button>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
+                <div class="card-body px-4 pb-4">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-custom align-middle">
+                            <thead>
                                 <tr>
-                                    <th class="ps-4">Nombre</th>
-                                    <th>Usuario</th>
-                                    <th>Rol</th>
-                                    <th class="text-end pe-4">Acciones</th>
+                                    <th>Colaborador</th>
+                                    <th>ID Acceso</th>
+                                    <th>Nivel de Rol</th>
+                                    <th class="text-center">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="u in usuarios" :key="u.id">
-                                    <td class="ps-4 fw-bold">{{ u.nombre }}</td>
-                                    <td><span class="badge bg-light text-dark border">{{ u.usuario }}</span></td>
+                                    <td class="fw-bold text-primary-custom">{{ u.nombre }}</td>
+                                    <td><span class="font-monospace small opacity-75">{{ u.usuario }}</span></td>
                                     <td>
-                                        <span class="badge" :class="u.rol === 'superadmin' ? 'bg-purple' : 'bg-info'">
+                                        <span class="badge-role" :class="u.rol">
                                             {{ u.rol }}
                                         </span>
                                     </td>
-                                    <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-outline-danger" @click="eliminarUsuario(u.id)">
-                                            <i class="bi bi-trash"></i>
+                                    <td class="text-center">
+                                        <button class="btn-action-delete" @click="eliminarUsuario(u.id)">
+                                            <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -81,136 +89,40 @@
                 </div>
             </div>
 
-            <div v-if="tab === 'emails'" class="card shadow-sm border-0 animate-fade">
-                <div class="card-header bg-white py-3">
-                    <h5 class="m-0 fw-bold text-primary">Correos de Alerta</h5>
-                    <small class="text-muted">Estos correos recibirán un aviso cuando alguien suba documentos.</small>
+            <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de Notificación</h6>
                 </div>
-                <div class="card-body">
-                    
-                    <form @submit.prevent="agregarEmail" class="d-flex gap-2 mb-4">
-                        <input type="email" v-model="nuevoEmail" class="form-control" placeholder="ejemplo@empresa.com" required>
-                        <button type="submit" class="btn btn-success text-nowrap">
-                            <i class="bi bi-plus-circle"></i> Agregar
-                        </button>
+                <div class="card-body p-4">
+                    <form @submit.prevent="agregarEmail" class="row g-2 mb-4">
+                        <div class="col">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-envelope"></i></span>
+                                <input type="email" v-model="nuevoEmail" class="form-control border-0 bg-light" placeholder="correo@empresa.com" required>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-orange px-4">Suscribir</button>
+                        </div>
                     </form>
 
-                    <ul class="list-group">
-                        <li v-for="email in emails" class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="bi bi-envelope me-2 text-muted"></i> {{ email }}
-                            </span>
-                            <button class="btn btn-sm btn-outline-danger border-0" @click="eliminarEmail(email)">
+                    <div class="email-list">
+                        <div v-for="email in emails" class="email-item d-flex justify-content-between align-items-center p-3 mb-2 rounded-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check2-circle text-success me-3"></i>
+                                <span>{{ email }}</span>
+                            </div>
+                            <button class="btn-action-delete btn-sm" @click="eliminarEmail(email)">
                                 <i class="bi bi-x-circle-fill"></i>
                             </button>
-                        </li>
-                        <li v-if="emails.length === 0" class="list-group-item text-center text-muted py-4">
-                            No hay correos configurados. Nadie recibirá alertas.
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-
-<script>
-    const { createApp } = Vue;
-    createApp({
-        data() {
-            return {
-                tab: 'users',
-                usuarios: [],
-                emails: [],
-                nuevoEmail: ''
-            }
-        },
-        mounted() {
-            this.cargarDatos();
-        },
-        methods: {
-            async cargarDatos() {
-                // Cargar Usuarios
-                const resUser = await fetch('/api/admin/users');
-                this.usuarios = await resUser.json();
-                
-                // Cargar Emails
-                const resEmail = await fetch('/api/admin/emails');
-                this.emails = await resEmail.json();
-            },
-
-            // --- LÓGICA USUARIOS ---
-            async abrirModalUsuario() {
-                const { value: formValues } = await Swal.fire({
-                    title: 'Nuevo Usuario',
-                    html:
-                        '<input id="swal-nombre" class="swal2-input" placeholder="Nombre Completo">' +
-                        '<input id="swal-user" class="swal2-input" placeholder="Usuario (Login)">' +
-                        '<input id="swal-pass" type="password" class="swal2-input" placeholder="Contraseña">' +
-                        '<select id="swal-rol" class="swal2-select" style="display:flex; margin: 1em auto; width: 80%; padding: .5em;">' +
-                        '<option value="editor">Editor</option>' +
-        '<option value="aprobador">Aprobador</option>' + // <--- AQUÍ ESTÁ EL NUEVO ROL
-        '<option value="superadmin">Super Admin</option>' +
-                        '</select>',
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    preConfirm: () => {
-                        return {
-                            nombre: document.getElementById('swal-nombre').value,
-                            usuario: document.getElementById('swal-user').value,
-                            password: document.getElementById('swal-pass').value,
-                            rol: document.getElementById('swal-rol').value
-                        }
-                    }
-                });
-
-                if (formValues) {
-                    const res = await fetch('/api/admin/users', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(formValues)
-                    });
-                    this.cargarDatos();
-                    Swal.fire('Creado', 'Usuario agregado correctamente', 'success');
-                }
-            },
-
-            async eliminarUsuario(id) {
-                const result = await Swal.fire({
-                    title: '¿Eliminar usuario?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33'
-                });
-                if(result.isConfirmed){
-                    await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-                    this.cargarDatos();
-                }
-            },
-
-            // --- LÓGICA EMAILS ---
-            async agregarEmail() {
-                const res = await fetch('/api/admin/emails', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email: this.nuevoEmail })
-                });
-                const data = await res.json();
-                if(data.status === 'ok') {
-                    this.nuevoEmail = '';
-                    this.cargarDatos();
-                    Swal.fire({ toast: true, icon: 'success', title: 'Correo agregado', position: 'top-end', showConfirmButton: false, timer: 2000 });
-                } else {
-                    Swal.fire('Error', data.message, 'error');
-                }
-            },
-
-            async eliminarEmail(email) {
-                await fetch('/api/admin/emails', {
-                    method: 'DELETE', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email })
-                });
-                this.cargarDatos();
-            }
-        }
-    }).mount('#app');
-</script>
+   <script src="js/superAdmin.js"></script>
 </body>
+
 </html>
