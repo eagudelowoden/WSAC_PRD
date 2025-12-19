@@ -303,16 +303,15 @@
                     <button class="btn btn-warning-soft btn-sm fw-bold" @click="solicitarCorreccion">
                       <i class="bi bi-pencil-square me-1"></i> Solicitar Corrección
                     </button>
-
-                    <div class="row g-2">
+                    <div class="row g-2 mt-2">
                       <div class="col-6">
-                        <button class="btn btn-success-modern w-100 btn-sm py-2" @click="aprobar">
-                          <i class="bi bi-check-circle-fill me-1"></i> Aprobar
+                        <button class="btn btn-slim btn-approve-slim" @click="aprobar">
+                          <i class="bi bi-check2-circle"></i> Aprobar
                         </button>
                       </div>
                       <div class="col-6">
-                        <button class="btn btn-danger-modern w-100 btn-sm py-2" @click="rechazar">
-                          <i class="bi bi-x-circle-fill me-1"></i> Rechazar
+                        <button class="btn btn-slim btn-reject-slim" @click="rechazar">
+                          <i class="bi bi-x-circle"></i> Rechazar
                         </button>
                       </div>
                     </div>
@@ -323,7 +322,7 @@
 
             <div class="card border-info mt-3">
               <div class="card border-info mt-3">
-               <div class="card-header my-custom-header">
+                <div class="card-header my-custom-header">
                   <i class="bi bi-file-earmark-word"></i> Documentos Generados
                 </div>
                 <div class="card-body p-0">
@@ -389,60 +388,59 @@
                   </div>
                 </div>
                 <div class="col-12">
-<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-  <div class="card-header border-0 d-flex justify-content-between align-items-center py-3" style="background-color: #2c3e50;">
-    <span class="text-white fw-bold small text-uppercase tracking-wider">
-      <i class="bi bi-folder2-open me-2 text-info"></i> Archivos Cargados
-    </span>
-    <span v-if="archivosFiltrados.length" class="badge rounded-pill bg-info text-dark px-3">
-      {{ archivosFiltrados.length }} docs
-    </span>
-  </div>
+                  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header border-0 d-flex justify-content-between align-items-center py-3"
+                      style="background-color: #2c3e50;">
+                      <span class="text-white fw-bold small text-uppercase tracking-wider">
+                        <i class="bi bi-folder2-open me-2 text-info"></i> Archivos Cargados
+                      </span>
+                      <span v-if="archivosFiltrados.length" class="badge rounded-pill bg-info text-dark px-3">
+                        {{ archivosFiltrados.length }} docs
+                      </span>
+                    </div>
 
-  <div class="card-body bg-white p-3">
-    
-    <div v-if="archivos.length > 0" class="mb-3">
-      <div class="input-group input-group-sm border rounded-3 overflow-hidden shadow-sm">
-        <span class="input-group-text bg-white border-0">
-          <i class="bi bi-search text-muted"></i>
-        </span>
-        <input type="text" 
-               v-model="filtroNombre" 
-               class="form-control border-0 ps-0 shadow-none" 
-               placeholder="Buscar por nombre de archivo..."
-               style="font-size: 0.85rem;">
-        <button v-if="filtroNombre" @click="filtroNombre = ''" class="btn btn-white border-0 btn-sm">
-          <i class="bi bi-x-lg text-muted"></i>
-        </button>
-      </div>
-    </div>
+                    <div class="card-body bg-white p-3">
 
-    <div v-if="cargandoArchivos" class="text-center py-4">
-      <div class="spinner-border spinner-border-sm text-primary"></div>
-    </div>
+                      <div v-if="archivos.length > 0" class="mb-3">
+                        <div class="input-group input-group-sm border rounded-3 overflow-hidden shadow-sm">
+                          <span class="input-group-text bg-white border-0">
+                            <i class="bi bi-search text-muted"></i>
+                          </span>
+                          <input type="text" v-model="filtroNombre" class="form-control border-0 ps-0 shadow-none"
+                            placeholder="Buscar por nombre de archivo..." style="font-size: 0.85rem;">
+                          <button v-if="filtroNombre" @click="filtroNombre = ''" class="btn btn-white border-0 btn-sm">
+                            <i class="bi bi-x-lg text-muted"></i>
+                          </button>
+                        </div>
+                      </div>
 
-    <div v-else-if="archivosFiltrados.length === 0" class="text-center py-4">
-      <i class="bi bi-patch-question h2 text-light d-block"></i>
-      <span class="text-muted small">No se encontraron archivos con ese nombre.</span>
-    </div>
+                      <div v-if="cargandoArchivos" class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                      </div>
 
-    <div v-else class="row g-2">
-      <div class="col-6 col-md-4 col-lg-3" v-for="file in archivosFiltrados" :key="file.name">
-        <div class="file-card p-2 text-center rounded-3 border h-100 transition-all">
-          <div class="file-icon-container mb-1">
-             <i class="bi bi-file-earmark-pdf-fill text-danger h3"></i>
-          </div>
-          <div class="file-name-text small fw-medium text-dark text-truncate px-1" :title="file.name">
-            {{ file.name }}
-          </div>
-          <a :href="file.url" target="_blank" class="btn btn-sm btn-light border w-100 mt-2 py-1 btn-view-file">
-            <i class="bi bi-eye-fill me-1"></i> Ver
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                      <div v-else-if="archivosFiltrados.length === 0" class="text-center py-4">
+                        <i class="bi bi-patch-question h2 text-light d-block"></i>
+                        <span class="text-muted small">No se encontraron archivos con ese nombre.</span>
+                      </div>
+
+                      <div v-else class="row g-2">
+                        <div class="col-6 col-md-4 col-lg-3" v-for="file in archivosFiltrados" :key="file.name">
+                          <div class="file-card p-2 text-center rounded-3 border h-100 transition-all">
+                            <div class="file-icon-container mb-1">
+                              <i class="bi bi-file-earmark-pdf-fill text-danger h3"></i>
+                            </div>
+                            <div class="file-name-text small fw-medium text-dark text-truncate px-1" :title="file.name">
+                              {{ file.name }}
+                            </div>
+                            <a :href="file.url" target="_blank"
+                              class="btn btn-sm btn-light border w-100 mt-2 py-1 btn-view-file">
+                              <i class="bi bi-eye-fill me-1"></i> Ver
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
