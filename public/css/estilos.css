@@ -46,7 +46,7 @@ body {
 }
 .user-item.active {
   background-color: #e7f1ff;
-  border-left: 4px solid #0d6efd;
+  border-left: 4px solid #124ea8;
 }
 .user-item h6 {
   margin: 0;
@@ -105,7 +105,7 @@ body {
 }
 .form-control:focus {
   box-shadow: none;
-  border-color: #0d6efd;
+  border-color: #0a48a5;
 }
 
 /* GRID DE DOCUMENTOS */
@@ -123,7 +123,7 @@ body {
   transition: 0.2s;
 }
 .doc-item:hover {
-  border-color: #0d6efd;
+  border-color: #0a4092;
   background: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -137,16 +137,71 @@ body {
   font-weight: 600;
 }
 
-/* Modificamos esto para fijar la altura */
 .sidebar {
-  width: 300px; /* Un poco más angosta */
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Altura total de la ventana */
-  border-right: 1px solid #dee2e6;
+  width: 260px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
   background: white;
+  z-index: 1000;
+}
+/* Estado contraído */
+.sidebar.collapsed {
+  width: 50px; /* Solo se ve el borde y el botón */
+}
+/* Botón flotante para cerrar */
+.toggle-sidebar-btn {
+  position: absolute;
+  right: -12px;
+  top: 60px;
+  width: 24px;
+  height: 24px;
+  background: #0d6efd;
+  color: white;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1001;
+}
+/* Tarjetas mucho más pequeñas (Mini) */
+.user-card-mini {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+.user-card-mini:hover { background: #f0f4ff; }
+.user-card-mini.active { 
+  background: #e7f1ff; 
+  border-color: #0d6efd; 
+}
+.user-avatar-mini {
+  width: 24px;
+  height: 24px;
+  background: #4f46e5;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  margin-right: 8px;
+  font-weight: bold;
 }
 
+.user-name-mini {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #444;
+}
 /* Header del buscador (fijo arriba) */
 /* 2. Cabecera (Buscador) */
 .search-header {
@@ -179,6 +234,7 @@ body {
   flex: 1; /* Ocupa todo el espacio restante vertical */
   overflow-y: auto; /* Habilita el scroll interno */
   padding: 10px;
+  width: 100%;
   background-color: #f8f9fa; /* Fondo gris muy suave para diferenciar */
 }
 /* Scrollbar Personalizado (Más bonito) */
@@ -193,8 +249,11 @@ body {
 /* 4. Tarjeta de Usuario (User Card) */
 .user-card {
   display: flex;
+  width: 260px;
+  max-width: 90%;
+  height: 50px;
   align-items: center;
-  padding: 12px;
+  padding: 10px;
   margin-bottom: 8px;
   background: #ffffff;
   border-radius: 12px; /* Bordes redondeados */
@@ -221,8 +280,8 @@ body {
   height: 40px;
   background: linear-gradient(
     135deg,
-    #6366f1,
-    #4f46e5
+    #0a48a5,
+    #0a48a5
   ); /* Gradiente morado/azul */
   color: white;
   border-radius: 50%; /* Círculo perfecto */
@@ -281,10 +340,35 @@ body {
   background: #f0f8ff;
 }
 .user-item.active {
-  background: #0d6efd;
+  background: #0a48a5;
   color: white !important;
 }
+/* Clase personalizada para el Navbar */
+.navbar-custom {
+  /* Un degradado sutil se ve más moderno que un color sólido */
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); 
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
+/* Ajuste para que los textos dentro del nav sean blancos por defecto */
+.navbar-custom .navbar-brand,
+.navbar-custom .user-dropdown-btn {
+  color: #ffffff !important;
+}
+
+/* El nombre del sistema con un toque de opacidad para que no brille tanto como el nombre de usuario */
+.small-brand {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Hover sutil para el botón de usuario */
+.user-dropdown-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
 /* Texto más limpio */
 .user-item h6 {
   font-size: 0.9rem;
@@ -325,4 +409,119 @@ body {
   .user-item i.bi-check-circle-fill {
     font-size: 0.8rem;
   }
+}
+.btn-logout {
+  background-color: #fdf2f2; /* Un fondo rojizo muy tenue */
+  color: #d3a72f;           /* Texto rojo elegante */
+  border: 1px solid #fee2e2;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;       /* Bordes más redondeados = más moderno */
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #e9a933; /* Se vuelve rojo al pasar el mouse */
+  color: white;
+  border-color: #d39f2f;
+  transform: translateY(-1px); /* Efecto de levante */
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+.btn-logout:active {
+  transform: translateY(0);
+}
+/* Estilo para el botón que despliega */
+.user-dropdown-btn {
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.user-dropdown-btn:hover {
+  opacity: 0.8;
+}
+
+/* El círculo con la inicial (Avatar) */
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+/* Ajustes del menú desplegable */
+.dropdown-menu {
+  border-radius: 10px;
+  min-width: 200px;
+}
+
+.dropdown-item {
+  padding: 5px 8px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+.brand-text {
+  font-size: 0.95rem; /* Tamaño más pequeño y elegante */
+  font-weight: 600;    /* Un poco de grosor para que destaque sin ser gigante */
+  letter-spacing: 0.3px;
+  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+}
+
+.brand-text i {
+  color: rgba(255, 255, 255, 0.85); /* Un tono un poco más suave para el icono */
+}
+
+/* En pantallas muy pequeñas, podemos acortar el texto aún más */
+@media (max-width: 576px) {
+  .brand-text span {
+    font-size: 0.85rem;
+  }
+}
+
+/* Reducir el texto de la marca */
+.small-brand {
+  font-size: 1.0rem;
+  font-weight: 500;
+  opacity: 0.9;
+  color: rgb(255, 255, 255);
+}
+
+/* Avatar más pequeño */
+.avatar-circle-sm {
+  width: 24px;   /* Bajamos de 32px a 24px */
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+/* Texto de usuario extra pequeño */
+.extra-small {
+  font-size: 0.75rem;
+}
+
+.x-small {
+  font-size: 0.65rem;
+}
+
+/* Ajuste del menú desplegable para que no sea gigante */
+.dropdown-item {
+  padding: 5px 12px;
 }

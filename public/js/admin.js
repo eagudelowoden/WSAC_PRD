@@ -22,6 +22,8 @@ const SegmentosMixin = {
       cargandoUsuario: false,
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
+      menuAbierto: false, // Controla si se ve el menú
+      sidebarContraida: false
     };
   },
   mounted() {
@@ -283,6 +285,8 @@ createApp({
       usuarioActual: null,
       filtroEstado: "todos",
       busqueda: "",
+      sidebarContraida: false,
+      listaAbierta: false, // Controla si se ven los usuarios
 
       form: {
         cargo: "",
@@ -707,6 +711,7 @@ createApp({
       }
     },
     cerrarSesion() {
+      this.menuAbierto = false; // Cerramos el menú al hacer click
       // 1. Borrar token y datos del usuario del navegador
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");

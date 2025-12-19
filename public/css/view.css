@@ -125,7 +125,7 @@ body, html {
 .actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
 .btn-success { background: #2ecc71; color: white; }
-.btn-danger { background: #e74c3c; color: white; }
+.btn-danger { background: #e77b3c; color: white; }
 .btn:hover { opacity: 0.9; }
 
 /* Modificamos esta clase para controlar el desbordamiento */

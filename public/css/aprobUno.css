@@ -1,0 +1,100 @@
+/* Sidebar Principal */
+.sidebar {
+  width: 240px; /* Ancho más reducido */
+  background: white;
+  transition: all 0.3s ease;
+  position: relative;
+  height: 100%;
+  border-right: 1px solid #edf2f7;
+}
+
+.sidebar.collapsed {
+  width: 45px; /* Solo queda el espacio para el botón de toggle */
+}
+
+/* Botón flotante para abrir/cerrar */
+.toggle-sidebar-btn {
+  position: absolute;
+  right: -10px;
+  top: 15px;
+  width: 22px;
+  height: 22px;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Cabecera de búsqueda */
+.search-header-mini {
+  padding: 15px 12px 5px 12px;
+}
+
+/* Botón que despliega la lista */
+.btn-action-list {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.btn-action-list:hover { background-color: #eef2f7; }
+
+/* Tarjetas de usuario Ultra-Mini */
+.user-card-mini {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s;
+}
+
+.user-card-mini:hover { background: #f1f5f9; }
+.user-card-mini.active { 
+  background: #eff6ff; 
+  border-color: #bfdbfe; 
+}
+
+.avatar-mini {
+  width: 28px;
+  height: 28px;
+  background: #6366f1;
+  color: white;
+  border-radius: 8px; /* Cuadraditos redondeados se ven más modernos */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: bold;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.name-mini {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
+  line-height: 1.2;
+}
+
+.doc-mini {
+  font-size: 0.65rem;
+  color: #718096;
+}
+
+/* Área de scroll interna para que no crezca infinito */
+.user-scroll-area {
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}

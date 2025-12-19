@@ -17,109 +17,92 @@
 
 <body>
   <div id="app">
-          <nav
-        class="navbar navbar-dark bg-primary px-3 shadow-sm justify-content-between"
-        style="flex-shrink: 0"
-      >
-        <span class="navbar-brand mb-0 h1">
-          <i class="bi bi-building-gear"></i> Gestión Área de Nomina y Contratación
-        </span>
+    <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
+      style="flex-shrink: 0; min-height: 40px;">
+      <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-building-gear fs-6"></i>
+        <span class="small-brand">Gestión Área de Nómina y Contratación</span>
+      </span>
 
-        <div class="d-flex align-items-center gap-3">
-          <span class="text-white small" v-if="usuarioSys && usuarioSys.nombre">
-            Hola, {{ usuarioSys.nombre }}
-          </span>
-          <span class="text-white small" v-else> Cargando... </span>
-
+      <div class="d-flex align-items-center">
+        <div class="dropdown">
           <button
-            class="btn btn-sm btn-danger d-flex align-items-center gap-2"
-            @click="cerrarSesion"
-            type="button"
-          >
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Cerrar Sesión</span>
+            class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 user-dropdown-btn py-0"
+            type="button" @click="menuAbierto = !menuAbierto">
+
+            <div class="avatar-circle-sm">
+              {{ usuarioSys?.nombre?.charAt(0).toUpperCase() || '?' }}
+            </div>
+
+            <span class="extra-small d-none d-md-inline" v-if="usuarioSys && usuarioSys.nombre">
+              {{ usuarioSys.nombre }}
+            </span>
+            <i class="bi bi-chevron-down x-small"></i>
           </button>
+
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" :class="{ 'show': menuAbierto }"
+            style="position: absolute; right: 0; font-size: 0.8rem;">
+            <li>
+              <button class="dropdown-item text-danger d-flex align-items-center gap-2" @click="cerrarSesion">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Cerrar Sesión</span>
+              </button>
+            </li>
+          </ul>
         </div>
-      </nav>
+      </div>
+    </nav>
 
 
     <div class="main-container">
-      <div class="sidebar shadow-sm">
-        <div class="search-header">
+<div class="sidebar shadow-sm" :class="{ 'collapsed': sidebarContraida }">
+  
+  <button class="toggle-sidebar-btn" @click="sidebarContraida = !sidebarContraida">
+    <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+  </button>
 
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="fw-bold text-dark m-0">
-              <span class="text-primary">Colaboradores</span>
-            </h5>
-            <span class="badge bg-light text-secondary rounded-pill border">
-              {{ usuariosFiltrados.length }}
-            </span>
-          </div>
+  <div class="search-header" v-show="!sidebarContraida">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h6 class="fw-bold text-dark m-0">Colaboradores</h6>
+      <span class="badge bg-light text-secondary rounded-pill border">{{ usuariosFiltrados.length }}</span>
+    </div>
 
-          <div class="input-group mb-2">
-            <span class="input-group-text bg-white border-end-0 text-muted">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" class="form-control border-start-0 ps-0 search-input" v-model="busqueda"
-              placeholder="Buscar nombre o cédula..." />
-          </div>
+    <div class="input-group mb-2">
+      <input type="text" class="form-control form-control-sm search-input" v-model="busqueda" placeholder="Buscar..." />
+    </div>
 
-          <div class="d-flex gap-1 justify-content-center">
-            <button class="btn btn-xs rounded-pill"
-              :class="filtroEstado === 'pendientes' ? 'btn-primary' : 'btn-outline-secondary'"
-              @click="filtroEstado = 'pendientes'" title="Ver pendientes de gestión">
-              Pendientes
-            </button>
-            <button class="btn btn-xs rounded-pill"
-              :class="filtroEstado === 'hoy' ? 'btn-success' : 'btn-outline-secondary'" @click="filtroEstado = 'hoy'"
-              title="Ingresos registrados hoy">
-              <i class="bi bi-calendar-event"></i> Hoy
-            </button>
-            <button class="btn btn-xs rounded-pill"
-              :class="filtroEstado === 'todos' ? 'btn-secondary' : 'btn-outline-secondary'"
-              @click="filtroEstado = 'todos'" title="Ver todos los registros">
-              Todos
-            </button>
-          </div>
-        </div>
+    <div class="d-flex gap-1 justify-content-center mb-3">
+      <button class="btn btn-xs rounded-pill" :class="filtroEstado === 'pendientes' ? 'btn-primary' : 'btn-outline-secondary'" @click="filtroEstado = 'pendientes'">Pendientes</button>
+      <button class="btn btn-xs rounded-pill" :class="filtroEstado === 'todos' ? 'btn-secondary' : 'btn-outline-secondary'" @click="filtroEstado = 'todos'">Todos</button>
+    </div>
+  </div>
 
-        <div class="user-list-container">
+  <div class="user-list-container">
+    <div class="px-2" v-show="!sidebarContraida">
+      <button 
+        class="btn btn-sm btn-light w-100 d-flex justify-content-between align-items-center border mb-2" 
+        @click="listaAbierta = !listaAbierta"
+      >
+        <span class="small fw-bold">Ver Lista de Usuarios</span>
+        <i class="bi" :class="listaAbierta ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+      </button>
 
-          <div v-if="cargandoUsuarios" class="text-center py-5 text-muted">
-            <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
-            <p class="small">Cargando...</p>
-          </div>
-
-          <div v-else-if="usuariosFiltrados.length === 0" class="text-center py-5 text-muted opacity-50">
-            <i class="bi bi-people display-4"></i>
-            <p class="small mt-2">No hay colaboradores</p>
-            <small v-if="filtroEstado === 'hoy'" class="d-block">No hay registros hoy</small>
-            <small v-if="filtroEstado === 'pendientes'" class="d-block">¡Estás al día! No hay pendientes.</small>
-          </div>
-
-          <div v-else>
-            <div v-for="u in usuariosFiltrados" :key="u.id" class="user-card animate-fade-in"
-              :class="{ 'active': usuarioActual && usuarioActual.id === u.id }" @click="seleccionarUsuario(u.id)">
-
-              <div class="user-avatar">
-                {{ u.nombres ? u.nombres.charAt(0) : '?' }}{{ u.apellidos ? u.apellidos.charAt(0) : '?' }}
-              </div>
-
-              <div class="user-info">
-                <h6 class="user-name text-truncate">
-                  {{ u.nombres || 'Sin Nombre' }} {{ u.apellidos || '' }}
-                </h6>
-                <div class="d-flex align-items-center justify-content-between">
-                  <small class="user-doc text-muted">CC: {{ u.documento || '---' }}</small>
-
-                  <i v-if="usuarioActual && usuarioActual.id === u.id"
-                    class="bi bi-check-circle-fill text-primary fade-in"></i>
-                </div>
-              </div>
-            </div>
+      <div v-if="listaAbierta">
+        <div v-if="cargandoUsuarios" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+        
+        <div v-else v-for="u in usuariosFiltrados" :key="u.id" 
+             class="user-card-mini animate-fade-in"
+             :class="{ 'active': usuarioActual?.id === u.id }" 
+             @click="seleccionarUsuario(u.id)">
+          <div class="user-avatar-mini">{{ u.nombres?.charAt(0) }}</div>
+          <div class="user-info-mini">
+            <div class="user-name-mini text-truncate">{{ u.nombres }}</div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
       <div class="content-area">
         <div v-if="!usuarioActual"
@@ -203,14 +186,8 @@
                     <div class="col-md-3">
                       <label class="form-label d-block">Otro Si</label>
                       <div class="form-check form-switch mt-2">
-                        <input 
-                          class="form-check-input" 
-                          type="checkbox" 
-                          id="checkOtroSi" 
-                          v-model="usuarioActual.otroSi"
-                          true-value="1" 
-                          false-value="0"
-                        >
+                        <input class="form-check-input" type="checkbox" id="checkOtroSi" v-model="usuarioActual.otroSi"
+                          true-value="1" false-value="0">
                         <label class="form-check-label" for="checkOtroSi">
                           {{ usuarioActual.otroSi == '1' ? 'Activo (1)' : 'Inactivo (0)' }}
                         </label>

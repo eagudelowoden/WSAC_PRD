@@ -214,7 +214,9 @@ createApp({
   data() {
     return {
       busqueda: "",
+      sidebarContraida: false, // Controla el ancho del sidebar
       usuarios: [],
+      listaAbierta: false,      // Controla si se ven los usuarios
       selectedId: "",
       usuarioActual: null,
       filtroEstado: "todos",
@@ -227,6 +229,7 @@ createApp({
       ],
       aprobacion: "",
       busqueda: "",
+      menuAbierto: false, // Controla si se ve el menú
 
       form: {
         cargo: "",
@@ -657,6 +660,7 @@ createApp({
       }
     },
     cerrarSesion() {
+      this.menuAbierto = false; // Cerramos el menú al hacer click
       // 1. Borrar token y datos del usuario del navegador
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");
