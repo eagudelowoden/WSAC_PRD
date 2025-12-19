@@ -509,9 +509,9 @@ button:disabled {
 }
 
 .btn-approve-slim:hover {
-  background-color: #515f81;
+  background-color: #45a55d;
   color: white !important;
-  border-color: #515f81;
+  border-color: #4cb666;
 }
 
 /* Variante Rechazar (Rojo suave) */
@@ -522,9 +522,9 @@ button:disabled {
 }
 
 .btn-reject-slim:hover {
-  background-color: #a34d47;
+  background-color: #b94f47;
   color: white !important;
-  border-color: #515f81;
+  border-color: #b94f47;
 }
 
 /* Iconos un poco más grandes que el texto para equilibrio visual */
@@ -534,5 +534,39 @@ button:disabled {
 
 /* Efecto al presionar */
 .btn-slim:active {
+  transform: scale(0.96);
+}
+.btn-slim {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex; /* Para que no ocupe todo el ancho si no es necesario */
+  align-items: center;
+  gap: 6px;
+}
+
+/* Variante Corrección (Ámbar Moderno) */
+.btn-edit-slim {
+  background-color: #fff9db; /* Amarillo pastel muy suave */
+  color: #f08c00;            /* Naranja oscuro para texto (buen contraste) */
+  border-color: #fff3bf;
+}
+
+.btn-edit-slim:hover {
+  background-color: #f08c00;
+  color: white !important;
+  border-color: #f08c00;
+  box-shadow: 0 4px 10px rgba(240, 140, 0, 0.2);
+}
+
+.btn-edit-slim i {
+  font-size: 0.85rem;
+}
+
+/* Efecto de presión */
+.btn-edit-slim:active {
   transform: scale(0.96);
 }
