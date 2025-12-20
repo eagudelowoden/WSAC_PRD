@@ -429,6 +429,9 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
+        userData.fechaSuscripcion = userData.fecha_suscripcion
+          ? userData.fechaSuscripcion.split("T")[0]
+          : "";
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
 
