@@ -213,6 +213,7 @@ createApp({
 
   data() {
     return {
+
       busqueda: "",
       sidebarContraida: false, // Controla el ancho del sidebar
       usuarios: [],
@@ -246,6 +247,12 @@ createApp({
     };
   },
   computed: {
+
+    archivosFiltrados() {
+    if (!this.busqueda) return this.archivos;
+    const search = this.busqueda.toLowerCase();
+    return this.archivos.filter(f => f.name.toLowerCase().includes(search));
+  },
     usuariosFiltrados() {
       let lista = this.usuarios;
 

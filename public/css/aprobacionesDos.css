@@ -313,3 +313,222 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 .item-history {
   border-bottom: 1px solid #f1f1f1 !important;
 }
+
+
+
+
+/* Grid de documentos */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjeta de documento individual */
+.doc-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 15px 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.doc-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+  border-color: #dee2e6;
+}
+
+/* Icono de PDF */
+.doc-icon {
+  font-size: 2.5rem;
+  color: #e74c3c; /* Color PDF */
+  margin-bottom: 8px;
+}
+
+/* Nombre del archivo */
+.doc-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Footer y Botón Ver */
+.doc-footer {
+  margin-top: 12px;
+  border-top: 1px solid #f8f9fa;
+  padding-top: 10px;
+}
+
+.btn-ver-doc {
+  display: block;
+  text-decoration: none;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.btn-ver-doc:hover {
+  color: #2c3e50;
+}
+
+/* Buscador Estilo Imagen */
+.input-group-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-input {
+  position: absolute;
+  left: 15px;
+  color: #888;
+  font-size: 0.9rem;
+  z-index: 5;
+}
+
+.form-control-custom {
+  width: 100%;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.form-control-custom:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+
+/* Contenedor del Scroll */
+.scroll-area {
+  max-height: 400px; /* Altura máxima antes de activar el scroll */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+/* Scrollbar personalizado (Minimalista) */
+.scroll-area::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Grid de documentos */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjeta de documento */
+.doc-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+}
+
+.doc-card:hover {
+  border-color: #3498db;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Icono PDF */
+.doc-icon {
+  font-size: 1.8rem;
+  color: #e74c3c;
+  margin-bottom: 5px;
+}
+
+/* Nombre del archivo */
+.doc-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Footer y Botón Ver */
+.doc-footer {
+  margin-top: 8px;
+  border-top: 1px solid #f8f9fa;
+  padding-top: 8px;
+}
+
+.btn-ver-doc {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #3498db;
+  background-color: #f0f7fd;
+  padding: 4px 12px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.btn-ver-doc:hover {
+  background-color: #3498db;
+  color: #ffffff !important;
+}
+
+/* Buscador Estilo Imagen */
+.input-group-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-input {
+  position: absolute;
+  left: 15px;
+  color: #888;
+  font-size: 0.85rem;
+  z-index: 5;
+}
+
+.form-control-custom {
+  width: 100%;
+  padding: 8px 15px 8px 40px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
