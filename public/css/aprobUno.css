@@ -615,3 +615,54 @@ button:disabled {
   border-color: #f08c00;
   box-shadow: 0 0 0 0.25rem rgba(240, 140, 0, 0.15);
 }
+
+
+/* Contenedor de scroll limitado */
+.scroll-container-files {
+  max-height: 400px; /* Puedes ajustar esta altura según prefieras */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px; /* Espacio para que el scroll no tape las tarjetas */
+}
+
+/* Personalización de la barra de scroll (Minimalista) */
+.scroll-container-files::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-container-files::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.scroll-container-files::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.scroll-container-files::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Soporte para Firefox */
+.scroll-container-files {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f1f1f1;
+}
+
+/* Estilos de tus tarjetas (para asegurar la transición) */
+.file-card {
+  transition: all 0.2s ease-in-out;
+  background-color: #fff;
+}
+
+.file-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #3498db !important;
+}
+
+.btn-view-file:hover {
+  background-color: #f8f9fa;
+  color: #3498db;
+}
