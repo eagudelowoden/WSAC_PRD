@@ -1,0 +1,315 @@
+
+/* Contenedores */
+.icon-box-mini { background-color: #fff4e5; padding: 6px 10px; }
+.separator-dashed { border-top: 1px dashed #eee; width: 100%; }
+
+/* Labels */
+.form-label-mini {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  display: block;
+}
+
+/* Inputs y Selects */
+.input-group-mini { position: relative; display: flex; align-items: center; width: 100%; }
+.icon-mini {
+  position: absolute;
+  left: 10px;
+  color: #888;
+  font-size: 0.8rem;
+  z-index: 5;
+}
+
+.form-select-mini, .form-control-mini {
+  width: 100%;
+  padding: 6px 8px 6px 30px; 
+  background-color: #f8f9fa;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #444;
+  transition: all 0.2s ease;
+}
+
+/* Campos sin icono */
+input:not(.ps-4).form-control-mini, textarea.form-control-mini {
+  padding-left: 10px;
+}
+
+/* Botón Amarillo */
+.btn-correction-mini {
+  background-color: #fff9db;
+  border: 1px solid #ffec99;
+  color: #f08c00;
+  font-weight: 700;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+/* Botones Grises */
+.btn-gray-mini {
+  background-color: #a5abb6;
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 0.8rem;
+}
+
+.btn-gray-mini:hover { background-color: #8e95a1; opacity: 0.9; }
+
+/* AJUSTES RESPONSIVE ADICIONALES */
+@media (max-width: 576px) {
+  .card-body { padding: 1rem !important; }
+  .form-label-mini { font-size: 0.6rem; }
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.mt-auto {
+  margin-top: auto; /* Empuja los botones hacia el fondo si la card crece */
+}
+
+
+/* Contenedores */
+.bg-primary-light { background-color: #e7f1ff; padding: 4px 8px; }
+.bg-faint { background-color: #fcfcfc; }
+.border-dashed { border-style: dashed !important; border-color: #eee !important; }
+
+/* Tipografía equilibrada */
+.form-label-mini {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.form-label-mini i {
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.form-label-micro {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+/* Inputs de la tabla (Especialmente compactos) */
+.form-control-mini-table {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+}
+
+/* Inputs generales */
+.form-control-mini {
+  width: 100%;
+  padding: 5px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* Switch */
+.custom-mini-switch {
+  width: 1.6rem !important;
+  height: 0.85rem !important;
+}
+
+/* Colores */
+.bg-orange-light { background-color: #fffaf0 !important; }
+.border-orange { border-color: #ffec99 !important; }
+.text-orange { color: #f08c00 !important; }
+
+
+
+
+/* Elimina bordes y reset del select para integración total */
+.form-select-mini-borderless {
+  border: none !important;
+  background-color: transparent !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  color: #444;
+  padding: 2px 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+/* Efecto Hover para los documentos del historial */
+.hover-shadow:hover {
+  border-color: #576fb3 !important;
+  background-color: #f8faff !important;
+  transition: all 0.2s ease;
+}
+
+.opacity-hover:hover {
+  opacity: 0.6;
+}
+
+/* Scrollbar minimalista para el historial */
+.history-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.history-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+/* Botón Primary personalizado */
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  transition: transform 0.1s;
+}
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.w-100 {
+  width: 100% !important;
+}
+/* Reset del select para la barra moderna */
+.form-select-mini-borderless {
+  border: none !important;
+  background-color: transparent !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  color: #444;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 4px 0 !important;
+}
+
+/* Botones de acción del historial */
+.btn-icon-link {
+  background: transparent;
+  border: none;
+  padding: 2px 5px;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+}
+.btn-icon-link:hover { opacity: 0.7; }
+
+
+
+/* Scrollbar minimalista */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 10px;
+}
+
+.transition-all { transition: all 0.2s ease-in-out; }
+
+
+/* Botón Azul de la Imagen */
+.btn-primary-action {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-action:hover {
+  background-color: #0056b3;
+  transform: scale(1.02);
+}
+
+/* Select sin bordes integrado en la barra */
+.form-select-mini-clean {
+  border: none !important;
+  background-color: transparent !important;
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  color: #444;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 4px 0 !important;
+}
+
+/* Estilo del Historial */
+.item-history {
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f1f1f1 !important;
+}
+
+.item-history:hover {
+  background-color: #fcfcfc;
+}
+
+.opacity-hover:hover {
+  opacity: 0.6;
+}
+
+/* Labels */
+.form-label-mini {
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.w-100 { width: 100% !important; }
+/* Altura máxima y control de scroll */
+.scroll-historial {
+  max-height: 160px; /* Ajusta este valor según prefieras (aprox 4-5 filas) */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Diseño del Scrollbar para Webkit (Chrome, Safari, Edge) */
+.scroll-historial::-webkit-scrollbar {
+  width: 6px; /* Barra delgada */
+}
+
+.scroll-historial::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.scroll-historial::-webkit-scrollbar-thumb {
+  background: #cbd5e0; /* Color gris suave */
+  border-radius: 10px;
+}
+
+.scroll-historial::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0; /* Un poco más oscuro al pasar el mouse */
+}
+
+/* Estilos de soporte para Firefox */
+.scroll-historial {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f1f1f1;
+}
+
+/* Mantener el estilo de los items */
+.item-history {
+  border-bottom: 1px solid #f1f1f1 !important;
+}

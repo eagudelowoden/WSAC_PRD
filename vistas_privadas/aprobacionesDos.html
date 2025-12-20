@@ -56,54 +56,57 @@
 
 
     <div class="main-container">
-<div class="sidebar shadow-sm" :class="{ 'collapsed': sidebarContraida }">
-  
-  <button class="toggle-sidebar-btn" @click="sidebarContraida = !sidebarContraida">
-    <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
-  </button>
+      <div class="sidebar shadow-sm" :class="{ 'collapsed': sidebarContraida }">
 
-  <div class="search-header" v-show="!sidebarContraida">
-    <div class="d-flex align-items-center justify-content-between mb-2">
-      <h6 class="fw-bold text-dark m-0">Colaboradores</h6>
-      <span class="badge bg-light text-secondary rounded-pill border">{{ usuariosFiltrados.length }}</span>
-    </div>
+        <button class="toggle-sidebar-btn" @click="sidebarContraida = !sidebarContraida">
+          <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+        </button>
 
-    <div class="input-group mb-2">
-      <input type="text" class="form-control form-control-sm search-input" v-model="busqueda" placeholder="Buscar..." />
-    </div>
+        <div class="search-header" v-show="!sidebarContraida">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="fw-bold text-dark m-0">Colaboradores</h6>
+            <span class="badge bg-light text-secondary rounded-pill border">{{ usuariosFiltrados.length }}</span>
+          </div>
 
-    <div class="d-flex gap-1 justify-content-center mb-3">
-      <button class="btn btn-xs rounded-pill" :class="filtroEstado === 'pendientes' ? 'btn-primary' : 'btn-outline-secondary'" @click="filtroEstado = 'pendientes'">Pendientes</button>
-      <button class="btn btn-xs rounded-pill" :class="filtroEstado === 'todos' ? 'btn-secondary' : 'btn-outline-secondary'" @click="filtroEstado = 'todos'">Todos</button>
-    </div>
-  </div>
+          <div class="input-group mb-2">
+            <input type="text" class="form-control form-control-sm search-input" v-model="busqueda"
+              placeholder="Buscar..." />
+          </div>
 
-  <div class="user-list-container">
-    <div class="px-2" v-show="!sidebarContraida">
-      <button 
-        class="btn btn-sm btn-light w-100 d-flex justify-content-between align-items-center border mb-2" 
-        @click="listaAbierta = !listaAbierta"
-      >
-        <span class="small fw-bold">Ver Lista de Usuarios</span>
-        <i class="bi" :class="listaAbierta ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-      </button>
+          <div class="d-flex gap-1 justify-content-center mb-3">
+            <button class="btn btn-xs rounded-pill"
+              :class="filtroEstado === 'pendientes' ? 'btn-primary' : 'btn-outline-secondary'"
+              @click="filtroEstado = 'pendientes'">Pendientes</button>
+            <button class="btn btn-xs rounded-pill"
+              :class="filtroEstado === 'todos' ? 'btn-secondary' : 'btn-outline-secondary'"
+              @click="filtroEstado = 'todos'">Todos</button>
+          </div>
+        </div>
 
-      <div v-if="listaAbierta">
-        <div v-if="cargandoUsuarios" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>
-        
-        <div v-else v-for="u in usuariosFiltrados" :key="u.id" 
-             class="user-card-mini animate-fade-in"
-             :class="{ 'active': usuarioActual?.id === u.id }" 
-             @click="seleccionarUsuario(u.id)">
-          <div class="user-avatar-mini">{{ u.nombres?.charAt(0) }}</div>
-          <div class="user-info-mini">
-            <div class="user-name-mini text-truncate">{{ u.nombres }}</div>
+        <div class="user-list-container">
+          <div class="px-2" v-show="!sidebarContraida">
+            <button class="btn btn-sm btn-light w-100 d-flex justify-content-between align-items-center border mb-2"
+              @click="listaAbierta = !listaAbierta">
+              <span class="small fw-bold">Ver Lista de Usuarios</span>
+              <i class="bi" :class="listaAbierta ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+            </button>
+
+            <div v-if="listaAbierta">
+              <div v-if="cargandoUsuarios" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+
+              <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini animate-fade-in"
+                :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)">
+                <div class="user-avatar-mini">{{ u.nombres?.charAt(0) }}</div>
+                <div class="user-info-mini">
+                  <div class="user-name-mini text-truncate">{{ u.nombres }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
       <div class="content-area">
         <div v-if="!usuarioActual"
@@ -132,210 +135,269 @@
           </div>
 
           <div class="row g-3">
-            <div class="col-xl-8">    
-              <div class="card h-100">
-                <div class="card-header">
-                  <span>Datos Personales</span>
-                  <span class="badge bg-light text-dark">ID: {{ usuarioActual.id }}</span>
+            <div class="col-xl-8">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden w-100 h-100"
+                style="background-color: #ffffff;">
+
+                <div
+                  class="card-header bg-white border-0 d-flex align-items-center justify-content-between p-2 px-3 pb-0">
+                  <div class="d-flex align-items-center">
+                    <div class="icon-box-mini bg-primary-light rounded-2 me-2">
+                      <i class="bi bi-person-vcard-fill text-primary" style="font-size: 1rem;"></i>
+                    </div>
+                    <h6 class="mb-0 fw-bold text-dark opacity-75 small" style="font-size: 0.8rem;">Información del
+                      Colaborador</h6>
+                  </div>
+                  <span class="badge rounded-pill bg-light text-muted border px-2 py-1" style="font-size: 0.65rem;">
+                    ID: #{{ usuarioActual.id }}
+                  </span>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body p-3 pt-2">
                   <div class="row g-2">
+
                     <div class="col-md-6">
-                      <label class="form-label">Nombres</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.nombres" />
+                      <label class="form-label-mini"><i class="bi bi-person me-1"></i> Nombres</label>
+                      <input type="text" class="form-control-mini bg-light border-0" v-model="usuarioActual.nombres"
+                        readonly />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Apellidos</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.apellidos" />
+                      <label class="form-label-mini"><i class="bi bi-person me-1"></i> Apellidos</label>
+                      <input type="text" class="form-control-mini bg-light border-0" v-model="usuarioActual.apellidos"
+                        readonly />
+                    </div>
+
+                    <div class="col-md-4 col-6">
+                      <label class="form-label-mini"><i class="bi bi-card-text me-1"></i> Cédula</label>
+                      <input type="text" class="form-control-mini bg-light border-0"
+                        v-model="usuarioActual.documento" />
+                    </div>
+                    <div class="col-md-4 col-6">
+                      <label class="form-label-mini"><i class="bi bi-telephone me-1"></i> Teléfono</label>
+                      <input type="text" class="form-control-mini bg-light border-0" v-model="usuarioActual.telefono" />
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Cédula</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.documento" />
+                      <label class="form-label-mini"><i class="bi bi-calendar-date me-1"></i> Nacimiento</label>
+                      <input type="date" class="form-control-mini bg-light border-0 text-muted"
+                        v-model="usuarioActual.fechaNacimiento" />
                     </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Teléfono</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.telefono" />
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Fecha Nacimiento</label>
-                      <input type="date" class="form-control" v-model="usuarioActual.fechaNacimiento" />
+
+                    <div class="col-md-6">
+                      <label class="form-label-mini"><i class="bi bi-envelope-at me-1"></i> Correo</label>
+                      <input type="email" class="form-control-mini bg-light border-0" v-model="usuarioActual.correo" />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Correo</label>
-                      <input type="email" class="form-control" v-model="usuarioActual.correo" />
+                      <label class="form-label-mini"><i class="bi bi-geo-alt me-1"></i> Dirección</label>
+                      <input type="text" class="form-control-mini bg-light border-0"
+                        v-model="usuarioActual.direccion" />
                     </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Dirección</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.direccion" />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">EPS</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.epsNombre" />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">ARL</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.arlNombre" />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">AFP</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.afpNombre" />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">Caja Comp.</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.ccfNombre" />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label d-block">Otro Si</label>
-                      <div class="form-check form-switch mt-2">
-                        <input class="form-check-input" type="checkbox" id="checkOtroSi" v-model="usuarioActual.otroSi"
-                          true-value="1" false-value="0">
-                        <label class="form-check-label" for="checkOtroSi">
-                          {{ usuarioActual.otroSi == '1' ? 'Activo (1)' : 'Inactivo (0)' }}
-                        </label>
+
+                    <div class="col-12 mt-1">
+                      <div class="rounded-3 border border-dashed bg-faint overflow-hidden">
+                        <div class="row g-0">
+                          <div class="col-3 border-end border-light-subtle p-1 px-2">
+                            <label class="form-label-micro mb-0">EPS</label>
+                            <input type="text" class="form-control-mini-table" v-model="usuarioActual.epsNombre" />
+                          </div>
+                          <div class="col-3 border-end border-light-subtle p-1 px-2">
+                            <label class="form-label-micro mb-0">ARL</label>
+                            <input type="text" class="form-control-mini-table" v-model="usuarioActual.arlNombre" />
+                          </div>
+                          <div class="col-3 border-end border-light-subtle p-1 px-2">
+                            <label class="form-label-micro mb-0">AFP</label>
+                            <input type="text" class="form-control-mini-table" v-model="usuarioActual.afpNombre" />
+                          </div>
+                          <div class="col-3 p-1 px-2">
+                            <label class="form-label-micro mb-0">CAJA</label>
+                            <input type="text" class="form-control-mini-table" v-model="usuarioActual.ccfNombre" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-12">
-                      <label class="form-label">Afiliaciones Familiares</label>
-                      <input type="text" class="form-control" v-model="usuarioActual.afiliaciones_familiares" />
+
+                    <div class="col-md-8 mt-2">
+                      <label class="form-label-mini"><i class="bi bi-people me-1"></i> Afiliaciones Familiares</label>
+                      <input type="text" class="form-control-mini bg-light border-0"
+                        v-model="usuarioActual.afiliaciones_familiares" />
                     </div>
+
+                    <div class="col-md-4 mt-2">
+                      <div
+                        class="status-badge-container p-1 px-2 rounded-3 border h-100 d-flex flex-column justify-content-center"
+                        :class="usuarioActual.otroSi == '1' ? 'bg-orange-light border-orange' : 'bg-light border-gray'">
+                        <label class="form-label-micro mb-0 text-center">Estado Otro Sí</label>
+                        <div class="form-check form-switch m-0 p-0 d-flex align-items-center justify-content-center">
+                          <input class="form-check-input custom-mini-switch m-0" type="checkbox" id="checkOtroSi"
+                            v-model="usuarioActual.otroSi" true-value="1" false-value="0">
+                          <label class="form-check-label ms-2 fw-bold"
+                            :class="usuarioActual.otroSi == '1' ? 'text-orange' : 'text-muted'"
+                            style="font-size: 0.65rem;">
+                            {{ usuarioActual.otroSi == '1' ? 'ACTIVO' : 'INACTIVO' }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               </div>
             </div>
+            <div class="col-4">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden w-100 h-100"
+                style="background-color: #ffffff;">
 
-            <div class="col-xl-4">
-              <div class="card h-100 border-primary">
-                <div class="card-header bg-primary text-white">
-                  <span class="text-white">Contratación</span>
+                <div class="card-header bg-white border-0 d-flex align-items-center p-3 pb-0">
+                  <div class="icon-box-mini bg-warning-light rounded-2 me-2">
+                    <i class="bi bi-file-text-fill text-warning small"></i>
+                  </div>
+                  <h6 class="mb-0 fw-bold text-dark opacity-75 small">Gestión de Contratación</h6>
                 </div>
-                <div class="card-body d-flex flex-column">
+
+                <div class="card-body p-3 pt-2 d-flex flex-column">
                   <div class="mb-2">
-                    <label class="form-label text-primary fw-bold">1. Segmento (Dirección)</label>
-                    <select class="form-select" v-model="form.segmento_contrato" @change="cargarCargosPorSegmento">
-                      <option value="">-- Seleccione Segmento --</option>
-                      <option v-for="seg in listaSegmentos" :key="seg" :value="seg">
-                        {{ seg }}
-                      </option>
-                    </select>
+                    <label class="form-label-mini">1. SEGMENTO (DIRECCIÓN)</label>
+                    <div class="input-group-mini">
+                      <i class="bi bi-diagram-3 icon-mini"></i>
+                      <select class="form-select-mini" v-model="form.segmento_contrato"
+                        @change="cargarCargosPorSegmento">
+                        <option value="">-- Seleccione Segmento --</option>
+                        <option v-for="seg in listaSegmentos" :key="seg" :value="seg">{{ seg }}</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div class="mb-2">
-                    <label class="form-label text-primary fw-bold">2. Descripción Cargo (PDF)</label>
+                    <label class="form-label-mini">2. DESCRIPCIÓN CARGO (PDF)</label>
 
-                    <div v-if="cargandoCargos" class="text-muted small">
-                      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                      Buscando archivos...
+                    <div v-if="cargandoCargos" class="form-control-mini d-flex align-items-center bg-light">
+                      <div class="spinner-border spinner-border-sm text-warning me-2" role="status"
+                        style="width: 0.8rem; height: 0.8rem;"></div>
+                      <span class="text-muted" style="font-size: 0.75rem;">Buscando...</span>
                     </div>
 
-                    <select v-else class="form-select" v-model="form.descripcion_cargo"
-                      :disabled="!form.segmento_contrato">
-                      <option value="">-- Seleccione Archivo --</option>
-                      <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">
-                        {{ pdf }}
-                      </option>
-                    </select>
+                    <div v-else class="input-group-mini">
+                      <i class="bi bi-file-pdf icon-mini"></i>
+                      <select class="form-select-mini" v-model="form.descripcion_cargo"
+                        :disabled="!form.segmento_contrato">
+                        <option value="">-- Seleccione Archivo --</option>
+                        <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">{{ pdf }}</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <hr class="my-2" />
+                  <div class="separator-dashed my-2"></div>
 
                   <div class="mb-2">
-                    <label class="form-label">Cargo (Nombre)</label>
-                    <input type="text" class="form-control" v-model="form.cargo" placeholder="Ej: Analista" />
+                    <label class="form-label-mini">Cargo (Nombre)</label>
+                    <input type="text" class="form-control-mini" placeholder="Ej: Analista" v-model="form.cargo">
                   </div>
+
                   <div class="row g-2 mb-2">
-                    <div class="col-6">
-                      <label class="form-label">Salario</label>
-                      <input type="number" class="form-control" v-model="form.salario" />
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label-mini">Salario</label>
+                      <div class="input-group-mini">
+                        <span class="icon-mini fw-bold">$</span>
+                        <input type="text" class="form-control-mini ps-4" placeholder="" v-model="form.salario">
+                      </div>
                     </div>
-                    <div class="col-6">
-                      <label class="form-label">Ciudad</label>
-                      <input type="text" class="form-control" v-model="form.ciudad" />
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label-mini">Ciudad</label>
+                      <input type="text" class="form-control-mini" v-model="form.ciudad" placeholder="Ciudad">
                     </div>
                   </div>
-                  <div class="mb-2 flex-grow-1">
-                    <label class="form-label">Observaciones</label>
-                    <textarea class="form-control" style="height: 100%; min-height: 60px"
-                      v-model="form.observaciones"></textarea>
+
+                  <div class="mb-3 flex-grow-1">
+                    <label class="form-label-mini">Observaciones</label>
+                    <textarea class="form-control-mini" rows="2" placeholder="Notas..." v-model="form.observaciones"
+                      style="min-height: 60px;"></textarea>
                   </div>
 
-                  <hr class="my-2" />
-
-                  <div class="d-grid gap-2">
-                    <button class="btn btn-warning btn-sm text-dark fw-bold" @click="solicitarCorreccion">
-                      <i class="bi bi-exclamation-triangle-fill"></i>
-                      Solicitar Corrección
+                  <div class="d-grid gap-2 mt-auto">
+                    <button class="btn btn-correction-mini w-100" @click="solicitarCorreccion">
+                      <i class="bi bi-pencil me-1"></i> Solicitar Corrección
                     </button>
-                    <div class="btn-group">
-                      <button class="btn btn-success btn-sm" @click="aprobar">
-                        Aprobar
-                      </button>
-                      <button class="btn btn-danger btn-sm" @click="rechazar">
-                        Rechazar
-                      </button>
+
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <button class="btn btn-gray-mini w-100" @click="aprobar">
+                          <i class="bi bi-check2 me-1"></i> Aprobar
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button class="btn btn-gray-mini w-100" @click="rechazar">
+                          <i class="bi bi-x-circle me-1"></i> Rechazar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="card border-info mt-3">
-              <div class="card border-info mt-3">
-                <div class="card-header bg-info text-white">
-                  <i class="bi bi-file-earmark-word"></i> Generador de Documentos
-                </div>
-                <div class="card-body">
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Seleccionar Plantilla</label>
-                    <select class="form-select form-select-sm" v-model="plantillaSeleccionada">
-                      <option value="">-- Seleccione --</option>
-                      <option v-for="doc in listaPlantillas" :key="doc" :value="doc">
-                        {{ doc }}
-                      </option>
-                    </select>
-                  </div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mt-3 w-100" style="background-color: #ffffff;">
+  
+  <div class="card-header border-0 d-flex align-items-center justify-content-between py-2 px-3" 
+       style="background-color: #4466f2;"> 
+    <div class="d-flex align-items-center">
+      <i class="bi bi-file-earmark-word text-white me-2"></i>
+      <span class="text-white fw-bold small">Documentos Generados</span>
+    </div>
+  </div>
 
-                  <div class="d-grid mb-3">
-                    <button class="btn btn-primary btn-sm" :disabled="!plantillaSeleccionada || !usuarioActual"
-                      @click="generarDocumentoWord">
-                      <i class="bi bi-gear-wide-connected"></i> Generar y Guardar
-                    </button>
-                  </div>
+  <div class="card-body p-3">
+    <div class="mb-3">
+      <label class="form-label-mini text-muted mb-1 fw-bold" style="font-size: 0.65rem;">
+        <i class="bi bi-paperclip"></i> VINCULAR DOCUMENTO
+      </label>
+      
+      <div class="d-flex align-items-center gap-2 p-0 px-2 rounded-2 border w-100" style="background-color: #f8f9fa; min-height: 40px;">
+        <i class="bi bi-file-earmark-pdf-fill text-danger fs-4"></i>
+        
+        <div class="flex-grow-1">
+          <select class="form-select-mini-clean w-100" v-model="plantillaSeleccionada">
+            <option value="">-- Seleccione Plantilla para Generar --</option>
+            <option v-for="doc in listaPlantillas" :key="doc" :value="doc">{{ doc }}</option>
+          </select>
+        </div>
 
-                  <div v-if="listaContratos.length > 0" class="mt-3 border-top pt-2">
+        <button class="btn btn-primary-action btn-sm rounded-pill px-3" 
+                :disabled="!plantillaSeleccionada || !usuarioActual"
+                @click="generarDocumentoWord">
+          <i class="bi bi-link-45deg"></i> Agregar Documento
+        </button>
+      </div>
+      <small class="text-muted mt-1 d-block" style="font-size: 0.65rem;">
+        <i class="bi bi-cloud-arrow-up"></i> Destino: Carpeta S3 del colaborador
+      </small>
+    </div>
 
-                    <h6 class="small fw-bold text-muted mb-2 ps-1">
-                      <i class="bi bi-clock-history"></i> Historial ({{ listaContratos.length }})
-                    </h6>
+    <div v-if="listaContratos.length > 0" class="mt-4">
+      <label class="form-label-mini text-muted mb-2 fw-bold" style="font-size: 0.65rem;">
+        HISTORIAL ({{ listaContratos.length }})
+      </label>
+      
+      <div class="scroll-historial px-1">
+        <div v-for="(doc, index) in listaContratos" :key="index" 
+             class="d-flex align-items-center justify-content-between p-2 mb-1 border-bottom bg-white item-history">
+          
+          <div class="d-flex align-items-center text-truncate pe-3">
+            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+            <span class="small text-muted text-truncate" style="font-size: 0.75rem;">{{ doc.name }}</span>
+          </div>
 
-                    <div class="bg-light border rounded" style="max-height: 150px; overflow-y: auto;">
-                      <ul class="list-group list-group-flush">
-                        <li v-for="(doc, index) in listaContratos" :key="index"
-                          class="list-group-item d-flex justify-content-between align-items-center p-1 bg-transparent">
-
-                          <div class="d-flex align-items-center text-truncate" style="max-width: 70%;">
-                            <i class="bi bi-file-earmark-pdf-fill text-danger me-2 small"></i>
-                            <span class="small text-truncate" :title="doc.name">
-                              {{ doc.name }}
-                            </span>
-                          </div>
-
-                          <div>
-                            <a :href="doc.url" target="_blank" class="btn btn-link btn-sm p-0 me-2 text-decoration-none"
-                              title="Ver">
-                              <i class="bi bi-eye-fill text-secondary"></i>
-                            </a>
-
-                            <button @click.prevent="eliminarContrato(doc.name)"
-                              class="btn btn-link btn-sm p-0 text-decoration-none" title="Eliminar">
-                              <i class="bi bi-trash-fill text-danger"></i>
-                            </button>
-                          </div>
-
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div class="d-flex gap-3 align-items-center">
+            <a :href="doc.url" target="_blank" class="text-primary opacity-hover">
+              <i class="bi bi-eye"></i>
+            </a>
+            <button @click.prevent="eliminarContrato(doc.name)" class="text-danger border-0 bg-transparent p-0 opacity-hover">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
