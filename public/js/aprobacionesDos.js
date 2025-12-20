@@ -364,6 +364,9 @@ createApp({
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
         userData.aprobacion = userData.aprobacion;
+        userData.fechaSuscripcion = userData.fecha_suscripcion;
+        if (userData.fechaSuscripcion)
+          userData.fechaSuscripcion = userData.fechaSuscripcion.split("T")[0];
 
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
@@ -377,7 +380,9 @@ createApp({
         this.form.observaciones = userData.observaciones || "";
         this.form.otroSi = userData.otroSi || "";
         this.form.segmento_contrato = userData.segmento_contrato || "";
+        this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
         const pdfGuardado = userData.descripcion_cargo || "";
+
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);
 
