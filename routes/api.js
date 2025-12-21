@@ -7,6 +7,7 @@ const path = require("path");
 const db = require("../databases/db");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const axios = require('axios'); // Necesitarás instalar axios para descargar los archivos de S3 temporalmente
 // IMPORTAMOS LIBRERÍAS DE AWS
 const {
   S3Client,
@@ -248,6 +249,59 @@ router.get("/archivos/:carpeta", async (req, res) => {
     console.error("Error listando archivos S3:", err);
     res.json([]);
   }
+});
+router.post("/enviar-historial-contratos", async (req, res) => {
+    const { usuario, archivos } = req.body;
+
+    if (!archivos || archivos.length === 0) {
+        return res.status(400).json({ status: "error", message: "No hay archivos seleccionados." });
+    }
+
+    try {
+        // 2. Descargamos de S3 usando la Signed URL que ya viene en el objeto 'archivos'
+        const attachments = await Promise.all(archivos.map(async (file) => {
+            const response = await axios.get(file.url, { responseType: 'arraybuffer' });
+            return {
+                filename: file.name,
+                content: Buffer.from(response.data)
+            };
+        }));
+
+        // 3. Diseño de correo corporativo WSAC
+        const mailOptions = {
+            from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+            to: usuario.correo,
+            subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
+            html: `
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
+                    <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
+                        <h2 style="margin: 0;">WSAC SECURITY</h2>
+                        <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Gestión Documental de Contratación</p>
+                    </div>
+                    <div style="padding: 30px; color: #333; line-height: 1.6;">
+                        <h3>Hola, ${usuario.nombres}</h3>
+                        <p>Te informamos que se han generado los documentos correspondientes a tu proceso de contratación.</p>
+                        <p>Encontrarás adjuntos a este mensaje <b>${archivos.length} archivo(s)</b> debidamente validados.</p>
+                        <br>
+                        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; font-size: 0.85rem; color: #64748b; border-left: 4px solid #1e3a8a;">
+                            <b>Nota de seguridad:</b> Estos archivos contienen información sensible. Por favor, asegúrate de guardarlos en un lugar seguro.
+                        </div>
+                    </div>
+                    <div style="background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 0.75rem; color: #94a3b8;">
+                        &copy; 2025 WSAC - Todos los derechos reservados.
+                    </div>
+                </div>
+            `,
+            attachments: attachments
+        };
+
+        await correoOutlook.sendMail(mailOptions);
+        res.json({ status: "ok", message: "Enviado con éxito" });
+
+    } catch (error) {
+        console.error("Error enviando historial S3:", error);
+        res.status(500).json({ status: "error", message: "Error al procesar los documentos de S3" });
+    }
 });
 
 // ==========================================

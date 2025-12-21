@@ -549,6 +549,95 @@ createApp({
         Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
       }
     },
+async enviarContratosAlCorreo() {
+    if (!this.usuarioActual || this.listaContratos.length === 0) return;
+
+    // 1. Confirmación con Estética Profesional
+    const { isConfirmed } = await Swal.fire({
+        width: '500px',
+        title: `
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:10px;">
+                <i class="bi bi-file-earmark-post-fill" style="color:#1e3a8a; font-size:1.5rem;"></i>
+                <span style="font-size:1.3rem; font-weight:900; color:#1a2a3a;">NOTIFICAR CONTRATACIÓN</span>
+            </div>
+        `,
+        html: `
+            <div style="text-align:left; padding:10px 25px 0 25px; box-sizing:border-box;">
+                <div style="background:#f0f4f8; border-radius:12px; padding:15px; border:1px solid #d1d9e6; margin-bottom:20px;">
+                    <div style="font-size:1rem; color:#1a2a3a; margin-bottom:5px;">
+                        <i class="bi bi-person-circle me-2" style="color:#1e3a8a;"></i> <b>${this.usuarioActual.nombres}</b>
+                    </div>
+                    <div style="font-size:0.9rem; color:#64748b;">
+                        <i class="bi bi-envelope-at-fill me-2"></i> ${this.usuarioActual.correo}
+                    </div>
+                </div>
+                <p style="font-size:0.95rem; color:#475569; text-align:center;">
+                    Se enviarán <b>${this.listaContratos.length}</b> documentos adjuntos de forma segura. ¿Desea continuar?
+                </p>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'SÍ, ENVIAR AHORA',
+        cancelButtonText: 'CANCELAR',
+        confirmButtonColor: "#1e3a8a",
+        cancelButtonColor: "#f8f9fa",
+        reverseButtons: true,
+        customClass: {
+            popup: 'rounded-5 border-0 shadow-lg',
+            confirmButton: 'btn btn-primary rounded-pill py-2 px-5 fw-bold',
+            cancelButton: 'btn btn-light rounded-pill py-2 px-4 text-muted',
+        }
+    });
+
+    if (!isConfirmed) return;
+
+    // 2. Cargando Moderno
+    Swal.fire({
+        title: 'PREPARANDO ARCHIVOS',
+        html: `
+            <div class="py-3 text-center">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-3 text-muted small">Descargando de S3 y adjuntando al correo...</p>
+            </div>
+        `,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+        const res = await fetch(`/api/enviar-historial-contratos`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                usuario: this.usuarioActual,
+                archivos: this.listaContratos
+            }),
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+            Swal.fire({
+                icon: "success",
+                title: "¡CONTRATOS ENVIADOS!",
+                text: "El colaborador ha recibido los documentos exitosamente.",
+                timer: 2500,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-5' }
+            });
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "FALLO EN EL ENVÍO",
+            text: error.message || "No se pudo conectar con el servidor.",
+            confirmButtonColor: "#1e3a8a",
+        });
+    }
+},
 
     async solicitarCorreccion() {
       if (!this.usuarioActual) return;

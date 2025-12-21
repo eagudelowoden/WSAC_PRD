@@ -532,3 +532,34 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   border-radius: 8px;
   font-size: 0.8rem;
 }
+.btn-contract-mini {
+    background-color: #1e3a8a; /* Azul Navy Profesional */
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-contract-mini:hover {
+    background-color: #cd4b23; /* Azul un poco más claro al pasar el mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.3);
+    color: white;
+}
+
+.btn-contract-mini:active {
+    transform: translateY(0);
+}
+
+.btn-contract-mini i {
+    font-size: 1.1rem;
+}
