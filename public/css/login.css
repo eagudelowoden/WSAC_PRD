@@ -1,118 +1,202 @@
+/* --- VARIABLES --- */
+:root {
+    --primary-color: #e2712a;
+    --primary-hover: #c65f21;
+    --dark-color: #2c3e50;
+    --glass-bg: rgba(255, 255, 255, 0.96);
+}
 
-        /* --- HERENCIA DE ESTILOS DE TU PROYECTO --- */
-        :root {
-            --primary-color: #e2712a;  /* Tu azul de view.css */
-            --dark-color: #2c3e50;     /* Tu color de encabezados */
-            --bg-color: #f4f6f8;       /* Tu fondo general */
-            --text-color: #555;
-        }
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
 
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-        }
+/* Fondo original potente */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
+    position: relative;
+}
 
-        /* --- LAYOUT SPLIT SCREEN --- */
-        .login-wrapper {
-            display: flex;
-            height: 100vh;
-            width: 100%;
-        }
+/* Widget Hora Discreto */
+.time-widget {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 10;
+}
 
-        /* LADO IZQUIERDO: FORMULARIO */
-        .login-side {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #ffffff;
-            padding: 40px;
-            position: relative;
-            z-index: 2;
-        }
+.time-widget .time { font-size: 1.3rem; font-weight: 700; }
+.time-widget .date { font-size: 0.75rem; text-transform: uppercase; }
 
-        /* LADO DERECHO: VISUAL/BRANDING */
-        .brand-side {
-            flex: 1.5; /* Ocupa un poco más de espacio */
-            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
+/* Decoración círculos */
+.circle-decoration {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+.c1 { width: 350px; height: 350px; top: -100px; left: -100px; }
+.c2 { width: 450px; height: 450px; bottom: -150px; right: -50px; }
 
-        /* Decoración de fondo abstracta (Círculos) */
-        .circle-decoration {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .c1 { width: 300px; height: 300px; top: -50px; right: -50px; }
-        .c2 { width: 500px; height: 500px; bottom: -100px; left: -100px; }
+/* Tarjeta más grande y sofisticada */
+.login-card {
+    background: var(--glass-bg);
+    width: 95%;
+    max-width: 420px; /* Tarjeta un poco más grande */
+    padding: 45px;
+    border-radius: 25px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+    animation: slideUp 0.7s ease-out;
+}
 
-        /* --- ESTILIZACIÓN DEL FORMULARIO --- */
-        .login-content {
-            width: 100%;
-            max-width: 380px;
-            animation: slideIn 0.8s ease-out;
-        }
+.brand-name {
+    color: var(--primary-color);
+    font-weight: 900;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+    margin-bottom: 0;
+}
 
-        h2 {
-            font-weight: 700;
-            color: var(--dark-color);
-            margin-bottom: 0.5rem;
-        }
+.brand-title {
+    font-weight: 700;
+    color: var(--dark-color);
+    font-size: 1.5rem;
+}
 
-        p.subtitle {
-            color: #888;
-            margin-bottom: 2rem;
-        }
+.subtitle {
+    color: #777;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+}
 
-        /* Inputs estilizados */
-        .form-floating > .form-control {
-            border: 2px solid #eee;
-            border-radius: 8px;
-            height: 55px;
-        }
-        
-        .form-floating > .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
-        }
+/* Inputs y Contenedor de Password */
+.form-floating { position: relative; }
 
-        /* Botón personalizado */
-        .btn-custom {
-            background-color: var(--primary-color);
-            border: none;
-            height: 50px;
-            border-radius: 8px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
+.form-floating > .form-control {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    height: 60px;
+}
 
-        .btn-custom:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-        }
+.form-floating > .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(226, 113, 42, 0.1);
+}
 
-        /* Animación de entrada */
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+/* Botón Ver Contraseña */
+.btn-show-pass {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: #aaa;
+    z-index: 10;
+    font-size: 1.2rem;
+    padding: 5px;
+}
 
-        /* Responsive: En móviles ocultamos el lado derecho */
-        @media (max-width: 768px) {
-            .brand-side { display: none; }
-            .login-side { flex: 1; background: var(--bg-color); }
-            .login-content { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        }
+.btn-show-pass:hover { color: var(--primary-color); }
+
+/* Botón Ingresar */
+.btn-custom {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    height: 55px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-custom:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(226, 113, 42, 0.3);
+    color: white;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 576px) { .time-widget { display: none; } }
+
+
+
+/* --- NUEVOS ELEMENTOS DE SEGURIDAD --- */
+
+/* Badge de Conexión Segura */
+.security-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+/* Punto de pulso "Online" */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745;
+    border-radius: 50%;
+    margin-right: 8px;
+    box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* Línea divisoria moderna */
+.divider-modern {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #eee, transparent);
+    margin: 25px 0;
+}
+
+/* Ajuste del botón para que se vea más tecnológico */
+.btn-custom {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-custom::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: rotate(30deg);
+    transition: all 0.5s;
+}
+
+.btn-custom:hover::after {
+    left: 120%;
+}

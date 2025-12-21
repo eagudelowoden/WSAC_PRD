@@ -588,12 +588,60 @@ router.post("/solicitar-subsanar", (req, res) => {
           const link = `${URL_BASE}/subsanar.html?token=${token}`;
 
           try {
+            const htmlEmail = `
+    <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <tr>
+                <td style="background-color: #e2712a; padding: 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 40px 30px;">
+                    <h2 style="color: #2c3e50; margin-top: 0;">¡Hola, ${usuario.nombres}!</h2>
+                    <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                        Se ha revisado tu solicitud en el sistema <strong>WSAC</strong> y se requiere una corrección en los documentos adjuntos.
+                    </p>
+                    
+                    <div style="background-color: #fff4ed; border-left: 4px solid #e2712a; padding: 15px; margin: 25px 0;">
+                        <strong style="color: #e2712a;">Motivo de la corrección:</strong><br>
+                        <span style="color: #444;">${motivo}</span>
+                    </div>
+
+                    <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                        Por favor, haz clic en el siguiente botón para cargar los soportes corregidos y continuar con tu proceso:
+                    </p>
+
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
+                        <tr>
+                            <td align="center">
+                                <a href="${link}" style="background-color: #2c3e50; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; transition: background 0.3s;">
+                                    SUBIR DOCUMENTOS
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                    <p style="font-size: 12px; color: #999; margin: 0;">
+                        Este es un correo automático, por favor no respondas a este mensaje.<br>
+                        <strong>Woden Colombia - Gestión de Aprobaciones v2.0</strong>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    `;
+
             await correoOutlook.sendMail({
-              from: "eagudelo@woden.com.co",
+              from: '"WSAC Notificaciones" <eagudelo@woden.com.co>',
               to: usuario.correo,
-              subject: "⚠️ Acción Requerida: Corregir Documentos - WMS",
-              html: `<p>Hola ${usuario.nombres}, por favor corrige: <strong>${motivo}</strong><br><a href="${link}">Subir Documentos</a></p>`,
+              subject: "⚠️ Acción Requerida: Corregir Documentos - WSAC",
+              html: htmlEmail,
             });
+
             res.json({ status: "ok", message: "Solicitud enviada al usuario" });
           } catch (e) {
             console.error(e);
@@ -716,11 +764,76 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
       if (!errNotif && resNotif.length > 0) {
         const listaCorreos = resNotif.map((r) => r.email).join(", ");
         try {
+          const htmlAdmin = `
+    <div style="background-color: #f0f2f5; padding: 30px; font-family: 'Segoe UI', Arial, sans-serif;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 15px; overflow: hidden; border: 1px solid #e1e4e8;">
+            <tr>
+                <td style="background-color: #2c3e50; padding: 20px 30px; text-align: left;">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <span style="color: #ffffff; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8;">Notificación de Sistema</span>
+                                <h1 style="color: #ffffff; margin: 5px 0 0 0; font-size: 20px;">Corrección de Documentos</h1>
+                            </td>
+                            <td style="text-align: right;">
+                                <span style="background-color: #e2712a; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">NUEVA ACCIÓN</span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding: 35px 30px;">
+                    <p style="font-size: 15px; color: #666; margin-bottom: 25px;">Se informa que un colaborador ha cargado nuevos soportes tras una solicitud de corrección:</p>
+                    
+                    <table width="100%" style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+                        <tr>
+                            <td style="padding-bottom: 10px;">
+                                <span style="color: #999; font-size: 12px; text-transform: uppercase;">Colaborador</span><br>
+                                <strong style="color: #2c3e50; font-size: 16px;">${
+                                  usuario.nombres
+                                }</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span style="color: #999; font-size: 12px; text-transform: uppercase;">Archivos Recibidos</span><br>
+                                <strong style="color: #e2712a; font-size: 16px;">${
+                                  listaArchivos.length
+                                } documento(s) cargado(s)</strong>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <p style="font-size: 14px; color: #555; line-height: 1.5;">
+                        Los archivos ya se encuentran disponibles en el servidor para su validación técnica. Por favor, ingrese al panel administrativo para revisar el estado de la solicitud.
+                    </p>
+
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
+                        <tr>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
+                    <p style="font-size: 11px; color: #bbb; margin: 0;">
+                        WSAC Auto-Notificaciones | ID de Transacción: ${Date.now()}<br>
+                        Generado el: ${new Date().toLocaleString()}
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    `;
+
           await correoOutlook.sendMail({
-            from: '"Sistema de Documentos" <eagudelo@woden.com.co>',
+            from: '"WSAC Sistema" <eagudelo@woden.com.co>',
             to: listaCorreos,
             subject: `📢 Corrección Recibida: ${usuario.nombres}`,
-            html: `<p>El usuario ${usuario.nombres} ha subido ${listaArchivos.length} archivos corregidos.</p>`,
+            html: htmlAdmin,
           });
         } catch (e) {
           console.error("Error notificando admin:", e);
