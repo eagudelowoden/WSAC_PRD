@@ -2,34 +2,29 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registro de Documentos</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="/css/registro.css">
-
-
+    <link rel="stylesheet" href="/css/registro.css" />
 </head>
 
 <body>
-
     <div class="container">
         <div class="container-box">
-
             <h2 class="text-center">
                 <i class="bi bi-folder2-open text-primary"></i> Registro de Documentos
             </h2>
-            <p class="text-center text-muted mb-4">Por favor completa la información y adjunta los soportes requeridos.
+            <p class="text-center text-muted mb-4">
+                Por favor completa la información y adjunta los soportes requeridos. En móvil, puedes agregar archivos uno por uno.
             </p>
 
-            <form id="formularioRegistro" action="/api/enviar" method="POST" enctype="multipart/form-data">
-
+            <form id="formularioRegistro">
                 <div class="section-title">
                     <i class="bi bi-person-lines-fill"></i> Datos Personales
                 </div>
@@ -37,55 +32,54 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Nombres Completos *</label>
-                        <input type="text" class="form-control" name="nombres" placeholder="Ej: Juan Carlos" required>
+                        <input type="text" class="form-control" name="nombres" placeholder="Ej: Juan Carlos" required />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Apellidos Completos *</label>
-                        <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez"
-                            required>
+                        <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez" required />
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Documento de Identidad *</label>
-                        <input type="text" class="form-control" name="documento" required>
+                        <input type="text" class="form-control" name="documento" required />
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Número de teléfono *</label>
-                        <input type="text" class="form-control" name="telefono" required>
+                        <input type="text" class="form-control" name="telefono" required />
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Correo Electrónico *</label>
-                        <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com" required>
+                        <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com" required />
                     </div>
 
                     <div class="col-md-8">
                         <label class="form-label">Dirección de Residencia *</label>
-                        <input type="text" class="form-control" name="direccion" required>
+                        <input type="text" class="form-control" name="direccion" required />
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Fecha de Nacimiento *</label>
-                        <input type="date" class="form-control" name="fechaNacimiento" required>
+                        <input type="date" class="form-control" name="fechaNacimiento" required />
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label">EPS *</label>
-                        <input type="text" class="form-control" name="epsNombre" placeholder="Ej: Sanitas" required>
+                        <input type="text" class="form-control" name="epsNombre" placeholder="Ej: Sanitas" required />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">ARL *</label>
-                        <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" required>
+                        <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" required />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">AFP *</label>
-                        <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" required>
+                        <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" required />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">CCF *</label>
-                        <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" required>
+                        <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" required />
                     </div>
                 </div>
 
@@ -94,86 +88,83 @@
                 </div>
 
                 <div class="alert alert-light border-0 shadow-sm mb-4" role="alert">
-                    <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos
-                        sean legibles (PDF o Imagen).</small>
+                    <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos sean legibles (PDF o Imagen).</small>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-md-6">
                         <label class="form-label">Cédula (150%) *</label>
-                        <input type="file" class="form-control" name="cedula" accept=".pdf, .jpg, .jpeg, .png" required>
+                        <input type="file" class="form-control" name="cedula" accept=".pdf, .jpg, .jpeg, .png" required />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Certificados estudio / Grado (Max 5)</label>
-                        <input type="file" class="form-control" name="estudios" multiple>
+                        <input type="file" class="form-control input-acumulador" name="estudios" multiple />
+<div class="file-list-container mt-2" id="list-estudios"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Certificados laborales</label>
-                        <input type="file" class="form-control" name="laborales">
+                        <input type="file" class="form-control" name="laborales" />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Fondo de cesantías y pensión</label>
-                        <input type="file" class="form-control" name="cesantias">
+                        <input type="file" class="form-control" name="cesantias" />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Certificado Bancario *</label>
-                        <input type="file" class="form-control" name="cuenta" required>
+                        <input type="file" class="form-control" name="cuenta" required />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Certificado EPS (Max 5) *</label>
-                        <input type="file" class="form-control" name="epsDocs" multiple required>
+                        <input type="file" class="form-control input-acumulador" name="epsDocs" multiple />
+                        <div class="file-list-container" id="list-epsDocs"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">2 Referencias Personales</label>
-                        <input type="file" class="form-control" name="referencias" multiple>
+                        <input type="file" class="form-control input-acumulador" name="referencias" multiple />
+                        <div class="file-list-container" id="list-referencias"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Agente de campo (SOAT, Licencia...)</label>
-                        <input type="file" class="form-control" name="agenteCampo" multiple>
+                        <input type="file" class="form-control input-acumulador" name="agenteCampo" multiple />
+                        <div class="file-list-container" id="list-agenteCampo"></div>
                     </div>
 
                     <div class="col-md-12">
                         <label class="form-label">Hoja de Vida *</label>
-                        <input type="file" class="form-control" name="hv" required>
+                        <input type="file" class="form-control" name="hv" required />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">HABEAS DATA *</label>
-                        <input type="file" class="form-control" name="habeas" required>
+                        <input type="file" class="form-control" name="habeas" required />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">CONSENTIMIENTO INFORMADO *</label>
-                        <input type="file" class="form-control" name="consentimiento" required>
+                        <input type="file" class="form-control" name="consentimiento" required />
                     </div>
 
                     <div class="col-12 mt-4">
                         <label class="form-label">¿Afiliación de familiares?</label>
-                        <input type="text" class="form-control" name="afiliacionesFamiliares"
-                            placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required>
+                        <input type="text" class="form-control" name="afiliacionesFamiliares" placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required />
                     </div>
                 </div>
 
-                <hr class="my-5">
+                <hr class="my-5" />
 
                 <button type="submit" class="btn btn-primary btn-submit w-100">
                     <i class="bi bi-send-fill me-2"></i> Enviar Formulario
                 </button>
-
             </form>
         </div>
-        <!-- Fin contenedor principal -->
     </div>
-
-  <script src="js/registroColaborador.js"></script>
-
+    <script src="js/registroColaborador.js"></script>
 </body>
-
 </html>
