@@ -7,7 +7,7 @@ const path = require("path");
 const db = require("../databases/db");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const axios = require('axios'); // Necesitarás instalar axios para descargar los archivos de S3 temporalmente
+const axios = require("axios"); // Necesitarás instalar axios para descargar los archivos de S3 temporalmente
 // IMPORTAMOS LIBRERÍAS DE AWS
 const {
   S3Client,
@@ -251,28 +251,34 @@ router.get("/archivos/:carpeta", async (req, res) => {
   }
 });
 router.post("/enviar-historial-contratos", async (req, res) => {
-    const { usuario, archivos } = req.body;
+  const { usuario, archivos } = req.body;
 
-    if (!archivos || archivos.length === 0) {
-        return res.status(400).json({ status: "error", message: "No hay archivos seleccionados." });
-    }
+  if (!archivos || archivos.length === 0) {
+    return res
+      .status(400)
+      .json({ status: "error", message: "No hay archivos seleccionados." });
+  }
 
-    try {
-        // 2. Descargamos de S3 usando la Signed URL que ya viene en el objeto 'archivos'
-        const attachments = await Promise.all(archivos.map(async (file) => {
-            const response = await axios.get(file.url, { responseType: 'arraybuffer' });
-            return {
-                filename: file.name,
-                content: Buffer.from(response.data)
-            };
-        }));
+  try {
+    // 2. Descargamos de S3 usando la Signed URL que ya viene en el objeto 'archivos'
+    const attachments = await Promise.all(
+      archivos.map(async (file) => {
+        const response = await axios.get(file.url, {
+          responseType: "arraybuffer",
+        });
+        return {
+          filename: file.name,
+          content: Buffer.from(response.data),
+        };
+      })
+    );
 
-        // 3. Diseño de correo corporativo WSAC
-        const mailOptions = {
-            from: '"WSAC Contratación" <eagudelo@woden.com.co>',
-            to: usuario.correo,
-            subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
-            html: `
+    // 3. Diseño de correo corporativo WSAC
+    const mailOptions = {
+      from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+      to: usuario.correo,
+      subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
+      html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
                         <h2 style="margin: 0;">WSAC SECURITY</h2>
@@ -292,16 +298,20 @@ router.post("/enviar-historial-contratos", async (req, res) => {
                     </div>
                 </div>
             `,
-            attachments: attachments
-        };
+      attachments: attachments,
+    };
 
-        await correoOutlook.sendMail(mailOptions);
-        res.json({ status: "ok", message: "Enviado con éxito" });
-
-    } catch (error) {
-        console.error("Error enviando historial S3:", error);
-        res.status(500).json({ status: "error", message: "Error al procesar los documentos de S3" });
-    }
+    await correoOutlook.sendMail(mailOptions);
+    res.json({ status: "ok", message: "Enviado con éxito" });
+  } catch (error) {
+    console.error("Error enviando historial S3:", error);
+    res
+      .status(500)
+      .json({
+        status: "error",
+        message: "Error al procesar los documentos de S3",
+      });
+  }
 });
 
 // ==========================================
