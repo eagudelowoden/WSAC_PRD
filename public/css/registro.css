@@ -71,6 +71,9 @@ h2 {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
 }
+.bordes {
+    background-color: #e74a3b;
+}
 
 /* Inputs de Archivo (Estilo moderno tipo Dropzone) */
 input[type="file"].form-control {
@@ -154,7 +157,7 @@ input[type="file"].form-control:hover {
 }
 
 :root {
-    --primary-color: #4e73df;
+    --primary-color: #f0782e;
     --bg-color: #f3f4f6;
     --card-bg: #ffffff;
     --border-radius: 12px;

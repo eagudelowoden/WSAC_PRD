@@ -20,9 +20,14 @@
             <h2 class="text-center">
                 <i class="bi bi-folder2-open text-primary"></i> Registro de Documentos
             </h2>
-            <p class="text-center text-muted mb-4">
-                Por favor completa la información y adjunta los soportes requeridos. En móvil, puedes agregar archivos uno por uno.
-            </p>
+            <div class="ps-3 border-start bordes border-4 mb-4 py-1" style="background: rgba(13, 110, 253, 0.05);">
+                <p class="mb-0 fw-medium text-dark">
+                    Completa la información y adjunta los soportes.
+                </p>
+                <p class="text-muted small mb-0">
+                    Tip: Puedes Cargar varios archivos a la vez desde cualquier dispositivo.
+                </p>
+            </div>
 
             <form id="formularioRegistro">
                 <div class="section-title">
@@ -37,7 +42,8 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Apellidos Completos *</label>
-                        <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez" required />
+                        <input type="text" class="form-control" name="apellidos" placeholder="Ej: Pérez Rodríguez"
+                            required />
                     </div>
 
                     <div class="col-md-4">
@@ -52,7 +58,8 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Correo Electrónico *</label>
-                        <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com" required />
+                        <input type="email" class="form-control" name="correo" placeholder="nombre@correo.com"
+                            required />
                     </div>
 
                     <div class="col-md-8">
@@ -70,42 +77,46 @@
                         <input type="text" class="form-control" name="epsNombre" placeholder="Ej: Sanitas" required />
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">ARL *</label>
-                        <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" required />
+                        <label class="form-label">ARL </label>
+                        <input type="text" class="form-control" name="arlNombre" placeholder="Ej: Sura" />
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">AFP *</label>
-                        <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" required />
+                        <label class="form-label">AFP </label>
+                        <input type="text" class="form-control" name="afpNombre" placeholder="Ej: Porvenir" />
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">CCF *</label>
-                        <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" required />
+                        <label class="form-label">CCF </label>
+                        <input type="text" class="form-control" name="ccfNombre" placeholder="Ej: Compensar" />
                     </div>
                 </div>
 
                 <div class="section-title mt-5">
-                    <i class="bi bi-cloud-arrow-up-fill"></i> Carga de Documentos
+                    <i class="bi bi-cloud-arrow-up-fill"></i> Carga Tus Documentos
                 </div>
 
                 <div class="alert alert-light border-0 shadow-sm mb-4" role="alert">
-                    <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos sean legibles (PDF o Imagen).</small>
+                    <small class="text-muted"><i class="bi bi-info-circle-fill me-1"></i> Asegúrate de que los archivos
+                        sean legibles (PDF o Imagen).</small>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <label class="form-label">Cédula (150%) *</label>
-                        <input type="file" class="form-control" name="cedula" accept=".pdf, .jpg, .jpeg, .png" required />
+                        <label class="form-label">Foto Copia de la Cédula Ampliada (150%) *</label>
+                        <input type="file" class="form-control" name="cedula" accept=".pdf, .jpg, .jpeg, .png"
+                            required />
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Certificados estudio / Grado (Max 5)</label>
+                        <label class="form-label">Certificados de estudio, acta de grado y diploma de bachiller / (Max 5
+                            archivos)</label>
                         <input type="file" class="form-control input-acumulador" name="estudios" multiple />
-<div class="file-list-container mt-2" id="list-estudios"></div>
+                        <div class="file-list-container mt-2" id="list-estudios"></div>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Certificados laborales</label>
-                        <input type="file" class="form-control" name="laborales" />
+                        <label class="form-label">Certificados laborales (Si tienen / Max 5 archivos)</label>
+                        <input type="file" class="form-control input-acumulador" name="laborales" multiple />
+                        <div class="file-list-container mt-2" id="list-laborales"></div>
                     </div>
 
                     <div class="col-md-6">
@@ -114,12 +125,14 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Certificado Bancario *</label>
+                        <label class="form-label">Certificado de cuenta bancaria (NO SIRVE Nequi, Daviplata, Nu, Lulo,
+                            etc.) *</label>
                         <input type="file" class="form-control" name="cuenta" required />
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Certificado EPS (Max 5) *</label>
+                        <label class="form-label">Certificado de EPS – Emitida
+                            directamente por la EPS (Max 2) *</label>
                         <input type="file" class="form-control input-acumulador" name="epsDocs" multiple />
                         <div class="file-list-container" id="list-epsDocs"></div>
                     </div>
@@ -131,13 +144,15 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Agente de campo (SOAT, Licencia...)</label>
+                        <label class="form-label">AGENTE DE CAMPO - SOAT, tecno mecánica, tarjera de propiedad de la
+                            moto, licencia de conducción
+                            (Solo aplica para cargos relacionados a agentes de campo)</label>
                         <input type="file" class="form-control input-acumulador" name="agenteCampo" multiple />
                         <div class="file-list-container" id="list-agenteCampo"></div>
                     </div>
 
                     <div class="col-md-12">
-                        <label class="form-label">Hoja de Vida *</label>
+                        <label class="form-label">Hoja de Vida Actualizada *</label>
                         <input type="file" class="form-control" name="hv" required />
                     </div>
 
@@ -153,7 +168,12 @@
 
                     <div class="col-12 mt-4">
                         <label class="form-label">¿Afiliación de familiares?</label>
-                        <input type="text" class="form-control" name="afiliacionesFamiliares" placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required />
+                        <div class="form-text">
+                            Indique si desea afiliar familiares a la caja de compensación, si la respuesta es <b>SI</b>
+                            indicar cuántas personas, de lo contrario responder <b>NO</b>.
+                        </div>
+                        <input type="text" class="form-control" name="afiliacionesFamiliares"
+                            placeholder="Ej: Sí, tengo 2 hijos y esposo(a) / No, ninguno" required />
                     </div>
                 </div>
 
@@ -167,4 +187,5 @@
     </div>
     <script src="js/registroColaborador.js"></script>
 </body>
+
 </html>

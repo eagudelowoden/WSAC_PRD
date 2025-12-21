@@ -70,7 +70,7 @@ const uploadMiddleware = uploadSeguro.fields([
   { name: "cesantias", maxCount: 1 },
   { name: "cuenta", maxCount: 1 },
   { name: "epsDocs", maxCount: 5 },
-  { name: "referencias", maxCount: 2 },
+  { name: "referencias", maxCount: 5 },
   { name: "agenteCampo", maxCount: 5 },
   { name: "hv", maxCount: 1 },
   { name: "habeas", maxCount: 1 },
