@@ -213,11 +213,10 @@ createApp({
 
   data() {
     return {
-
       busqueda: "",
       sidebarContraida: false, // Controla el ancho del sidebar
       usuarios: [],
-      listaAbierta: false,      // Controla si se ven los usuarios
+      listaAbierta: false, // Controla si se ven los usuarios
       selectedId: "",
       usuarioActual: null,
       filtroEstado: "todos",
@@ -247,12 +246,11 @@ createApp({
     };
   },
   computed: {
-
     archivosFiltrados() {
-    if (!this.busqueda) return this.archivos;
-    const search = this.busqueda.toLowerCase();
-    return this.archivos.filter(f => f.name.toLowerCase().includes(search));
-  },
+      if (!this.busqueda) return this.archivos;
+      const search = this.busqueda.toLowerCase();
+      return this.archivos.filter((f) => f.name.toLowerCase().includes(search));
+    },
     usuariosFiltrados() {
       let lista = this.usuarios;
 
@@ -277,7 +275,6 @@ createApp({
         lista = lista.filter((u) => {
           const estado = u.aprobacion;
 
-         
           console.log(`User: ${u.nombres} - Aprobacion: ${estado}`);
 
           return (
@@ -382,7 +379,6 @@ createApp({
         this.form.segmento_contrato = userData.segmento_contrato || "";
         this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
         const pdfGuardado = userData.descripcion_cargo || "";
-
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);
 
@@ -556,29 +552,118 @@ createApp({
 
     async solicitarCorreccion() {
       if (!this.usuarioActual) return;
+
+      if (!this.usuarioActual.correo) {
+        return Swal.fire({
+          icon: "info",
+          title:
+            '<span style="font-size:1.2rem; font-weight:800;">AVISO</span>',
+          text: "Usuario sin correo registrado.",
+          confirmButtonColor: "#2c3e50",
+        });
+      }
+
       const { value: motivo } = await Swal.fire({
-        title: "Solicitar Corrección",
+        width: "500px",
+        title: `
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:10px;">
+                <i class="bi bi-shield-check" style="color:#e2712a; font-size:1.5rem;"></i>
+                <span style="font-size:1.3rem; font-weight:900; color:#1a2a3a;">SOLICITAR SUBSANACIÓN</span>
+            </div>
+        `,
+        html: `
+            <div style="text-align:left; padding:10px 25px 0 25px; box-sizing:border-box;">
+                <div style="background:#f8fafc; border-radius:12px; padding:15px; border:1px solid #edf2f7; margin-bottom:20px;">
+                    <div style="font-size:1rem; color:#1a2a3a; margin-bottom:5px;">
+                        <i class="bi bi-person-circle me-2" style="color:#e2712a;"></i> <b>${this.usuarioActual.nombres}</b>
+                    </div>
+                    <div style="font-size:0.9rem; color:#64748b;">
+                        <i class="bi bi-envelope-at-fill me-2"></i> ${this.usuarioActual.correo}
+                    </div>
+                </div>
+                <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:8px;">OBSERVACIONES / MOTIVO:</label>
+            </div>
+        `,
         input: "textarea",
-        inputPlaceholder: "Indica qué documento está mal...",
+        inputPlaceholder: "Detalle aquí la inconsistencia encontrada...",
         showCancelButton: true,
-        confirmButtonColor: "#ffc107",
-        confirmButtonText: "Enviar",
+        confirmButtonText: "ENVIAR",
+        cancelButtonText: "CANCELAR",
+        confirmButtonColor: "#2a71ff",
+        cancelButtonColor: "#f8f9fa",
+        reverseButtons: true,
+        customClass: {
+          popup: "rounded-5 border-0 shadow-lg",
+          input: "mx-auto my-2",
+          confirmButton: "btn btn-primary rounded-pill py-2 px-5 fw-bold",
+          cancelButton: "btn btn-light rounded-pill py-2 px-4 text-muted",
+        },
+        didOpen: () => {
+          const input = Swal.getInput();
+          input.style.width = "calc(100% - 50px)";
+          input.style.margin = "0 auto";
+          input.style.borderRadius = "15px";
+          input.style.border = "2px solid #cbd5e1";
+          input.style.padding = "15px";
+          input.style.height = "120px";
+        },
+        inputValidator: (value) => {
+          if (!value) return "Por favor, detalle el motivo antes de enviar.";
+        },
       });
 
+      // Si el usuario escribió un motivo y dio clic en ENVIAR
       if (motivo) {
-        Swal.showLoading();
+        // 1. Mostrar el cargando
+        Swal.fire({
+          title: "ENVIANDO NOTIFICACIÓN",
+          html: '<p class="text-muted small">Por favor espere...</p>',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         try {
+          // 2. Ejecutar la petición REAL al servidor
           const res = await fetch(`${API_URL}/solicitar-subsanar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: this.usuarioActual.id, motivo }),
+            body: JSON.stringify({
+              id: this.usuarioActual.id,
+              correo: this.usuarioActual.correo,
+              motivo: motivo,
+            }),
           });
+
           const data = await res.json();
-          if (data.status === "ok")
-            Swal.fire("Enviado", "Correo enviado al usuario", "success");
-          else Swal.fire("Error", data.message, "error");
+
+          // 3. Cerrar el cargando y mostrar resultado
+          if (data.status === "ok") {
+            Swal.fire({
+              icon: "success",
+              title: "¡ENVIADO!",
+              text: "El correo ha sido entregado correctamente.",
+              timer: 2000,
+              showConfirmButton: false,
+              customClass: { popup: "rounded-5" },
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "ERROR EN EL ENVÍO",
+              text: data.message || "No se pudo enviar el correo.",
+              confirmButtonColor: "#2a71ff",
+            });
+          }
         } catch (e) {
-          Swal.fire("Error", "Fallo de red", "error");
+          // Manejo de errores de conexión
+          Swal.fire({
+            icon: "error",
+            title: "FALLO DE CONEXIÓN",
+            text: "No hay respuesta del servidor.",
+            confirmButtonColor: "#2a71ff",
+          });
         }
       }
     },
