@@ -7,12 +7,19 @@ createApp({
       emails: [],
       nuevoEmail: "",
       isDarkMode: false,
+      userPermisoId: null,
+      userPermisoNombre: "",
+      mapaPermisos: {
+        tarjeta_contratacion: false,
+        editar_salario: false,
+        editar_ciudad: false,
+      },
     };
   },
   mounted() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    this.isDarkMode = savedTheme === 'dark';
-    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    const savedTheme = localStorage.getItem("theme") || "light";
+    this.isDarkMode = savedTheme === "dark";
+    document.documentElement.setAttribute("data-bs-theme", savedTheme);
     this.cargarDatos();
   },
   methods: {
@@ -22,6 +29,33 @@ createApp({
       document.documentElement.setAttribute("data-bs-theme", theme);
       localStorage.setItem("theme", theme); // Guardar preferencia
     },
+    async seleccionarUsuarioPermisos(user) {
+    this.userPermisoId = user.id;
+    this.userPermisoNombre = user.nombre;
+    // Cargar permisos desde la API
+    const res = await fetch(`/api/admin/permisos/${user.id}`);
+    const data = await res.json();
+    // Resetear mapa y asignar lo que venga de la BD
+    this.mapaPermisos = {
+        tarjeta_contratacion: data.tarjeta_contratacion || false,
+        editar_salario: data.editar_salario || false,
+        editar_ciudad: data.editar_ciudad || false
+    };
+},
+
+async guardarPermisos() {
+    const res = await fetch("/api/admin/permisos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            usuario_id: this.userPermisoId,
+            permisos: this.mapaPermisos
+        })
+    });
+    if (res.ok) {
+        Swal.fire("Éxito", "Permisos actualizados correctamente", "success");
+    }
+},
     async cargarDatos() {
       // Cargar Usuarios
       const resUser = await fetch("/api/admin/users");
@@ -33,10 +67,11 @@ createApp({
     },
 
     // --- LÓGICA USUARIOS ---
-async abrirModalUsuario() {
-  const { value: formValues } = await Swal.fire({
-    title: '<span class="fw-bold" style="color: #1e293b; font-size: 1.25rem;">Nuevo Usuario</span>',
-    html: `
+    async abrirModalUsuario() {
+      const { value: formValues } = await Swal.fire({
+        title:
+          '<span class="fw-bold" style="color: #1e293b; font-size: 1.25rem;">Nuevo Usuario</span>',
+        html: `
       <div class="text-start px-3" style="font-family: 'Segoe UI', sans-serif;">
         <div class="mb-2">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Nombre Completo</label>
@@ -79,52 +114,52 @@ async abrirModalUsuario() {
         .swal2-actions { margin-top: 20px !important; }
       </style>
     `,
-    showCancelButton: true,
-    confirmButtonText: "Crear Usuario",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#3b82f6",
-    cancelButtonColor: "#f1f5f9",
-    customClass: {
-      confirmButton: 'btn-confirm-swal',
-      cancelButton: 'btn-cancel-swal'
-    },
-    // Aplicamos un pequeño truco para que los botones se vean modernos
-    didOpen: () => {
-      const cancelBtn = Swal.getCancelButton();
-      cancelBtn.style.color = '#64748b';
-      cancelBtn.style.fontWeight = '600';
-    },
-    focusConfirm: false,
-    preConfirm: () => {
-      const nombre = document.getElementById("swal-nombre").value;
-      const usuario = document.getElementById("swal-user").value;
-      const password = document.getElementById("swal-pass").value;
-      const rol = document.getElementById("swal-rol").value;
+        showCancelButton: true,
+        confirmButtonText: "Crear Usuario",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#3b82f6",
+        cancelButtonColor: "#f1f5f9",
+        customClass: {
+          confirmButton: "btn-confirm-swal",
+          cancelButton: "btn-cancel-swal",
+        },
+        // Aplicamos un pequeño truco para que los botones se vean modernos
+        didOpen: () => {
+          const cancelBtn = Swal.getCancelButton();
+          cancelBtn.style.color = "#64748b";
+          cancelBtn.style.fontWeight = "600";
+        },
+        focusConfirm: false,
+        preConfirm: () => {
+          const nombre = document.getElementById("swal-nombre").value;
+          const usuario = document.getElementById("swal-user").value;
+          const password = document.getElementById("swal-pass").value;
+          const rol = document.getElementById("swal-rol").value;
 
-      if (!nombre || !usuario || !password) {
-        Swal.showValidationMessage(`Por favor completa todos los campos`);
-        return false;
+          if (!nombre || !usuario || !password) {
+            Swal.showValidationMessage(`Por favor completa todos los campos`);
+            return false;
+          }
+          return { nombre, usuario, password, rol };
+        },
+      });
+
+      if (formValues) {
+        const res = await fetch("/api/admin/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formValues),
+        });
+        this.cargarDatos();
+        Swal.fire({
+          icon: "success",
+          title: "¡Creado!",
+          text: "Usuario agregado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
-      return { nombre, usuario, password, rol };
     },
-  });
-
-  if (formValues) {
-    const res = await fetch("/api/admin/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formValues),
-    });
-    this.cargarDatos();
-    Swal.fire({
-      icon: "success",
-      title: "¡Creado!",
-      text: "Usuario agregado correctamente",
-      timer: 2000,
-      showConfirmButton: false
-    });
-  }
-},
 
     async eliminarUsuario(id) {
       const result = await Swal.fire({
@@ -171,6 +206,5 @@ async abrirModalUsuario() {
       });
       this.cargarDatos();
     },
-    
   },
 }).mount("#app");

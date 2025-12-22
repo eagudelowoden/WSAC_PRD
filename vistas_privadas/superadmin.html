@@ -2,20 +2,18 @@
 <html lang="es" data-bs-theme="light">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Super Admin | Configuración</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="css/superadmin.css">
+    <link rel="stylesheet" href="css/superadmin.css" />
 </head>
 
 <body>
-
     <div id="app" class="container py-4">
-
         <header class="admin-header d-flex justify-content-between align-items-center p-3 mb-4 shadow-sm rounded-4">
             <div class="d-flex align-items-center">
                 <div class="icon-box-admin me-3">
@@ -30,10 +28,10 @@
             <div class="d-flex align-items-center gap-3 p-2 bg-white-glass shadow-sm rounded-pill border px-3">
                 <div class="d-none d-md-flex align-items-center me-2 border-end pe-3">
                     <span class="badge bg-primary-subtle text-primary rounded-circle p-2 me-2">
-                        <i class="bi bi-grid-fill" style="font-size: 0.8rem;"></i>
+                        <i class="bi bi-grid-fill" style="font-size: 0.8rem"></i>
                     </span>
                     <span class="small fw-bold text-muted text-uppercase"
-                        style="font-size: 0.65rem; letter-spacing: 1px;">Navegación</span>
+                        style="font-size: 0.65rem; letter-spacing: 1px">Navegación</span>
                 </div>
 
                 <div class="d-flex gap-2">
@@ -69,6 +67,14 @@
                         <button class="nav-link py-3" :class="{ active: tab === 'emails' }" @click="tab = 'emails'">
                             <i class="bi bi-send-check-fill me-2"></i> Alertas Email
                         </button>
+
+                        <button class="nav-link mb-2 py-3" :class="{ active: tab === 'permisos' }"
+                            @click="tab = 'permisos'">
+                            <i class="bi bi-key-fill me-2"></i> Permisos Especiales
+                        </button>
+
+
+
                     </div>
                 </nav>
             </div>
@@ -77,7 +83,9 @@
                 <div v-if="tab === 'users'" class="card border-0 shadow-sm rounded-4 animate-fade">
                     <div
                         class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-people-fill text-orange me-2"></i>Gestión de Personal
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-people-fill text-orange me-2"></i>Gestión de
+                            Personal
                         </h6>
                         <button class="btn btn-orange btn-sm rounded-3 px-3" @click="abrirModalUsuario">
                             <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
@@ -96,8 +104,12 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="u in usuarios" :key="u.id">
-                                        <td class="fw-bold text-primary-custom">{{ u.nombre }}</td>
-                                        <td><span class="font-monospace small opacity-75">{{ u.usuario }}</span></td>
+                                        <td class="fw-bold text-primary-custom">
+                                            {{ u.nombre }}
+                                        </td>
+                                        <td>
+                                            <span class="font-monospace small opacity-75">{{ u.usuario }}</span>
+                                        </td>
                                         <td>
                                             <span class="badge-role" :class="u.rol">
                                                 {{ u.rol }}
@@ -117,8 +129,9 @@
 
                 <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade">
                     <div class="card-header bg-transparent border-0 pt-4 px-4">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de
-                            Notificación</h6>
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de Notificación
+                        </h6>
                     </div>
                     <div class="card-body p-4">
                         <form @submit.prevent="agregarEmail" class="row g-2 mb-4">
@@ -127,11 +140,13 @@
                                     <span class="input-group-text bg-light border-0"><i
                                             class="bi bi-envelope"></i></span>
                                     <input type="email" v-model="nuevoEmail" class="form-control border-0 bg-light"
-                                        placeholder="correo@empresa.com" required>
+                                        placeholder="correo@empresa.com" required />
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <button type="submit" class="btn btn-orange px-4">Suscribir</button>
+                                <button type="submit" class="btn btn-orange px-4">
+                                    Suscribir
+                                </button>
                             </div>
                         </form>
 
@@ -149,6 +164,56 @@
                         </div>
                     </div>
                 </div>
+
+
+                <div v-if="tab === 'permisos'" class="card border-0 shadow-sm rounded-4 animate-fade">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check text-orange me-2"></i>Control de Edición por Usuario</h6>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <div class="col-md-4 border-end">
+                <label class="form-label-mini mb-3">1. Seleccionar Usuario</label>
+                <div class="list-group list-group-flush">
+                    <button v-for="u in usuarios" 
+                        :key="u.id" 
+                        @click="seleccionarUsuarioPermisos(u)"
+                        class="list-group-item list-group-item-action border-0 rounded-3 mb-1"
+                        :class="{ active: userPermisoId === u.id }">
+                        {{ u.nombre }}
+                        <div class="small opacity-50">{{ u.rol }}</div>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8" v-if="userPermisoId">
+                <label class="form-label-mini mb-3">2. Permisos para: <span class="text-primary">{{ userPermisoNombre }}</span></label>
+                
+                <div class="p-3 rounded-4 bg-light border">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.tarjeta_contratacion">
+                        <label class="form-check-label fw-bold">Habilitar Tarjeta de Contratación</label>
+                        <div class="small text-muted">Permite ver y usar la tarjeta lateral de gestión.</div>
+                    </div>
+                    <hr>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.editar_salario">
+                        <label class="form-check-label fw-bold">Editar Salario</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.editar_ciudad">
+                        <label class="form-check-label fw-bold">Editar Ciudad</label>
+                    </div>
+                    <button class="btn btn-orange w-100 mt-3" @click="guardarPermisos">Actualizar Permisos</button>
+                </div>
+            </div>
+            <div class="col-md-8 text-center py-5 opacity-50" v-else>
+                <i class="bi bi-arrow-left-circle mb-2" style="font-size: 2rem;"></i>
+                <p>Selecciona un usuario a la izquierda para gestionar sus accesos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
             </div>
         </div>
     </div>

@@ -563,3 +563,32 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 .btn-contract-mini i {
     font-size: 1.1rem;
 }
+.btn-contract-mini {
+    background-color: #1a3a8a !important; /* Azul oscuro de tu imagen */
+    color: white !important;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px !important;
+    box-shadow: 0 4px 12px rgba(26, 58, 138, 0.2);
+}
+
+.btn-contract-mini i {
+    background: white;
+    color: #1a3a8a;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Alineación para móviles */
+@media (max-width: 991px) {
+  .col-lg-4 {
+    width: 100% !important;
+  }
+}

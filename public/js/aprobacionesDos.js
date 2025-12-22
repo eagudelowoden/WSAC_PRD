@@ -21,6 +21,7 @@ const SegmentosMixin = {
       cargandoUsuario: false,
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
+      usuarioLogueadoId: null
     };
   },
   mounted() {
@@ -38,6 +39,24 @@ const SegmentosMixin = {
         this.listaSegmentos = await res.json();
       } catch (e) {
         console.error("Error segmentos:", e);
+      }
+    },
+
+    async cargarPermisosDeEsteUsuario(userId) {
+      try {
+        const res = await fetch(`/api/admin/permisos/${userId}`);
+        const data = await res.json();
+        
+        // Asignamos los permisos que vienen de la base de datos
+        this.permisos = {
+          tarjeta_contratacion: data.tarjeta_contratacion || false,
+          editar_salario: data.editar_salario || false,
+          editar_ciudad: data.editar_ciudad || false
+        };
+        
+        console.log("✅ Permisos aplicados:", this.permisos);
+      } catch (e) {
+        console.error("❌ Error cargando permisos:", e);
       }
     },
 
@@ -170,9 +189,8 @@ const SegmentosMixin = {
             idColaborador: this.usuarioActual.id,
             nombrePlantilla: this.plantillaSeleccionada,
           }),
-          
         });
-          console.log("Generating document..." + this.usuarioActual.id)
+        console.log("Generating document..." + this.usuarioActual.id);
         const data = await response.json();
 
         if (response.ok) {
@@ -228,6 +246,12 @@ createApp({
         { value: "pendientes", text: "Pendientes" },
         { value: "aprobados", text: "Aprobados" },
       ],
+      usuarioSys: null,
+      permisos: {
+        tarjeta_contratacion: false, // Controla si se ve la card lateral
+        editar_salario: false,
+        editar_ciudad: false,
+      },
       aprobacion: "",
       busqueda: "",
       menuAbierto: false, // Controla si se ve el menú
@@ -314,9 +338,19 @@ createApp({
       return lista;
     },
   },
-  mounted() {
+async mounted() {
+    // 1. Identificar quién está logueado primero
+    await this.identificarAdmin();
+    
+    // 2. Si hay usuario, cargar sus permisos específicos
+    if (this.usuarioSys && this.usuarioSys.id) {
+       await this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
+    }
+
+    // 3. Cargar datos generales
     this.obtenerListaUsuarios();
-    this.identificarAdmin();
+    this.cargarPlantillas(); // Viene del Mixin
+    this.cargarSegmentos();  // Viene del Mixin
   },
   methods: {
     async obtenerListaUsuarios() {
@@ -340,6 +374,13 @@ createApp({
     seleccionarUsuario(id) {
       this.selectedId = id;
       this.cargarUsuarioDesdeBD();
+    },
+
+    async cargarPermisos() {
+      const res = await fetch(
+        `/api/usuarios/permisos/${this.usuarioActual.id}`
+      );
+      this.permisos = await res.json();
     },
 
     async cargarUsuarioDesdeBD() {
@@ -470,7 +511,6 @@ createApp({
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
         this.usuarioActual.observaciones = this.form.observaciones;
         this.usuarioActual.otroSi = this.form.otroSi;
-        
 
         // ------------------------------------------------------------------
 

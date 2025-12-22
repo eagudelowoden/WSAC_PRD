@@ -775,6 +775,57 @@ router.get("/ver-archivo", async (req, res) => {
   }
 });
 
+// Obtener permisos del usuario
+router.get("/permisos/:id", async (req, res) => {
+  try {
+    const [permisos] = await db.execute(
+      "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?", 
+      [req.params.id]
+    );
+    // Convertimos a un objeto fácil de usar: { gestion_contratacion: true, salario: false }
+    const mapaPermisos = permisos.reduce((acc, p) => {
+      acc[p.seccion] = !!p.puede_editar;
+      return acc;
+    }, {});
+    res.json(mapaPermisos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+// GUARDAR O ACTUALIZAR PERMISOS
+router.post("/permisos", async (req, res) => {
+  const { usuario_id, permisos } = req.body;
+
+  if (!usuario_id) {
+    return res.status(400).json({ error: "Falta el ID del usuario" });
+  }
+
+  try {
+    // Recorremos el objeto de permisos y generamos una promesa por cada uno
+    const promesas = Object.entries(permisos).map(([seccion, puede_editar]) => {
+      return new Promise((resolve, reject) => {
+        // ON DUPLICATE KEY UPDATE sirve para que si ya existe el permiso, lo actualice
+        const sql = `
+          INSERT INTO permisos_edicion (usuario_id, seccion, puede_editar) 
+          VALUES (?, ?, ?) 
+          ON DUPLICATE KEY UPDATE puede_editar = VALUES(puede_editar)
+        `;
+        db.query(sql, [usuario_id, seccion, puede_editar ? 1 : 0], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    });
+
+    await Promise.all(promesas);
+    res.json({ status: "ok", message: "Permisos guardados correctamente" });
+
+  } catch (error) {
+    console.error("Error en POST /permisos:", error);
+    res.status(500).json({ error: "No se pudieron guardar los permisos" });
+  }
+});
+
 // C. SUBIR CORRECCIÓN A S3
 router.post("/subir-correccion", upload.any(), async (req, res) => {
   const { token, tipoDocumento } = req.body;
