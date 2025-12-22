@@ -20,6 +20,7 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const PORT = process.env.PORT;
 const RUTA_SEGMENTOS = process.env.SEGMENTOS;
 const URL_BASE = process.env.URL_BASE;
+const URL_BASEDEV = process.env.URL_BASEDEV || `http://localhost:${PORT}`;
 const fsPromises = require("fs").promises;
 const { vincularDescripcionCargo } = require("../services/cargoPdfService");
 const ALLOWED_MIME_TYPES = [
@@ -779,7 +780,7 @@ router.get("/ver-archivo", async (req, res) => {
 router.get("/permisos/:id", async (req, res) => {
   try {
     const [permisos] = await db.execute(
-      "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?", 
+      "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?",
       [req.params.id]
     );
     // Convertimos a un objeto fácil de usar: { gestion_contratacion: true, salario: false }
@@ -819,7 +820,6 @@ router.post("/permisos", async (req, res) => {
 
     await Promise.all(promesas);
     res.json({ status: "ok", message: "Permisos guardados correctamente" });
-
   } catch (error) {
     console.error("Error en POST /permisos:", error);
     res.status(500).json({ error: "No se pudieron guardar los permisos" });
@@ -983,4 +983,178 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
   }
 });
 
+
+// C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
+router.post("/subir-firmados", upload.any(), async (req, res) => {
+  const { token } = req.body; // El token_firma enviado por correo
+
+  try {
+    // 1. Validar que el token de firma exista y sea válido
+    const usuario = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT * FROM usuarios WHERE token_firma = ?",
+        [token],
+        (err, results) => {
+          if (err) reject(err);
+          else if (results.length === 0) resolve(null);
+          else resolve(results[0]);
+        }
+      );
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ status: "error", message: "Enlace de firma inválido o expirado" });
+    }
+
+    const folderName = usuario.carpeta || `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
+
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) => {
+        const ext = path.extname(file.originalname);
+        const nombreLimpio = path.basename(file.originalname, ext).replace(/\s+/g, "_");
+        
+        // --- AQUÍ ESTÁ LA LÓGICA QUE PEDISTE ---
+        // Se guarda en una subcarpeta llamada 'documentos_firmados'
+        const nuevoNombre = `${nombreLimpio}_${Date.now()}${ext}`;
+        const s3Key = `${folderName}/documentos_firmados/${nuevoNombre}`;
+
+        const command = new PutObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: s3Key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        });
+        return s3Client.send(command);
+      });
+
+      await Promise.all(uploadPromises);
+
+      // Opcional: Limpiar el token tras la subida exitosa para que no se use dos veces
+      // db.query("UPDATE usuarios SET token_firma = NULL WHERE id = ?", [usuario.id]);
+
+      res.json({ status: "ok", message: "Documentos firmados cargados exitosamente." });
+    } else {
+      res.status(400).json({ status: "error", message: "No se recibieron archivos." });
+    }
+  } catch (error) {
+    console.error("Error en subir-firmados:", error);
+    res.status(500).json({ status: "error", message: "Error interno al subir firmados" });
+  }
+});
+// VALIDAR TOKEN DE FIRMA
+router.get("/validar-token-firma/:token", (req, res) => {
+    const token = req.params.token;
+    db.query(
+        "SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?",
+        [token],
+        (err, result) => {
+            if (err) return res.status(500).json({ status: "error", message: "Error en base de datos" });
+            
+            if (result.length === 0) {
+                return res.status(404).json({ status: "error", message: "El enlace es inválido o ya fue utilizado." });
+            }
+            
+            res.json({ status: "ok", usuario: result[0] });
+        }
+    );
+});
+// --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
+router.post("/solicitar-firma-contratos", (req, res) => {
+    const { id, correo, nombres, archivosAFirmar } = req.body;
+    const token = crypto.randomBytes(20).toString("hex");
+
+    // 1. Guardar el token en la base de datos
+    db.query(
+        "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
+        [token, id],
+        async (err) => {
+            if (err) return res.status(500).json({ status: "error", message: err.message });
+
+            // 2. Preparar el link
+            const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
+
+            // 3. Crear lista de archivos para el HTML del correo
+            const listaHtml = archivosAFirmar.map(a => `<li>📄 ${a.name}</li>`).join('');
+
+            const htmlEmail = `
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                    <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
+                        <h2 style="margin: 0;">WSAC SECURITY</h2>
+                    </div>
+                    <div style="padding: 30px;">
+                        <h3>Hola, ${nombres}</h3>
+                        <p>Se han generado tus documentos de contratación. Por favor, descárgalos, fírmalos y súbelos escaneados a través del siguiente enlace:</p>
+                        
+                        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <strong style="color: #1e3a8a;">Documentos a firmar:</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                ${listaHtml}
+                            </ul>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${link}" style="background-color: #0891b2; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                ✍️ SUBIR DOCUMENTOS FIRMADOS
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                await correoOutlook.sendMail({
+                    from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+                    to: correo,
+                    subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
+                    html: htmlEmail,
+                });
+                res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
+            } catch (e) {
+                console.error("Error enviando correo de firma:", e);
+                res.status(500).json({ status: "error", message: "No se pudo enviar el correo" });
+            }
+        }
+    );
+});
+
+// GET /api/listar-firmados/:carpeta
+router.get("/listar-firmados/:carpeta", async (req, res) => {
+  const carpetaUsuario = req.params.carpeta;
+
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: BUCKET_NAME,
+      Prefix: `${carpetaUsuario}/documentos_firmados/`, // Solo busca en esa subcarpeta
+    });
+
+    const response = await s3Client.send(command);
+
+    const filesPromises = (response.Contents || [])
+      .filter(item => !item.Key.endsWith('/')) // Ignorar el objeto de la carpeta misma
+      .map(async (item) => {
+        const fileName = item.Key.split("/").pop();
+
+        const getCommand = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: item.Key,
+        });
+
+        const signedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
+
+        return {
+          name: fileName,
+          url: signedUrl,
+          key: Buffer.from(item.Key).toString("base64") // Token para ver-archivo
+        };
+      });
+
+    const files = await Promise.all(filesPromises);
+    res.json(files);
+  } catch (err) {
+    console.error("Error listando firmados:", err);
+    res.json([]);
+  }
+});
+
 module.exports = router;
+ 

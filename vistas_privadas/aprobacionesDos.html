@@ -252,121 +252,122 @@
               </div>
             </div>
 
-<div class="col-12 col-lg-4 mb-4 d-flex">
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden w-100 d-flex flex-column" 
-       style="background-color: #ffffff; min-height: 100%;">
+            <div class="col-12 col-lg-4 mb-4 d-flex">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden w-100 d-flex flex-column"
+                style="background-color: #ffffff; min-height: 100%;">
 
-    <div class="card-header bg-white border-0 d-flex align-items-center p-3 pb-0">
-      <div class="icon-box-mini bg-warning-light rounded-2 me-2">
-        <i class="bi bi-file-text-fill text-warning small"></i>
-      </div>
-      <h6 class="mb-0 fw-bold text-dark opacity-75 small">Gestión de Contratación</h6>
-    </div>
+                <div class="card-header bg-white border-0 d-flex align-items-center p-3 pb-0">
+                  <div class="icon-box-mini bg-warning-light rounded-2 me-2">
+                    <i class="bi bi-file-text-fill text-warning small"></i>
+                  </div>
+                  <h6 class="mb-0 fw-bold text-dark opacity-75 small">Gestión de Contratación</h6>
+                </div>
 
-    <div class="card-body p-3 pt-2 d-flex flex-column flex-grow-1">
-      
-      
-      <div class="mb-2">
-        <label class="form-label-mini">1. SEGMENTO (DIRECCIÓN)</label>
-        <div class="input-group-mini">
-          <i class="bi bi-diagram-3 icon-mini"></i>
-          <select class="form-select-mini" v-model="form.segmento_contrato" @change="cargarCargosPorSegmento">
-            <option value="">-- Seleccione Segmento --</option>
-            <option v-for="seg in listaSegmentos" :key="seg" :value="seg">{{ seg }}</option>
-          </select>
-        </div>
-      </div>
+                <div class="card-body p-3 pt-2 d-flex flex-column flex-grow-1">
 
-      <div class="mb-2">
-        <label class="form-label-mini">2. DESCRIPCIÓN CARGO (PDF)</label>
-        
-        <div v-if="cargandoCargos" class="form-control-mini d-flex align-items-center bg-light">
-          <div class="spinner-border spinner-border-sm text-warning me-2" role="status" style="width: 0.8rem; height: 0.8rem;"></div>
-          <span class="text-muted" style="font-size: 0.75rem;">Buscando...</span>
-        </div>
 
-        <div v-else class="input-group-mini">
-          <i class="bi bi-file-pdf icon-mini"></i>
-          <select class="form-select-mini" v-model="form.descripcion_cargo" :disabled="!form.segmento_contrato">
-            <option value="">-- Seleccione Archivo --</option>
-            <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">{{ pdf }}</option>
-          </select>
-        </div>
-      </div>
+                  <div class="mb-2">
+                    <label class="form-label-mini">1. SEGMENTO (DIRECCIÓN)</label>
+                    <div class="input-group-mini">
+                      <i class="bi bi-diagram-3 icon-mini"></i>
+                      <select class="form-select-mini" v-model="form.segmento_contrato"
+                        @change="cargarCargosPorSegmento">
+                        <option value="">-- Seleccione Segmento --</option>
+                        <option v-for="seg in listaSegmentos" :key="seg" :value="seg">{{ seg }}</option>
+                      </select>
+                    </div>
+                  </div>
 
-      <div class="mb-3">
-        <label class="form-label small fw-bold text-uppercase opacity-75" style="font-size: 0.65rem;">3. TIPO DE CONTRATO</label>
-        <div class="input-group-mini">
-          <i class="bi bi-diagram-3 icon-mini"></i>
-          <select class="form-select-mini" v-model="form.tipo_contrato">
-            <option value="">-- Seleccione Tipo de Contrato --</option>
-            <option v-for="tipo in listadoTiposContratos" :key="tipo" :value="tipo">
-              {{ tipo }}
-            </option>
-          </select>
-        </div>
-      </div>
+                  <div class="mb-2">
+                    <label class="form-label-mini">2. DESCRIPCIÓN CARGO (PDF)</label>
 
-      <div class="separator-dashed my-2"></div>
+                    <div v-if="cargandoCargos" class="form-control-mini d-flex align-items-center bg-light">
+                      <div class="spinner-border spinner-border-sm text-warning me-2" role="status"
+                        style="width: 0.8rem; height: 0.8rem;"></div>
+                      <span class="text-muted" style="font-size: 0.75rem;">Buscando...</span>
+                    </div>
 
-      <div class="mb-2">
-        <label class="form-label-mini">Cargo (Nombre)</label>
-        <input type="text" class="form-control-mini" placeholder="Ej: Analista" v-model="form.cargo">
-      </div>
+                    <div v-else class="input-group-mini">
+                      <i class="bi bi-file-pdf icon-mini"></i>
+                      <select class="form-select-mini" v-model="form.descripcion_cargo"
+                        :disabled="!form.segmento_contrato">
+                        <option value="">-- Seleccione Archivo --</option>
+                        <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">{{ pdf }}</option>
+                      </select>
+                    </div>
+                  </div>
 
-      <div class="row g-2 mb-2">
-<div class="col-6">
-  <label class="form-label-mini">Salario</label>
-  <div class="input-group-mini">
-    <span class="icon-mini fw-bold">$</span>
-    <input 
-      type="text" 
-      class="form-control-mini ps-4" 
-      placeholder="0.00" 
-      v-model="form.salario"
-      :disabled="!permisos.editar_salario"
-      :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.editar_salario }"
-    >
-  </div>
-</div>
-        <div class="col-6">
-          <label class="form-label-mini">Ciudad</label>
-          <input type="text" class="form-control-mini" v-model="form.ciudad" placeholder="Ciudad">
-        </div>
-      </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold text-uppercase opacity-75" style="font-size: 0.65rem;">3.
+                      TIPO DE CONTRATO</label>
+                    <div class="input-group-mini">
+                      <i class="bi bi-diagram-3 icon-mini"></i>
+                      <select class="form-select-mini" v-model="form.tipo_contrato">
+                        <option value="">-- Seleccione Tipo de Contrato --</option>
+                        <option v-for="tipo in listadoTiposContratos" :key="tipo" :value="tipo">
+                          {{ tipo }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
 
-      <div class="mb-3 flex-grow-1">
-        <label class="form-label-mini">Observaciones</label>
-        <textarea class="form-control-mini" rows="2" placeholder="Notas..." v-model="form.observaciones" style="min-height: 60px;"></textarea>
-      </div>
+                  <div class="separator-dashed my-2"></div>
 
-      <div class="d-grid gap-2 mt-auto">
-        <button class="btn btn-correction-mini w-100" @click="solicitarCorreccion">
-          <i class="bi bi-pencil me-1"></i> Solicitar Corrección
-        </button>
+                  <div class="mb-2">
+                    <label class="form-label-mini">Cargo (Nombre)</label>
+                    <input type="text" class="form-control-mini" placeholder="Ej: Analista" v-model="form.cargo">
+                  </div>
 
-        <button class="btn btn-contract-mini w-100 py-3" @click="enviarContratosAlCorreo">
-          <i class="bi bi-file-earmark-check-fill me-2"></i> 
-          ENVIAR DOCUMENTOS PARA CONTRATO
-        </button>
+                  <div class="row g-2 mb-2">
+                    <div class="col-6">
+                      <label class="form-label-mini">Salario</label>
+                      <div class="input-group-mini">
+                        <span class="icon-mini fw-bold">$</span>
+                        <input type="text" class="form-control-mini ps-4" placeholder="0.00" v-model="form.salario"
+                          :disabled="!permisos.editar_salario"
+                          :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.editar_salario }">
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label-mini">Ciudad</label>
+                      <input type="text" class="form-control-mini" v-model="form.ciudad" placeholder="Ciudad">
+                    </div>
+                  </div>
 
-        <div class="row g-2">
-          <div class="col-6">
-            <button class="btn btn-gray-mini w-100" @click="aprobar">
-              <i class="bi bi-check2 me-1"></i> Aprobar
-            </button>
-          </div>
-          <div class="col-6">
-            <button class="btn btn-gray-mini w-100" @click="rechazar">
-              <i class="bi bi-x-circle me-1"></i> Rechazar
-            </button>
-          </div>
-        </div>
-      </div>
+                  <div class="mb-3 flex-grow-1">
+                    <label class="form-label-mini">Observaciones</label>
+                    <textarea class="form-control-mini" rows="2" placeholder="Notas..." v-model="form.observaciones"
+                      style="min-height: 60px;"></textarea>
+                  </div>
 
-    </div>
-  </div>
-</div>
+                  <div class="d-grid gap-2 mt-auto">
+                    <button class="btn btn-correction-mini w-100" @click="solicitarCorreccion">
+                      <i class="bi bi-pencil me-1"></i> Solicitar Corrección
+                    </button>
+
+                    <button class="btn btn-outline-info w-100 py-3 mb-2 rounded-4 shadow-sm"
+                      @click="solicitarFirmaContratos" :disabled="!usuarioActual || listaContratos.length === 0">
+                      <i class="bi bi-pen-fill me-2"></i>
+                      SOLICITAR FIRMA DE CONTRATOS
+                    </button>
+
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <button class="btn btn-gray-mini w-100" @click="aprobar">
+                          <i class="bi bi-check2 me-1"></i> Aprobar
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button class="btn btn-gray-mini w-100" @click="rechazar">
+                          <i class="bi bi-x-circle me-1"></i> Rechazar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
             <div class="card border-info mt-3">
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden mt-3 w-100"
                 style="background-color: #ffffff;">
@@ -377,7 +378,64 @@
                     <span class="text-white fw-bold small">Documentos Generados</span>
                   </div>
                 </div>
+                <div class="card mt-3 shadow-sm border-0" style="border-radius: 15px; background: #ffffff;">
+                  <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <label class="form-label-mini text-muted mb-0 fw-bold"
+                      style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                      <i class="bi bi-pen-fill text-info me-1"></i> DOCUMENTOS FIRMADOS POR EL COLABORADOR
+                    </label>
+                  </div>
 
+                  <div class="card-body p-3">
+                    <div v-if="listaFirmados.length === 0"
+                      class="d-flex flex-column align-items-center justify-content-center py-4 rounded-3"
+                      style="background-color: #fbfcfd; border: 1px dashed #dee2e6;">
+                      <i class="bi bi-cloud-arrow-up text-light fs-1 mb-2"></i>
+                      <span class="text-muted" style="font-size: 0.75rem;">Sin documentos firmados cargados</span>
+                      <small class="text-secondary" style="font-size: 0.65rem;">El colaborador aún no ha completado el
+                        proceso de firma.</small>
+                    </div>
+
+                    <div v-else class="scroll-historial-firmados px-1" style="max-height: 200px; overflow-y: auto;">
+                      <div v-for="(doc, index) in listaFirmados" :key="index"
+                        class="d-flex align-items-center justify-content-between p-2 mb-2 rounded-3 border-bottom-0 bg-light-hover transition-all item-history-firmado">
+
+                        <div class="d-flex align-items-center text-truncate pe-3">
+                          <div class="icon-box-status me-2 bg-info bg-opacity-10 p-2 rounded-circle">
+                            <i class="bi bi-file-earmark-check-fill text-info fs-5"></i>
+                          </div>
+                          <div class="d-flex flex-column text-truncate">
+                            <span class="fw-bold text-dark text-truncate" style="font-size: 0.75rem;">{{ doc.name
+                              }}</span>
+                            <small class="text-muted" style="font-size: 0.6rem;">Recibido desde S3</small>
+                          </div>
+                        </div>
+
+                        <div class="d-flex gap-2 align-items-center">
+                          <a :href="doc.url" target="_blank"
+                            class="btn btn-sm btn-outline-info rounded-pill border-0 px-2 py-1" title="Ver Documento">
+                            <i class="bi bi-eye-fill"></i>
+                          </a>
+
+                          <button @click="eliminarDocumentoFirmado(doc.name)"
+                            class="btn btn-sm btn-outline-danger rounded-pill border-0 px-2 py-1" title="Eliminar">
+                            <i class="bi bi-trash3-fill"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                      <small class="text-muted" style="font-size: 0.6rem;">
+                        <i class="bi bi-shield-check text-success"></i> Almacenamiento seguro en AWS S3
+                      </small>
+                      <button @click="obtenerDocumentosFirmados" class="btn btn-link btn-sm p-0 text-decoration-none"
+                        style="font-size: 0.65rem;">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div class="card-body p-3">
                   <div class="mb-3">
                     <label class="form-label-mini text-muted mb-1 fw-bold" style="font-size: 0.65rem;">

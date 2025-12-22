@@ -158,6 +158,7 @@ app.get("/", (req, res) => {
 app.get("/visualizar.html", (req, res) => res.sendFile(path.join(__dirname, "vistas_privadas", "visualizar.html")));
 app.get("/registro.html", (req, res) => res.sendFile(path.join(__dirname, "vistas_privadas", "registro.html")));
 app.get("/subsanar.html", (req, res) => res.sendFile(path.join(__dirname, "vistas_privadas", "subsanar.html")));
+app.get("/firmar.html", (req, res) => res.sendFile(path.join(__dirname, "vistas_privadas", "firmar.html")));
 
 // Paneles
 app.get("/panel-administrativo", verificarAuth, (req, res) => res.sendFile(path.join(__dirname, "vistas_privadas", "index.html")));

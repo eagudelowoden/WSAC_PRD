@@ -21,7 +21,7 @@ const SegmentosMixin = {
       cargandoUsuario: false,
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
-      usuarioLogueadoId: null
+      usuarioLogueadoId: null,
     };
   },
   mounted() {
@@ -46,14 +46,14 @@ const SegmentosMixin = {
       try {
         const res = await fetch(`/api/admin/permisos/${userId}`);
         const data = await res.json();
-        
+
         // Asignamos los permisos que vienen de la base de datos
         this.permisos = {
           tarjeta_contratacion: data.tarjeta_contratacion || false,
           editar_salario: data.editar_salario || false,
-          editar_ciudad: data.editar_ciudad || false
+          editar_ciudad: data.editar_ciudad || false,
         };
-        
+
         console.log("✅ Permisos aplicados:", this.permisos);
       } catch (e) {
         console.error("❌ Error cargando permisos:", e);
@@ -238,6 +238,7 @@ createApp({
       listaAbierta: false, // Controla si se ven los usuarios
       selectedId: "",
       usuarioActual: null,
+      listaFirmados: [],  // Los que el colaborador sube
       filtroEstado: "todos",
       filtroPendiente: "pendientes",
       filtroEstadoOptions: [
@@ -338,19 +339,19 @@ createApp({
       return lista;
     },
   },
-async mounted() {
+  async mounted() {
     // 1. Identificar quién está logueado primero
     await this.identificarAdmin();
-    
+
     // 2. Si hay usuario, cargar sus permisos específicos
     if (this.usuarioSys && this.usuarioSys.id) {
-       await this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
+      await this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
     }
 
     // 3. Cargar datos generales
     this.obtenerListaUsuarios();
     this.cargarPlantillas(); // Viene del Mixin
-    this.cargarSegmentos();  // Viene del Mixin
+    this.cargarSegmentos(); // Viene del Mixin
   },
   methods: {
     async obtenerListaUsuarios() {
@@ -371,10 +372,20 @@ async mounted() {
       }
     },
 
-    seleccionarUsuario(id) {
-      this.selectedId = id;
-      this.cargarUsuarioDesdeBD();
-    },
+async seleccionarUsuario(id) {
+  // 1. Guardamos el ID seleccionado
+  this.selectedId = id;
+  
+  // 2. Cargamos primero los datos del usuario de la BD 
+  // (Esto es vital porque llena 'this.usuarioActual' y su 'carpeta')
+  await this.cargarUsuarioDesdeBD(); 
+
+  // 3. Una vez cargado el usuarioActual, traemos sus archivos específicos
+  if (this.usuarioActual && this.usuarioActual.carpeta) {
+      await this.obtenerHistorialS3(); // Contratos generados por admin
+      await this.obtenerDocumentosFirmados(); // Documentos subidos por el colaborador
+  }
+},
 
     async cargarPermisos() {
       const res = await fetch(
@@ -550,7 +561,34 @@ async mounted() {
         );
       }
     },
+async obtenerDocumentosFirmados() {
+  // 1. Verificamos que el usuario tenga una carpeta asignada
+  if (!this.usuarioActual || !this.usuarioActual.carpeta) {
+    console.warn("El usuario no tiene una carpeta definida.");
+    this.listaFirmados = [];
+    return;
+  }
 
+  try {
+    // 2. Usamos 'carpeta' en lugar de 'id' para que coincida con el Prefijo de S3
+    const res = await fetch(`/api/listar-firmados/${this.usuarioActual.carpeta}`);
+    
+    if (!res.ok) throw new Error("Error en la respuesta del servidor");
+
+    const data = await res.json();
+
+    // 3. Mapeo de datos: 
+    // Si tu backend devuelve directamente el array, usa 'data'. 
+    // Si el backend devuelve { archivos: [...] }, usa 'data.archivos'.
+    // Según el endpoint que te di anteriormente, devuelve el array directamente.
+    this.listaFirmados = Array.isArray(data) ? data : (data.archivos || []);
+
+    console.log(`✅ ${this.listaFirmados.length} documentos firmados cargados.`);
+  } catch (error) {
+    console.error("❌ Error cargando firmados:", error);
+    this.listaFirmados = [];
+  }
+},
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
@@ -601,6 +639,89 @@ async mounted() {
         Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
       }
     },
+async solicitarFirmaContratos() {
+  // Validación: Si no hay contratos generados, no tiene sentido pedir firma
+  if (!this.usuarioActual || this.listaContratos.length === 0) {
+    return Swal.fire({
+      icon: "warning",
+      title: "SIN DOCUMENTOS",
+      text: "Primero debes generar los contratos (Word a PDF) antes de solicitar la firma.",
+      confirmButtonColor: "#1e3a8a"
+    });
+  }
+
+  // 1. Confirmación Visual
+  const { isConfirmed } = await Swal.fire({
+    title: '¿SOLICITAR FIRMA DIGITAL?',
+    html: `
+      <div style="text-align:left; padding:10px;">
+        <p>Se enviará un acceso a <b>${this.usuarioActual.nombres}</b> para firmar:</p>
+        <ul style="font-size: 0.85rem; color: #475569;">
+          ${this.listaContratos.map(c => `<li><i class="bi bi-file-pdf"></i> ${c.name}</li>`).join('')}
+        </ul>
+        <div style="background:#f0f9ff; padding:12px; border-radius:10px; border:1px solid #bae6fd; margin-top:15px;">
+          <small class="text-primary">
+            <i class="bi bi-info-circle-fill"></i> El sistema habilitará estos documentos para carga de firma en la carpeta <b>documentos_firmados</b>.
+          </small>
+        </div>
+      </div>
+    `,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'SÍ, ENVIAR PARA FIRMA',
+    cancelButtonText: 'CANCELAR',
+    confirmButtonColor: '#0891b2', 
+    reverseButtons: true,
+    customClass: { popup: "rounded-5 shadow-lg" }
+  });
+
+  if (!isConfirmed) return;
+
+  // 2. Cargando
+  Swal.fire({
+    title: "PROCESANDO SOLICITUD",
+    html: "Generando link seguro y preparando documentos...",
+    didOpen: () => Swal.showLoading(),
+    allowOutsideClick: false
+  });
+
+  try {
+    const res = await fetch(`/api/solicitar-firma-contratos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: this.usuarioActual.id,
+        correo: this.usuarioActual.correo, // Enviamos el correo por si acaso
+        nombres: this.usuarioActual.nombres,
+        archivosAFirmar: this.listaContratos // <--- AQUÍ ENVIAMOS LOS DOCUMENTOS
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "ok") {
+      Swal.fire({
+        icon: "success",
+        title: "SOLICITUD ENVIADA",
+        text: `Se ha enviado el correo a ${this.usuarioActual.correo} con éxito.`,
+        timer: 3500,
+        showConfirmButton: false,
+        customClass: { popup: "rounded-5" }
+      });
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error("Error al solicitar firma:", error);
+    Swal.fire({
+      icon: "error",
+      title: "FALLO EN EL PROCESO",
+      text: error.message || "No se pudo conectar con el servicio de firmas.",
+      confirmButtonColor: "#d33"
+    });
+  }
+},
+
     async enviarContratosAlCorreo() {
       if (!this.usuarioActual || this.listaContratos.length === 0) return;
 
