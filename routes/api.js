@@ -305,12 +305,10 @@ router.post("/enviar-historial-contratos", async (req, res) => {
     res.json({ status: "ok", message: "Enviado con éxito" });
   } catch (error) {
     console.error("Error enviando historial S3:", error);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Error al procesar los documentos de S3",
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Error al procesar los documentos de S3",
+    });
   }
 });
 
@@ -524,6 +522,7 @@ router.put("/usuario/:id", async (req, res) => {
                 descripcion_cargo = ?, 
                 aprobacion = ?,
                 otro_si = ?,
+                tipo_contrato = ?,
                 fecha_suscripcion = ?
             WHERE id = ?
         `;
@@ -549,6 +548,7 @@ router.put("/usuario/:id", async (req, res) => {
       data.descripcion_cargo,
       data.aprobacion,
       data.otroSi,
+      data.tipo_contrato,
       data.fechaSuscripcion || null,
       id,
     ];

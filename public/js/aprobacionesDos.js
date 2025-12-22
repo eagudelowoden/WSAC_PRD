@@ -236,10 +236,18 @@ createApp({
         salario: "",
         ciudad: "",
         observaciones: "",
+        tipo_contrato: "",
         // Campos nuevos
         segmento_contrato: "",
         descripcion_cargo: "",
       },
+      listadoTiposContratos: [
+        "CONTRATO INDEFINIDO",
+        "CONTRATO OBRA O LABOR",
+        "CONTRATO APRENDIZAJE ETAPA LECTIVA",
+        "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
+        "TERMINO FIJO",
+      ],
 
       archivos: [],
       cargandoArchivos: false,
@@ -360,6 +368,7 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
+        userData.tipo_contrato = userData.tipo_contrato;
         userData.aprobacion = userData.aprobacion;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
         if (userData.fechaSuscripcion)
@@ -378,6 +387,7 @@ createApp({
         this.form.otroSi = userData.otroSi || "";
         this.form.segmento_contrato = userData.segmento_contrato || "";
         this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
+        this.form.tipo_contrato = userData.tipo_contrato || [];
         const pdfGuardado = userData.descripcion_cargo || "";
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);
@@ -459,6 +469,7 @@ createApp({
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
         this.usuarioActual.observaciones = this.form.observaciones;
         this.usuarioActual.otroSi = this.form.otroSi;
+        
 
         // ------------------------------------------------------------------
 
@@ -549,12 +560,12 @@ createApp({
         Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
       }
     },
-async enviarContratosAlCorreo() {
-    if (!this.usuarioActual || this.listaContratos.length === 0) return;
+    async enviarContratosAlCorreo() {
+      if (!this.usuarioActual || this.listaContratos.length === 0) return;
 
-    // 1. Confirmación con Estética Profesional
-    const { isConfirmed } = await Swal.fire({
-        width: '500px',
+      // 1. Confirmación con Estética Profesional
+      const { isConfirmed } = await Swal.fire({
+        width: "500px",
         title: `
             <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:10px;">
                 <i class="bi bi-file-earmark-post-fill" style="color:#1e3a8a; font-size:1.5rem;"></i>
@@ -577,23 +588,23 @@ async enviarContratosAlCorreo() {
             </div>
         `,
         showCancelButton: true,
-        confirmButtonText: 'SÍ, ENVIAR AHORA',
-        cancelButtonText: 'CANCELAR',
+        confirmButtonText: "SÍ, ENVIAR AHORA",
+        cancelButtonText: "CANCELAR",
         confirmButtonColor: "#1e3a8a",
         cancelButtonColor: "#f8f9fa",
         reverseButtons: true,
         customClass: {
-            popup: 'rounded-5 border-0 shadow-lg',
-            confirmButton: 'btn btn-primary rounded-pill py-2 px-5 fw-bold',
-            cancelButton: 'btn btn-light rounded-pill py-2 px-4 text-muted',
-        }
-    });
+          popup: "rounded-5 border-0 shadow-lg",
+          confirmButton: "btn btn-primary rounded-pill py-2 px-5 fw-bold",
+          cancelButton: "btn btn-light rounded-pill py-2 px-4 text-muted",
+        },
+      });
 
-    if (!isConfirmed) return;
+      if (!isConfirmed) return;
 
-    // 2. Cargando Moderno
-    Swal.fire({
-        title: 'PREPARANDO ARCHIVOS',
+      // 2. Cargando Moderno
+      Swal.fire({
+        title: "PREPARANDO ARCHIVOS",
         html: `
             <div class="py-3 text-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
@@ -602,42 +613,44 @@ async enviarContratosAlCorreo() {
         `,
         allowOutsideClick: false,
         showConfirmButton: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-    try {
+      try {
         const res = await fetch(`/api/enviar-historial-contratos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                usuario: this.usuarioActual,
-                archivos: this.listaContratos
-            }),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuario: this.usuarioActual,
+            archivos: this.listaContratos,
+          }),
         });
 
         const data = await res.json();
 
         if (data.status === "ok") {
-            Swal.fire({
-                icon: "success",
-                title: "¡CONTRATOS ENVIADOS!",
-                text: "El colaborador ha recibido los documentos exitosamente.",
-                timer: 2500,
-                showConfirmButton: false,
-                customClass: { popup: 'rounded-5' }
-            });
+          Swal.fire({
+            icon: "success",
+            title: "¡CONTRATOS ENVIADOS!",
+            text: "El colaborador ha recibido los documentos exitosamente.",
+            timer: 2500,
+            showConfirmButton: false,
+            customClass: { popup: "rounded-5" },
+          });
         } else {
-            throw new Error(data.message);
+          throw new Error(data.message);
         }
-    } catch (error) {
+      } catch (error) {
         Swal.fire({
-            icon: "error",
-            title: "FALLO EN EL ENVÍO",
-            text: error.message || "No se pudo conectar con el servidor.",
-            confirmButtonColor: "#1e3a8a",
+          icon: "error",
+          title: "FALLO EN EL ENVÍO",
+          text: error.message || "No se pudo conectar con el servidor.",
+          confirmButtonColor: "#1e3a8a",
         });
-    }
-},
+      }
+    },
 
     async solicitarCorreccion() {
       if (!this.usuarioActual) return;

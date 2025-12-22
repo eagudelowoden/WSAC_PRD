@@ -74,6 +74,7 @@ createApp({
                 userData.afpNombre = userData.afp;
                 userData.ccfNombre = userData.ccf;
                 userData.otroSi = userData.otro_si;
+                userData.tipo_contrato = userData.tipo_contrato;
 
                 // Formatear fecha para que el input type="date" la lea bien (YYYY-MM-DD)
                 if (userData.fechaNacimiento) {

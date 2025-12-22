@@ -158,6 +158,7 @@ router.put("/usuario/:id", (req, res) => {
         data.cargo,
         data.afiliaciones_familiares,
         data.otroSi,
+        data.tipo_contrato,
         id
     ];
 

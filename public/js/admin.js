@@ -295,10 +295,18 @@ createApp({
         salario: "",
         ciudad: "",
         observaciones: "",
+        tipo_contrato: "",
         // Campos nuevos
         segmento_contrato: "",
         descripcion_cargo: "",
       },
+      listadoTiposContratos: [
+        "CONTRATO INDEFINIDO",
+        "CONTRATO OBRA O LABOR",
+        "CONTRATO APRENDIZAJE ETAPA LECTIVA",
+        "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
+        "TERMINO FIJO",
+      ],
 
       archivos: [],
       cargandoArchivos: false,
@@ -425,9 +433,11 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
-        userData.fechaSuscripcion = userData.fecha_suscripcion
-          ? userData.fechaSuscripcion.split("T")[0]
-          : "";
+        userData.tipo_contrato = userData.tipo_contrato;
+        userData.fechaSuscripcion = userData.fecha_suscripcion;
+        if (userData.fechaSuscripcion)
+          userData.fechaSuscripcion = userData.fechaSuscripcion.split("T")[0];
+
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
 
@@ -441,6 +451,7 @@ createApp({
         this.form.segmento_contrato = userData.segmento_contrato || "";
         const pdfGuardado = userData.descripcion_cargo || "";
         this.form.otroSi = userData.otro_si || "";
+        this.form.tipo_contrato = userData.tipo_contrato || "";
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)
@@ -517,6 +528,8 @@ createApp({
         this.usuarioActual.ciudad = this.form.ciudad;
         this.usuarioActual.cargo = this.form.cargo; // Opcional: si quieres actualizar cargo aquí también
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
+        this.usuarioActual.tipo_contrato = this.form.tipo_contrato; // NUEVO CAMPO
+        
 
         // ------------------------------------------------------------------
 
@@ -760,6 +773,7 @@ createApp({
         // IMPORTANTE: Guardamos el segmento y el PDF seleccionado
         this.usuarioActual.segmento_contrato = this.form.segmento_contrato;
         this.usuarioActual.descripcion_cargo = this.form.descripcion_cargo;
+        
 
         // 3. MARCADO DE APROBACIÓN (Esto pone el 1 en la base de datos)
         this.usuarioActual.aprobacion = 1;
