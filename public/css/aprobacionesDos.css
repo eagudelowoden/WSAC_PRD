@@ -592,3 +592,76 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
     width: 100% !important;
   }
 }
+
+/* Botón Firma Muy Pequeño y Moderno */
+.btn-signature-compact {
+    background-color: #0891b2;
+    color: white !important;
+    border: none;
+    border-radius: 8px; /* Bordes un poco menos redondeados para el tamaño pequeño */
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px; /* Altura fija para control total */
+}
+
+.btn-signature-compact:hover:not(:disabled) {
+    background-color: #0e7490;
+    box-shadow: 0 4px 8px rgba(8, 145, 178, 0.2);
+}
+
+.btn-signature-compact:disabled {
+    background-color: #f1f5f9;
+    color: #cbd5e1 !important;
+    cursor: not-allowed;
+}
+
+/* Ajuste del icono para que no se vea gigante */
+.btn-signature-compact i {
+    font-size: 0.8rem;
+}
+
+/* Botones de acción miniatura */
+.btn-action-circle-mini {
+    width: 24px;  /* Reducido de 34px */
+    height: 24px; /* Reducido de 34px */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-action-circle-mini i {
+    font-size: 0.65rem; /* Iconos internos más pequeños */
+}
+
+/* Colores corporativos */
+
+
+.btn-action-circle-mini:hover {
+    transform: scale(1.1);
+    filter: brightness(0.9);
+}
+
+/* Ajuste de la fila */
+.item-modern-pdf {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+.item-modern-pdf:hover {
+    background-color: #ffffff;
+}
+
+/* Scrollbar ultra fino */
+.scroll-historial-firmados::-webkit-scrollbar {
+  width: 3px;
+}
+.scroll-historial-firmados::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}

@@ -156,6 +156,66 @@ const SegmentosMixin = {
         Swal.fire("Error", "No se pudo borrar el archivo", "error");
       }
     },
+async eliminarDocumentoFirmado(nombreArchivo) {
+    // 1. Validar que el usuario y la carpeta existan antes de empezar
+    // Ajusta 'usuarioActual' al nombre real de tu objeto en data() o props
+    const usuario = this.usuarioActual || this.usuario || this.usuarioSeleccionado;
+
+    if (!usuario || !usuario.carpeta) {
+        console.error("No se encontró la información del usuario o su carpeta", usuario);
+        return Swal.fire("Error", "No se pudo identificar la carpeta del usuario", "error");
+    }
+
+    // 2. Preguntar confirmación
+    const result = await Swal.fire({
+        title: "¿Borrar este documento?",
+        text: "Se eliminará permanentemente de los archivos firmados.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Sí, borrar",
+        cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    // 3. Construir la Key exacta
+    const key = `${usuario.carpeta}/documentos_firmados/${nombreArchivo}`;
+    
+    Swal.showLoading();
+
+    try {
+        // 4. Llamada al API
+        const response = await fetch("/api/docs/eliminar-archivo", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: key }),
+        });
+
+        const data = await response.json();
+
+        if (data.status === "ok") {
+            Swal.fire({
+                icon: "success",
+                title: "Eliminado",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+
+            // 5. Recargar la lista (asegúrate de que este método existe)
+            if (this.obtenerDocumentosFirmados) {
+                await this.obtenerDocumentosFirmados();
+            }
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        Swal.fire("Error", "No se pudo borrar el archivo", "error");
+    }
+},
     // --- B. GENERADOR DE WORD ---
     async cargarPlantillas() {
       try {

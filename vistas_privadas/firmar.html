@@ -8,72 +8,148 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="/css/subsanar.css"> <style>
-        .card-header-tech { background-color: #1e3a8a; color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
-        .btn-upload-tech { background-color: #0891b2; color: white; font-weight: bold; border-radius: 8px; padding: 12px; border: none; transition: 0.3s; }
-        .btn-upload-tech:hover { background-color: #0e7490; }
-        .drop-zone-premium { border: 2px dashed #0891b2; padding: 30px; border-radius: 12px; text-align: center; cursor: pointer; background: #f0f9ff; transition: 0.3s; }
-        .drop-zone-premium.active { background: #e0f2fe; border-color: #0e7490; }
+    <style>
+        body { 
+            background-color: #f8fafc; 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        /* Card compacta y minimalista */
+        .subsanar-card { 
+            border: none; 
+            border-radius: 20px; 
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04) !important;
+        }
+
+        /* Header más ligero */
+        .card-header-tech { 
+            background-color: #ffffff; 
+            color: #1e293b; 
+            padding: 25px 20px 10px 20px; 
+            border-radius: 20px 20px 0 0; 
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* Zona de carga con colores claros */
+        .drop-zone-premium { 
+            border: 2px dashed #cbd5e1; 
+            padding: 25px; 
+            border-radius: 16px; 
+            text-align: center; 
+            cursor: pointer; 
+            background: #fdfdfd; 
+            transition: all 0.3s ease; 
+        }
+        .drop-zone-premium:hover, .drop-zone-premium.active { 
+            background: #f0f7ff; 
+            border-color: #3b82f6; 
+        }
+
+        /* Botón estilo moderno (Blue Primary) */
+        .btn-upload-tech { 
+            background-color: #3b82f6; 
+            color: white; 
+            font-weight: 600; 
+            border-radius: 12px; 
+            padding: 14px; 
+            border: none; 
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+        .btn-upload-tech:hover:not(:disabled) { 
+            background-color: #2563eb; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+        }
+        .btn-upload-tech:disabled {
+            background-color: #cbd5e1;
+            box-shadow: none;
+        }
+
+        /* Listado de archivos compacto */
+        .file-item {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+        }
+
+        .badge-secure {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #dcfce7;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
 <div id="app" class="app-container py-5">
     <div class="container d-flex justify-content-center">
-        <div class="subsanar-card animate-in shadow-lg" style="max-width: 500px; width: 100%; background: white; border-radius: 15px;">
+        <div class="subsanar-card animate-in shadow-lg" style="max-width: 440px; width: 100%;">
 
             <div v-if="loading" class="p-5 text-center">
-                <div class="spinner-border text-info" role="status"></div>
-                <p class="mt-3 fw-bold text-muted">Validando enlace de firma...</p>
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3 fw-medium text-secondary">Validando seguridad...</p>
             </div>
 
             <div v-else-if="enviado" class="p-5 text-center animate-in">
-                <i class="bi bi-check-circle-fill display-3 text-success"></i>
-                <h4 class="fw-bold mt-3">¡Contratos Enviados!</h4>
-                <p class="text-muted">Tu documentación firmada ha sido recibida con éxito por el área de contratación.</p>
-                <button class="btn btn-outline-secondary btn-sm" onclick="window.close()">Cerrar Ventana</button>
+                <div class="mb-3">
+                    <i class="bi bi-check2-circle display-4 text-success"></i>
+                </div>
+                <h4 class="fw-bold">¡Listo!</h4>
+                <p class="text-muted small">Tus contratos han sido recibidos correctamente.</p>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-4" onclick="window.close()">Cerrar</button>
             </div>
 
             <div v-else-if="error" class="p-5 text-center animate-in">
-                <i class="bi bi-exclamation-triangle-fill display-3 text-danger"></i>
+                <i class="bi bi-exclamation-circle text-danger display-4"></i>
                 <h4 class="fw-bold mt-3">Enlace Expirado</h4>
                 <p class="text-muted small">{{ error }}</p>
             </div>
 
             <div v-else>
                 <header class="card-header-tech">
-                    <div class="security-icon-top mb-2"><i class="bi bi-pen-fill fs-2"></i></div>
-                    <h3 class="h5 mb-0">Firma de Documentación</h3>
+                    <div class="mb-2"><i class="bi bi-pen text-primary fs-1"></i></div>
+                    <h3 class="h5 fw-bold mb-0">Firma de Documentos</h3>
                 </header>
 
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <span class="badge bg-success mb-2"><i class="bi bi-lock-fill"></i> Sesión Segura</span>
-                        <p class="text-muted small">Hola, <strong>{{ usuario.nombres }}</strong>.<br>Por favor sube tus archivos debidamente firmados en formato PDF.</p>
+                        <span class="badge-secure">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Sesión Segura
+                        </span>
+                        <p class="mt-3 mb-0 text-dark">Hola, <strong>{{ usuario.nombres }}</strong></p>
+                        <p class="text-muted small">Sube tus archivos PDF para continuar</p>
                     </div>
 
                     <form @submit.prevent="procesarSubida">
                         
                         <div class="drop-zone-premium" :class="{'active': archivos.length > 0}" @click="triggerFileInput">
                             <input ref="archivoInput" type="file" class="d-none" @change="handleFileSelect" multiple accept="application/pdf">
-                            <i class="bi bi-file-earmark-arrow-up text-info" style="font-size: 2.5rem;"></i>
-                            <p class="small fw-bold mb-0 mt-2">
-                                {{ archivos.length === 0 ? 'Haz clic para seleccionar PDFs' : 'Añadir más archivos...' }}
+                            <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 2.5rem;"></i>
+                            <p class="small fw-bold mb-0 mt-2 text-primary">
+                                {{ archivos.length === 0 ? 'Toca para buscar PDFs' : 'Añadir más archivos' }}
                             </p>
                         </div>
 
-                        <div v-if="archivos.length > 0" class="mt-3">
-                            <label class="text-muted small fw-bold mb-2">Archivos listos para enviar:</label>
-                            <div v-for="(f, index) in archivos" :key="index" class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded border">
-                                <span class="text-truncate small" style="max-width: 80%;">
-                                    <i class="bi bi-file-pdf-fill text-danger"></i> {{ f.name }}
+                        <div v-if="archivos.length > 0" class="mt-3" style="max-height: 180px; overflow-y: auto;">
+                            <div v-for="(f, index) in archivos" :key="index" class="file-item d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-truncate" style="max-width: 85%;">
+                                    <i class="bi bi-file-earmark-pdf text-danger me-2"></i> {{ f.name }}
                                 </span>
-                                <i class="bi bi-trash text-danger cursor-pointer" @click.stop="eliminarArchivo(index)"></i>
+                                <i class="bi bi-trash3 text-muted cursor-pointer" @click.stop="eliminarArchivo(index)"></i>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn-upload-tech w-100 mt-4" :disabled="archivos.length === 0">
-                            <i class="bi bi-send-fill me-2"></i> ENVIAR DOCUMENTOS FIRMADOS
+                            ENVIAR FIRMADOS <i class="bi bi-arrow-right-short"></i>
                         </button>
                     </form>
                 </div>
@@ -82,95 +158,6 @@
     </div>
 </div>
 
-<script>
-    const { createApp } = Vue;
-
-    createApp({
-        data() {
-            return {
-                token: '',
-                loading: true,
-                enviado: false,
-                error: null,
-                usuario: { nombres: '' },
-                archivos: []            
-            }
-        },
-        mounted() {
-            const params = new URLSearchParams(window.location.search);
-            this.token = params.get('token');
-            if (!this.token) { 
-                this.error = "No se encontró un token de acceso."; 
-                this.loading = false; 
-                return; 
-            }
-            this.validarToken();
-        },
-        methods: {
-            triggerFileInput() { this.$refs.archivoInput.click(); },
-            
-            handleFileSelect(event) {
-                const nuevos = Array.from(event.target.files);
-                this.archivos = [...this.archivos, ...nuevos];
-                event.target.value = ''; // Reset input
-            },
-
-            eliminarArchivo(index) {
-                this.archivos.splice(index, 1);
-            },
-
-            async validarToken() {
-                try {
-                    const res = await fetch(`/api/validar-token-firma/${this.token}`);
-                    const data = await res.json();
-                    if (data.status === 'ok') { 
-                        this.usuario = data.usuario; 
-                        this.loading = false;
-                    } else { 
-                        this.error = data.message;
-                        this.loading = false;
-                    }
-                } catch (e) { 
-                    this.error = "Error de comunicación con el servidor."; 
-                    this.loading = false;
-                }
-            },
-
-            async procesarSubida() {
-                if (this.archivos.length === 0) return;
-                
-                Swal.fire({
-                    title: 'Subiendo Documentos',
-                    html: 'Estamos procesando tus firmas, espera un momento...',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading() }
-                });
-
-                const formData = new FormData();
-                formData.append('token', this.token);
-                this.archivos.forEach(file => {
-                    formData.append('archivos', file); // 'archivos' debe coincidir con upload.any() o upload.array('archivos')
-                });
-
-                try {
-                    const res = await fetch(`/api/subir-firmados`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await res.json();
-                    
-                    if (data.status === 'ok') {
-                        Swal.close();
-                        this.enviado = true;
-                    } else {
-                        throw new Error(data.message);
-                    }
-                } catch(e) {
-                    Swal.fire('Error', e.message || 'Fallo al subir los archivos.', 'error');
-                }
-            }
-        }
-    }).mount('#app');
-</script>
+<script src="js/firmarDocs.js"></script>
 </body>
 </html>
