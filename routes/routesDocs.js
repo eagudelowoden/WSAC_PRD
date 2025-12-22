@@ -56,6 +56,7 @@ router.post('/generate', async (req, res) => {
             nombrePlantilla, 
             RUTA_PLANTILLAS 
         );
+        
 
         res.json(resultado);
 

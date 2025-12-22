@@ -170,8 +170,9 @@ const SegmentosMixin = {
             idColaborador: this.usuarioActual.id,
             nombrePlantilla: this.plantillaSeleccionada,
           }),
+          
         });
-
+          console.log("Generating document..." + this.usuarioActual.id)
         const data = await response.json();
 
         if (response.ok) {

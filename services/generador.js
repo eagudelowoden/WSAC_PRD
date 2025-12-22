@@ -23,19 +23,90 @@ async function generarDocumento(
       const p = results[0];
       console.log("✅ Datos usuario encontrados:", p.nombre);
 
-      // 2. MAPEO ROBUSTO (Para que no salgan vacíos)
-      const datos = {
-        nombres: p.nombre || p.nombres || "Sin Nombre",
-        apellidos: p.apellidos || "",
-        documento: p.usuario || p.documento || "",
-        fecha_actual: new Date().toLocaleDateString("es-CO"),
-        cargo: p.rol || p.cargo || "Sin Cargo",
-        salario: p.salario || "",
-        ciudad: p.ciudad || "Bogotá",
-        direccion: p.direccion || "",
-        telefono: p.telefono || "",
-        email: p.correo || "",
+      // --- FUNCIÓN AUXILIAR PARA FECHA LARGA EN MAYÚSCULAS ---
+      const formatearFechaLarga = (fechaISO) => {
+        if (!fechaISO) return "___ DE ________ DE 202_";
+
+        const meses = [
+          "ENERO",
+          "FEBRERO",
+          "MARZO",
+          "ABRIL",
+          "MAYO",
+          "JUNIO",
+          "JULIO",
+          "AGOSTO",
+          "SEPTIEMBRE",
+          "OCTUBRE",
+          "NOVIEMBRE",
+          "DICIEMBRE",
+        ];
+
+        // Usamos una expresión regular para extraer solo año, mes, día y evitar desfases de zona horaria
+        // Si fechaISO es un objeto Date, lo pasamos a string ISO primero
+        const dateStr =
+          typeof fechaISO === "string" ? fechaISO : fechaISO.toISOString();
+        const [anio, mesNum, dia] = dateStr.split("T")[0].split("-");
+
+        const mesNombre = meses[parseInt(mesNum) - 1];
+
+        return `${parseInt(dia)} DE ${mesNombre} DEL ${anio}`;
       };
+
+      // ============================================================
+      // 2. MAPEO COMPLETO Y ROBUSTO (Paso 2)
+      // ============================================================
+      const datos = {
+        // IDENTIFICACIÓN
+        nombres: (p.nombres || p.nombre || "SIN NOMBRE").toUpperCase(),
+        apellidos: (p.apellidos || "").toUpperCase(),
+        documento: p.documento || p.usuario || "",
+        email: (p.correo || "").toUpperCase(),
+        telefono: p.telefono || "",
+        direccion: (p.direccion || "").toUpperCase(),
+        ciudad: (p.ciudad || "BOGOTÁ").toUpperCase(),
+
+        // SALUD Y PRESTACIONES (Nuevas agregadas)
+        eps: (p.eps || "").toUpperCase(),
+        arl: (p.arl || "").toUpperCase(),
+        afp: (p.afp || "").toUpperCase(),
+        ccf: (p.ccf || "").toUpperCase(),
+        afiliaciones_familiares: (
+          p.afiliaciones_familiares || "NO APLICA"
+        ).toUpperCase(),
+
+        // LABORAL
+        cargo: (p.cargo || p.rol || "SIN CARGO").toUpperCase(),
+        salario: p.salario ? Number(p.salario).toLocaleString("es-CO") : "0",
+        segmento_contrato: (p.segmento_contrato || "").toUpperCase(),
+        tipo_contrato: (p.tipo_contrato || "NO DEFINIDO").toUpperCase(),
+        descripcion_cargo: (p.descripcion_cargo || "").toUpperCase(),
+        observaciones: (p.observaciones || "").toUpperCase(),
+
+        // FECHAS FORMATEADAS
+        fecha_actual: formatearFechaLarga(new Date()),
+        fecha_suscripcion: formatearFechaLarga(p.fecha_suscripcion),
+        fecha_nacimiento: p.fechaNacimiento
+          ? new Date(p.fechaNacimiento).toLocaleDateString("es-CO")
+          : "",
+        fecha_terminacion: p.fechaterminacion
+          ? formatearFechaLarga(p.fechaterminacion)
+          : "INDEFINIDO",
+
+        // APRENDIZAJE / SENA
+        correo_aprendizaje: (p.correoAprendizaje || "").toUpperCase(),
+        institucion: (p.institucion || "").toUpperCase(),
+        nit_institucion: p.nitinstitucion || "",
+        centro_sena: (p.centroSena || "").toUpperCase(),
+
+        // OTROS CONTROL
+        id_usuario: p.id,
+        carpeta: p.carpeta || "",
+        otro_si: p.otro_si || "0",
+      };
+
+      // LOG PARA DEPURAR (Opcional, bórralo luego)
+      console.log("Objeto enviado al Word:", datos);
 
       try {
         // 3. LEER PLANTILLA WORD
