@@ -110,7 +110,7 @@ app.post("/api/login", (req, res) => {
 
                 let redirectUrl = "/panel-administrativo";
                 if (user.rol === "superadmin") redirectUrl = "/superadmin";
-                else if (user.rol === "aprobador") redirectUrl = "/panel-aprobacionesDos";
+                else if (user.rol === "aprobadorDos") redirectUrl = "/panel-aprobacionesDos";
 
                 // Guardamos la sesión explícitamente antes de responder
                 req.session.save((err) => {

@@ -407,7 +407,7 @@
                               <i class="bi bi-eye text-primary" style="font-size: 0.8rem;"></i>
                             </a>
                             <button @click.prevent="eliminarContrato(doc.name)" class="btn btn-sm p-0 px-1 border-0"
-                              :disabled="usuarioSys.rol !== 'editor'">
+                              :disabled="usuarioSys.rol !== 'aprobadorUno'">
                               <i class="bi bi-trash-fill text-danger" style="font-size: 0.8rem;"></i>
                             </button>
                           </div>

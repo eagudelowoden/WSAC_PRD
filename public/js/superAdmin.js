@@ -88,8 +88,8 @@ async guardarPermisos() {
         <div class="mb-1">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Rol de Sistema</label>
           <select id="swal-rol" class="swal-custom-select">
-            <option value="editor">Editor (Carga datos)</option>
-            <option value="aprobador">Aprobador (Valida contratos)</option>
+            <option value="aprobadorUno">AprobadorUno (Carga datos)</option>
+            <option value="aprobadorDos">AprobadorDos (Valida contratos)</option>
             <option value="superadmin">Super Admin (Control total)</option>
           </select>
         </div>
