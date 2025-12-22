@@ -630,27 +630,26 @@ createApp({
         );
       }
     },
-    async obtenerDocumentosFirmados() {
-      if (!this.usuarioActual?.carpeta) return;
+async obtenerDocumentosFirmados() {
+  if (!this.usuarioActual?.carpeta) return;
 
-      try {
-        // 1. Fetch rápido (el JSON ahora es mucho más ligero)
-        const res = await fetch(
-          `/api/listar-firmados/${this.usuarioActual.carpeta}`
-        );
-        const data = await res.json();
+  try {
+    // 1. Fetch rápido (el JSON ahora es mucho más ligero)
+    const res = await fetch(`/api/listar-firmados/${this.usuarioActual.carpeta}`);
+    const data = await res.json();
 
-        // 2. Mapeo ultra-rápido en el cliente
-        this.listaFirmados = data.map((file) => ({
-          ...file,
-          // Usamos tu endpoint '/api/ver-archivo' que ya gestiona el streaming o redirección
-          url: `/api/ver-archivo?token=${encodeURIComponent(file.key)}`,
-        }));
-      } catch (error) {
-        console.error("❌ Error:", error);
-        this.listaFirmados = [];
-      }
-    },
+    // 2. Mapeo ultra-rápido en el cliente
+    this.listaFirmados = data.map(file => ({
+      ...file,
+      // Usamos tu endpoint '/api/ver-archivo' que ya gestiona el streaming o redirección
+      url: `/api/ver-archivo?token=${encodeURIComponent(file.key)}`
+    }));
+
+  } catch (error) {
+    console.error("❌ Error:", error);
+    this.listaFirmados = [];
+  }
+} ,
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
@@ -1087,33 +1086,29 @@ createApp({
         console.error("No se pudo identificar al admin:", e);
       }
     },
-    enviarWhatsApp(doc) {
-      // 1. Validar que tengamos el usuario y el teléfono
-      if (!this.usuarioActual || !this.usuarioActual.telefono) {
-        Swal.fire(
-          "Atención",
-          "El usuario no tiene un número de teléfono registrado.",
-          "warning"
-        );
+enviarWhatsApp(doc) {
+    // 1. Validar que tengamos el usuario y el teléfono
+    if (!this.usuarioActual || !this.usuarioActual.telefono) {
+        Swal.fire("Atención", "El usuario no tiene un número de teléfono registrado.", "warning");
         return;
-      }
+    }
 
-      // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
-      // Esto asegura que el link wa.me funcione correctamente
-      let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, "");
+    // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
+    // Esto asegura que el link wa.me funcione correctamente
+    let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, '');
 
-      // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
-      // if (!telefono.startsWith('57')) telefono = '57' + telefono;
+    // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
+    // if (!telefono.startsWith('57')) telefono = '57' + telefono;
 
-      // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
-      const mensaje = encodeURIComponent(
+    // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
+    const mensaje = encodeURIComponent(
         `Hola ${this.usuarioActual.nombres}, te envío el documento firmado: *${doc.name}*.\n\nPuedes verlo aquí: ${doc.url}`
-      );
+    );
 
-      // 5. Construir URL y abrir
-      const url = `https://wa.me/${telefono}?text=${mensaje}`;
-      window.open(url, "_blank");
-    },
+    // 5. Construir URL y abrir
+    const url = `https://wa.me/${telefono}?text=${mensaje}`;
+    window.open(url, '_blank');
+},
     cerrarSesion() {
       this.menuAbierto = false; // Cerramos el menú al hacer click
       // 1. Borrar token y datos del usuario del navegador
