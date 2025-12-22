@@ -665,3 +665,26 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   background: #cbd5e0;
   border-radius: 10px;
 }
+
+
+
+.bg-success-custom {
+    background-color: #25d366;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.bg-success-custom:hover {
+    background-color: #128c7e;
+    transform: scale(1.1);
+    color: white;
+}

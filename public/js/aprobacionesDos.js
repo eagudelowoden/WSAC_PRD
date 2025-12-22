@@ -156,18 +156,26 @@ const SegmentosMixin = {
         Swal.fire("Error", "No se pudo borrar el archivo", "error");
       }
     },
-async eliminarDocumentoFirmado(nombreArchivo) {
-    // 1. Validar que el usuario y la carpeta existan antes de empezar
-    // Ajusta 'usuarioActual' al nombre real de tu objeto en data() o props
-    const usuario = this.usuarioActual || this.usuario || this.usuarioSeleccionado;
+    async eliminarDocumentoFirmado(nombreArchivo) {
+      // 1. Validar que el usuario y la carpeta existan antes de empezar
+      // Ajusta 'usuarioActual' al nombre real de tu objeto en data() o props
+      const usuario =
+        this.usuarioActual || this.usuario || this.usuarioSeleccionado;
 
-    if (!usuario || !usuario.carpeta) {
-        console.error("No se encontró la información del usuario o su carpeta", usuario);
-        return Swal.fire("Error", "No se pudo identificar la carpeta del usuario", "error");
-    }
+      if (!usuario || !usuario.carpeta) {
+        console.error(
+          "No se encontró la información del usuario o su carpeta",
+          usuario
+        );
+        return Swal.fire(
+          "Error",
+          "No se pudo identificar la carpeta del usuario",
+          "error"
+        );
+      }
 
-    // 2. Preguntar confirmación
-    const result = await Swal.fire({
+      // 2. Preguntar confirmación
+      const result = await Swal.fire({
         title: "¿Borrar este documento?",
         text: "Se eliminará permanentemente de los archivos firmados.",
         icon: "warning",
@@ -175,47 +183,47 @@ async eliminarDocumentoFirmado(nombreArchivo) {
         confirmButtonColor: "#d33",
         confirmButtonText: "Sí, borrar",
         cancelButtonText: "Cancelar",
-    });
+      });
 
-    if (!result.isConfirmed) return;
+      if (!result.isConfirmed) return;
 
-    // 3. Construir la Key exacta
-    const key = `${usuario.carpeta}/documentos_firmados/${nombreArchivo}`;
-    
-    Swal.showLoading();
+      // 3. Construir la Key exacta
+      const key = `${usuario.carpeta}/documentos_firmados/${nombreArchivo}`;
 
-    try {
+      Swal.showLoading();
+
+      try {
         // 4. Llamada al API
         const response = await fetch("/api/docs/eliminar-archivo", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key: key }),
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key: key }),
         });
 
         const data = await response.json();
 
         if (data.status === "ok") {
-            Swal.fire({
-                icon: "success",
-                title: "Eliminado",
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 1500,
-            });
+          Swal.fire({
+            icon: "success",
+            title: "Eliminado",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500,
+          });
 
-            // 5. Recargar la lista (asegúrate de que este método existe)
-            if (this.obtenerDocumentosFirmados) {
-                await this.obtenerDocumentosFirmados();
-            }
+          // 5. Recargar la lista (asegúrate de que este método existe)
+          if (this.obtenerDocumentosFirmados) {
+            await this.obtenerDocumentosFirmados();
+          }
         } else {
-            throw new Error(data.message);
+          throw new Error(data.message);
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error al eliminar:", error);
         Swal.fire("Error", "No se pudo borrar el archivo", "error");
-    }
-},
+      }
+    },
     // --- B. GENERADOR DE WORD ---
     async cargarPlantillas() {
       try {
@@ -298,7 +306,7 @@ createApp({
       listaAbierta: false, // Controla si se ven los usuarios
       selectedId: "",
       usuarioActual: null,
-      listaFirmados: [],  // Los que el colaborador sube
+      listaFirmados: [], // Los que el colaborador sube
       filtroEstado: "todos",
       filtroPendiente: "pendientes",
       filtroEstadoOptions: [
@@ -432,20 +440,21 @@ createApp({
       }
     },
 
-async seleccionarUsuario(id) {
-  // 1. Guardamos el ID seleccionado
-  this.selectedId = id;
-  
-  // 2. Cargamos primero los datos del usuario de la BD 
-  // (Esto es vital porque llena 'this.usuarioActual' y su 'carpeta')
-  await this.cargarUsuarioDesdeBD(); 
+    async seleccionarUsuario(id) {
+      // 1. Guardamos el ID seleccionado
+      this.selectedId = id;
 
-  // 3. Una vez cargado el usuarioActual, traemos sus archivos específicos
-  if (this.usuarioActual && this.usuarioActual.carpeta) {
-      await this.obtenerHistorialS3(); // Contratos generados por admin
-      await this.obtenerDocumentosFirmados(); // Documentos subidos por el colaborador
-  }
-},
+      // 2. Cargamos primero los datos del usuario de la BD
+      // (Esto es vital porque llena 'this.usuarioActual' y su 'carpeta')
+      await this.cargarUsuarioDesdeBD();
+      await this.obtenerDocumentosFirmados();
+
+      // 3. Una vez cargado el usuarioActual, traemos sus archivos específicos
+      if (this.usuarioActual && this.usuarioActual.carpeta) {
+        await this.obtenerHistorialS3(); // Contratos generados por admin
+        await this.obtenerDocumentosFirmados(); // Documentos subidos por el colaborador
+      }
+    },
 
     async cargarPermisos() {
       const res = await fetch(
@@ -621,34 +630,27 @@ async seleccionarUsuario(id) {
         );
       }
     },
-async obtenerDocumentosFirmados() {
-  // 1. Verificamos que el usuario tenga una carpeta asignada
-  if (!this.usuarioActual || !this.usuarioActual.carpeta) {
-    console.warn("El usuario no tiene una carpeta definida.");
-    this.listaFirmados = [];
-    return;
-  }
+    async obtenerDocumentosFirmados() {
+      if (!this.usuarioActual?.carpeta) return;
 
-  try {
-    // 2. Usamos 'carpeta' en lugar de 'id' para que coincida con el Prefijo de S3
-    const res = await fetch(`/api/listar-firmados/${this.usuarioActual.carpeta}`);
-    
-    if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      try {
+        // 1. Fetch rápido (el JSON ahora es mucho más ligero)
+        const res = await fetch(
+          `/api/listar-firmados/${this.usuarioActual.carpeta}`
+        );
+        const data = await res.json();
 
-    const data = await res.json();
-
-    // 3. Mapeo de datos: 
-    // Si tu backend devuelve directamente el array, usa 'data'. 
-    // Si el backend devuelve { archivos: [...] }, usa 'data.archivos'.
-    // Según el endpoint que te di anteriormente, devuelve el array directamente.
-    this.listaFirmados = Array.isArray(data) ? data : (data.archivos || []);
-
-    console.log(`✅ ${this.listaFirmados.length} documentos firmados cargados.`);
-  } catch (error) {
-    console.error("❌ Error cargando firmados:", error);
-    this.listaFirmados = [];
-  }
-},
+        // 2. Mapeo ultra-rápido en el cliente
+        this.listaFirmados = data.map((file) => ({
+          ...file,
+          // Usamos tu endpoint '/api/ver-archivo' que ya gestiona el streaming o redirección
+          url: `/api/ver-archivo?token=${encodeURIComponent(file.key)}`,
+        }));
+      } catch (error) {
+        console.error("❌ Error:", error);
+        this.listaFirmados = [];
+      }
+    },
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
@@ -699,25 +701,29 @@ async obtenerDocumentosFirmados() {
         Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
       }
     },
-async solicitarFirmaContratos() {
-  // Validación: Si no hay contratos generados, no tiene sentido pedir firma
-  if (!this.usuarioActual || this.listaContratos.length === 0) {
-    return Swal.fire({
-      icon: "warning",
-      title: "SIN DOCUMENTOS",
-      text: "Primero debes generar los contratos (Word a PDF) antes de solicitar la firma.",
-      confirmButtonColor: "#1e3a8a"
-    });
-  }
+    async solicitarFirmaContratos() {
+      // Validación: Si no hay contratos generados, no tiene sentido pedir firma
+      if (!this.usuarioActual || this.listaContratos.length === 0) {
+        return Swal.fire({
+          icon: "warning",
+          title: "SIN DOCUMENTOS",
+          text: "Primero debes generar los contratos (Word a PDF) antes de solicitar la firma.",
+          confirmButtonColor: "#1e3a8a",
+        });
+      }
 
-  // 1. Confirmación Visual
-  const { isConfirmed } = await Swal.fire({
-    title: '¿SOLICITAR FIRMA DIGITAL?',
-    html: `
+      // 1. Confirmación Visual
+      const { isConfirmed } = await Swal.fire({
+        title: "¿SOLICITAR FIRMA DIGITAL?",
+        html: `
       <div style="text-align:left; padding:10px;">
-        <p>Se enviará un acceso a <b>${this.usuarioActual.nombres}</b> para firmar:</p>
+        <p>Se enviará un acceso a <b>${
+          this.usuarioActual.nombres
+        }</b> para firmar:</p>
         <ul style="font-size: 0.85rem; color: #475569;">
-          ${this.listaContratos.map(c => `<li><i class="bi bi-file-pdf"></i> ${c.name}</li>`).join('')}
+          ${this.listaContratos
+            .map((c) => `<li><i class="bi bi-file-pdf"></i> ${c.name}</li>`)
+            .join("")}
         </ul>
         <div style="background:#f0f9ff; padding:12px; border-radius:10px; border:1px solid #bae6fd; margin-top:15px;">
           <small class="text-primary">
@@ -726,61 +732,62 @@ async solicitarFirmaContratos() {
         </div>
       </div>
     `,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'SÍ, ENVIAR PARA FIRMA',
-    cancelButtonText: 'CANCELAR',
-    confirmButtonColor: '#0891b2', 
-    reverseButtons: true,
-    customClass: { popup: "rounded-5 shadow-lg" }
-  });
-
-  if (!isConfirmed) return;
-
-  // 2. Cargando
-  Swal.fire({
-    title: "PROCESANDO SOLICITUD",
-    html: "Generando link seguro y preparando documentos...",
-    didOpen: () => Swal.showLoading(),
-    allowOutsideClick: false
-  });
-
-  try {
-    const res = await fetch(`/api/solicitar-firma-contratos`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: this.usuarioActual.id,
-        correo: this.usuarioActual.correo, // Enviamos el correo por si acaso
-        nombres: this.usuarioActual.nombres,
-        archivosAFirmar: this.listaContratos // <--- AQUÍ ENVIAMOS LOS DOCUMENTOS
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.status === "ok") {
-      Swal.fire({
-        icon: "success",
-        title: "SOLICITUD ENVIADA",
-        text: `Se ha enviado el correo a ${this.usuarioActual.correo} con éxito.`,
-        timer: 3500,
-        showConfirmButton: false,
-        customClass: { popup: "rounded-5" }
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "SÍ, ENVIAR PARA FIRMA",
+        cancelButtonText: "CANCELAR",
+        confirmButtonColor: "#0891b2",
+        reverseButtons: true,
+        customClass: { popup: "rounded-5 shadow-lg" },
       });
-    } else {
-      throw new Error(data.message);
-    }
-  } catch (error) {
-    console.error("Error al solicitar firma:", error);
-    Swal.fire({
-      icon: "error",
-      title: "FALLO EN EL PROCESO",
-      text: error.message || "No se pudo conectar con el servicio de firmas.",
-      confirmButtonColor: "#d33"
-    });
-  }
-},
+
+      if (!isConfirmed) return;
+
+      // 2. Cargando
+      Swal.fire({
+        title: "PROCESANDO SOLICITUD",
+        html: "Generando link seguro y preparando documentos...",
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false,
+      });
+
+      try {
+        const res = await fetch(`/api/solicitar-firma-contratos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: this.usuarioActual.id,
+            correo: this.usuarioActual.correo, // Enviamos el correo por si acaso
+            nombres: this.usuarioActual.nombres,
+            archivosAFirmar: this.listaContratos, // <--- AQUÍ ENVIAMOS LOS DOCUMENTOS
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          Swal.fire({
+            icon: "success",
+            title: "SOLICITUD ENVIADA",
+            text: `Se ha enviado el correo a ${this.usuarioActual.correo} con éxito.`,
+            timer: 3500,
+            showConfirmButton: false,
+            customClass: { popup: "rounded-5" },
+          });
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error("Error al solicitar firma:", error);
+        Swal.fire({
+          icon: "error",
+          title: "FALLO EN EL PROCESO",
+          text:
+            error.message || "No se pudo conectar con el servicio de firmas.",
+          confirmButtonColor: "#d33",
+        });
+      }
+    },
 
     async enviarContratosAlCorreo() {
       if (!this.usuarioActual || this.listaContratos.length === 0) return;
@@ -1079,6 +1086,33 @@ async solicitarFirmaContratos() {
       } catch (e) {
         console.error("No se pudo identificar al admin:", e);
       }
+    },
+    enviarWhatsApp(doc) {
+      // 1. Validar que tengamos el usuario y el teléfono
+      if (!this.usuarioActual || !this.usuarioActual.telefono) {
+        Swal.fire(
+          "Atención",
+          "El usuario no tiene un número de teléfono registrado.",
+          "warning"
+        );
+        return;
+      }
+
+      // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
+      // Esto asegura que el link wa.me funcione correctamente
+      let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, "");
+
+      // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
+      // if (!telefono.startsWith('57')) telefono = '57' + telefono;
+
+      // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
+      const mensaje = encodeURIComponent(
+        `Hola ${this.usuarioActual.nombres}, te envío el documento firmado: *${doc.name}*.\n\nPuedes verlo aquí: ${doc.url}`
+      );
+
+      // 5. Construir URL y abrir
+      const url = `https://wa.me/${telefono}?text=${mensaje}`;
+      window.open(url, "_blank");
     },
     cerrarSesion() {
       this.menuAbierto = false; // Cerramos el menú al hacer click

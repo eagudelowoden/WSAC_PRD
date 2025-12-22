@@ -1124,35 +1124,35 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
   try {
     const command = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
-      Prefix: `${carpetaUsuario}/documentos_firmados/`, // Solo busca en esa subcarpeta
+      Prefix: `${carpetaUsuario}/documentos_firmados/`,
     });
 
     const response = await s3Client.send(command);
+    
+    // Si no hay archivos, respondemos de inmediato
+    if (!response.Contents || response.Contents.length === 0) {
+      return res.json([]);
+    }
 
-    const filesPromises = (response.Contents || [])
-      .filter(item => !item.Key.endsWith('/')) // Ignorar el objeto de la carpeta misma
-      .map(async (item) => {
-        const fileName = item.Key.split("/").pop();
-
-        const getCommand = new GetObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: item.Key,
-        });
-
-        const signedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
-
+    // OPTIMIZACIÓN: Solo mapeamos los datos básicos. 
+    // No generamos la Signed URL aquí para que el JSON salga volando.
+    const files = response.Contents
+      .filter(item => !item.Key.endsWith('/'))
+      .map(item => {
+        const fullKey = item.Key;
         return {
-          name: fileName,
-          url: signedUrl,
-          key: Buffer.from(item.Key).toString("base64") // Token para ver-archivo
+          name: fullKey.split("/").pop(),
+          // Enviamos la KEY codificada. El frontend construirá la URL de visualización
+          key: Buffer.from(fullKey).toString("base64"),
+          size: item.Size,
+          lastModified: item.LastModified
         };
       });
 
-    const files = await Promise.all(filesPromises);
     res.json(files);
   } catch (err) {
     console.error("Error listando firmados:", err);
-    res.json([]);
+    res.status(500).json([]);
   }
 });
 
