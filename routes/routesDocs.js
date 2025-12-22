@@ -10,24 +10,28 @@ const { eliminarArchivo } = require('../services/s3Service');
 
 
 // RUTA REAL DE TUS PLANTILLAS
-const RUTA_PLANTILLAS = "C:\\Users\\Daniel\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PlantillasActualizadas";
+const RUTA_PLANTILLAS = "C:\\Users\\Daniel\\Documents\\MigracionCapitalHumano\\WSAC_PRD\\PlantillasActualizadas";
 //const RUTA_PLANTILLAS = "C:\\Users\\e.agudelo\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PlantillasActualizadas";
 
 // ============================================================
 // 1. OBTENER LISTA DE PLANTILLAS DISPONIBLES
 // ============================================================
 router.get('/templates', (req, res) => {
+    // Forzar al navegador a no cachear la lista de archivos
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         fs.readdir(RUTA_PLANTILLAS, (err, files) => {
             if (err) {
                 console.error("Error leyendo carpeta:", err);
-                return res.status(500).json({ error: "No se pudo leer la carpeta de plantillas" });
+                return res.status(500).json({ error: "No se pudo leer la carpeta" });
             }
-
-            // Filtramos solo los .docx
-            const plantillas = files.filter(file => 
-                file.endsWith('.docx') && !file.startsWith('~$')
-            );
+            
+            const plantillas = files.filter(file => {
+                return file.toLowerCase().endsWith('.docx') && !file.startsWith('~$');
+            });
 
             res.json(plantillas);
         });
@@ -35,7 +39,6 @@ router.get('/templates', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
 // ============================================================
 // 2. GENERAR DOCUMENTO (POST)
 // ============================================================
