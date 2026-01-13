@@ -86,7 +86,7 @@ app.use('/api', apiRoutes);
 app.post("/api/login", (req, res) => {
     const { usuario, password } = req.body;
 
-    db.query("SELECT * FROM usuariossys WHERE usuario = ?", [usuario], (err, results) => {
+    db.query("SELECT * FROM usuariosSys WHERE usuario = ?", [usuario], (err, results) => {
         if (err) return res.status(500).json({ status: "error", message: "Error servidor" });
         if (results.length === 0) return res.status(401).json({ status: "error", message: "Usuario no encontrado" });
 
@@ -169,7 +169,7 @@ app.get("/superadmin", verificarSuperAdmin, (req, res) => res.sendFile(path.join
 // 6. API ADMIN (Usuarios y Emails)
 // ==========================================
 app.get("/api/admin/users", verificarSuperAdmin, (req, res) => {
-    db.query("SELECT id, nombre, usuario, rol FROM usuariossys", (err, results) => {
+    db.query("SELECT id, nombre, usuario, rol FROM usuariosSys", (err, results) => {
         if (err) return res.status(500).json([]);
         res.json(results);
     });
@@ -181,7 +181,7 @@ app.post("/api/admin/users", verificarSuperAdmin, (req, res) => {
     const { nombre, usuario, password, rol } = req.body;
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) return res.status(500).json({ error: "Error encriptando" });
-        db.query("INSERT INTO usuariossys (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)", 
+        db.query("INSERT INTO usuariosSys (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)", 
             [nombre, usuario, hash, rol], (err, result) => {
             if (err) {
                 if (err.code === "ER_DUP_ENTRY") return res.json({ status: "error", message: "Usuario ya existe" });
@@ -235,7 +235,7 @@ app.post("/api/admin/permisos", verificarSuperAdmin, (req, res) => {
 });
 
 app.delete("/api/admin/users/:id", verificarSuperAdmin, (req, res) => {
-    db.query("DELETE FROM usuariossys WHERE id = ?", [req.params.id], (err) => res.json({ status: err ? "error" : "ok" }));
+    db.query("DELETE FROM usuariosSys WHERE id = ?", [req.params.id], (err) => res.json({ status: err ? "error" : "ok" }));
 });
 
 // Emails Admin
