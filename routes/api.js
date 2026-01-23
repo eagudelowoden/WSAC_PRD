@@ -195,7 +195,7 @@ router.get("/cargos-por-segmento/:segmento", async (req, res) => {
     const archivosFiltrados = archivosBrutos.filter(
       (file) =>
         file.toLowerCase().endsWith(".pdf") ||
-        file.toLowerCase().endsWith(".docx")
+        file.toLowerCase().endsWith(".docx"),
     );
 
     res.json(archivosFiltrados);
@@ -271,7 +271,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
           filename: file.name,
           content: Buffer.from(response.data),
         };
-      })
+      }),
     );
 
     // 3. Diseño de correo corporativo WSAC
@@ -450,7 +450,7 @@ router.post(
         .status(500)
         .json({ status: "error", message: "Error procesando solicitud" });
     }
-  }
+  },
 );
 
 router.put("/usuario/:id", async (req, res) => {
@@ -470,7 +470,7 @@ router.put("/usuario/:id", async (req, res) => {
         .promise()
         .query(
           "SELECT carpeta, nombres, apellidos FROM usuarios WHERE id = ?",
-          [id]
+          [id],
         );
 
       if (userRows.length > 0) {
@@ -484,7 +484,7 @@ router.put("/usuario/:id", async (req, res) => {
         const rutaLocalPDF = path.join(
           RUTA_SEGMENTOS,
           data.segmento_contrato,
-          data.descripcion_cargo
+          data.descripcion_cargo,
         );
 
         if (fs.existsSync(rutaLocalPDF)) {
@@ -607,7 +607,7 @@ router.delete("/usuario/:id", (req, res) => {
               new DeleteObjectsCommand({
                 Bucket: BUCKET_NAME,
                 Delete: { Objects: objectsToDelete },
-              })
+              }),
             );
           }
         } catch (s3Error) {
@@ -620,7 +620,7 @@ router.delete("/usuario/:id", (req, res) => {
         if (errDelete) return res.status(500).json({ status: "error" });
         res.json({ status: "ok", message: "Usuario y archivos eliminados" });
       });
-    }
+    },
   );
 });
 
@@ -714,9 +714,9 @@ router.post("/solicitar-subsanar", (req, res) => {
               .status(500)
               .json({ status: "error", message: "Error enviando correo" });
           }
-        }
+        },
       );
-    }
+    },
   );
 });
 
@@ -732,7 +732,7 @@ router.get("/validar-token/:token", (req, res) => {
           .status(404)
           .json({ status: "error", message: "Enlace inválido o expirado." });
       res.json({ status: "ok", usuario: result[0] });
-    }
+    },
   );
 });
 // GET /api/ver-archivo?key=ruta/al/archivo.pdf
@@ -757,11 +757,11 @@ router.get("/ver-archivo", async (req, res) => {
     // 3. CONFIGURAR CABECERAS (Para que el navegador sepa qué es)
     res.setHeader(
       "Content-Type",
-      response.ContentType || "application/octet-stream"
+      response.ContentType || "application/octet-stream",
     );
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${keyReal.split("/").pop()}"`
+      `inline; filename="${keyReal.split("/").pop()}"`,
     );
 
     // 4. STREAMING (La magia 🎩)
@@ -781,7 +781,7 @@ router.get("/permisos/:id", async (req, res) => {
   try {
     const [permisos] = await db.execute(
       "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?",
-      [req.params.id]
+      [req.params.id],
     );
     // Convertimos a un objeto fácil de usar: { gestion_contratacion: true, salario: false }
     const mapaPermisos = permisos.reduce((acc, p) => {
@@ -839,7 +839,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
           if (err) reject(err);
           else if (results.length === 0) resolve(null);
           else resolve(results[0]);
-        }
+        },
       );
     });
 
@@ -974,7 +974,7 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
     const resultado = await vincularDescripcionCargo(
       idColaborador,
       archivoPdf,
-      segmento
+      segmento,
     );
     res.json(resultado);
   } catch (error) {
@@ -982,7 +982,6 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
     res.status(500).json({ status: "error", message: error.toString() });
   }
 });
-
 
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
 router.post("/subir-firmados", upload.any(), async (req, res) => {
@@ -998,21 +997,30 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
           if (err) reject(err);
           else if (results.length === 0) resolve(null);
           else resolve(results[0]);
-        }
+        },
       );
     });
 
     if (!usuario) {
-      return res.status(404).json({ status: "error", message: "Enlace de firma inválido o expirado" });
+      return res
+        .status(404)
+        .json({
+          status: "error",
+          message: "Enlace de firma inválido o expirado",
+        });
     }
 
-    const folderName = usuario.carpeta || `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
+    const folderName =
+      usuario.carpeta ||
+      `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
 
     if (req.files && req.files.length > 0) {
       const uploadPromises = req.files.map((file) => {
         const ext = path.extname(file.originalname);
-        const nombreLimpio = path.basename(file.originalname, ext).replace(/\s+/g, "_");
-        
+        const nombreLimpio = path
+          .basename(file.originalname, ext)
+          .replace(/\s+/g, "_");
+
         // --- AQUÍ ESTÁ LA LÓGICA QUE PEDISTE ---
         // Se guarda en una subcarpeta llamada 'documentos_firmados'
         const nuevoNombre = `${nombreLimpio}_${Date.now()}${ext}`;
@@ -1032,51 +1040,69 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
       // Opcional: Limpiar el token tras la subida exitosa para que no se use dos veces
       // db.query("UPDATE usuarios SET token_firma = NULL WHERE id = ?", [usuario.id]);
 
-      res.json({ status: "ok", message: "Documentos firmados cargados exitosamente." });
+      res.json({
+        status: "ok",
+        message: "Documentos firmados cargados exitosamente.",
+      });
     } else {
-      res.status(400).json({ status: "error", message: "No se recibieron archivos." });
+      res
+        .status(400)
+        .json({ status: "error", message: "No se recibieron archivos." });
     }
   } catch (error) {
     console.error("Error en subir-firmados:", error);
-    res.status(500).json({ status: "error", message: "Error interno al subir firmados" });
+    res
+      .status(500)
+      .json({ status: "error", message: "Error interno al subir firmados" });
   }
 });
 // VALIDAR TOKEN DE FIRMA
 router.get("/validar-token-firma/:token", (req, res) => {
-    const token = req.params.token;
-    db.query(
-        "SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?",
-        [token],
-        (err, result) => {
-            if (err) return res.status(500).json({ status: "error", message: "Error en base de datos" });
-            
-            if (result.length === 0) {
-                return res.status(404).json({ status: "error", message: "El enlace es inválido o ya fue utilizado." });
-            }
-            
-            res.json({ status: "ok", usuario: result[0] });
-        }
-    );
+  const token = req.params.token;
+  db.query(
+    "SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?",
+    [token],
+    (err, result) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ status: "error", message: "Error en base de datos" });
+
+      if (result.length === 0) {
+        return res
+          .status(404)
+          .json({
+            status: "error",
+            message: "El enlace es inválido o ya fue utilizado.",
+          });
+      }
+
+      res.json({ status: "ok", usuario: result[0] });
+    },
+  );
 });
 // --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
 router.post("/solicitar-firma-contratos", (req, res) => {
-    const { id, correo, nombres, archivosAFirmar } = req.body;
-    const token = crypto.randomBytes(20).toString("hex");
+  const { id, correo, nombres, archivosAFirmar } = req.body;
+  const token = crypto.randomBytes(20).toString("hex");
 
-    // 1. Guardar el token en la base de datos
-    db.query(
-        "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
-        [token, id],
-        async (err) => {
-            if (err) return res.status(500).json({ status: "error", message: err.message });
+  // 1. Guardar el token en la base de datos
+  db.query(
+    "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
+    [token, id],
+    async (err) => {
+      if (err)
+        return res.status(500).json({ status: "error", message: err.message });
 
-            // 2. Preparar el link
-            const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
+      // 2. Preparar el link
+      const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
 
-            // 3. Crear lista de archivos para el HTML del correo
-            const listaHtml = archivosAFirmar.map(a => `<li>📄 ${a.name}</li>`).join('');
+      // 3. Crear lista de archivos para el HTML del correo
+      const listaHtml = archivosAFirmar
+        .map((a) => `<li>📄 ${a.name}</li>`)
+        .join("");
 
-            const htmlEmail = `
+      const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
                         <h2 style="margin: 0;">WSAC SECURITY</h2>
@@ -1101,20 +1127,22 @@ router.post("/solicitar-firma-contratos", (req, res) => {
                 </div>
             `;
 
-            try {
-                await correoOutlook.sendMail({
-                    from: '"WSAC Contratación" <eagudelo@woden.com.co>',
-                    to: correo,
-                    subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
-                    html: htmlEmail,
-                });
-                res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
-            } catch (e) {
-                console.error("Error enviando correo de firma:", e);
-                res.status(500).json({ status: "error", message: "No se pudo enviar el correo" });
-            }
-        }
-    );
+      try {
+        await correoOutlook.sendMail({
+          from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+          to: correo,
+          subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
+          html: htmlEmail,
+        });
+        res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
+      } catch (e) {
+        console.error("Error enviando correo de firma:", e);
+        res
+          .status(500)
+          .json({ status: "error", message: "No se pudo enviar el correo" });
+      }
+    },
+  );
 });
 
 // GET /api/listar-firmados/:carpeta
@@ -1130,7 +1158,7 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
     const response = await s3Client.send(command);
 
     const filesPromises = (response.Contents || [])
-      .filter(item => !item.Key.endsWith('/')) // Ignorar el objeto de la carpeta misma
+      .filter((item) => !item.Key.endsWith("/")) // Ignorar el objeto de la carpeta misma
       .map(async (item) => {
         const fileName = item.Key.split("/").pop();
 
@@ -1139,12 +1167,14 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
           Key: item.Key,
         });
 
-        const signedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
+        const signedUrl = await getSignedUrl(s3Client, getCommand, {
+          expiresIn: 3600,
+        });
 
         return {
           name: fileName,
           url: signedUrl,
-          key: Buffer.from(item.Key).toString("base64") // Token para ver-archivo
+          key: Buffer.from(item.Key).toString("base64"), // Token para ver-archivo
         };
       });
 
@@ -1157,4 +1187,3 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
 });
 
 module.exports = router;
- 
