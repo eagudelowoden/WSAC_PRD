@@ -56,7 +56,7 @@ const SegmentosMixin = {
       this.cargandoCargos = true;
       try {
         const url = `${API_URL}/cargos-por-segmento/${encodeURIComponent(
-          segmento
+          segmento,
         )}`;
         const res = await fetch(url);
         this.listaCargosPDF = await res.json();
@@ -75,7 +75,7 @@ const SegmentosMixin = {
 
       try {
         const subcarpeta = encodeURIComponent(
-          `${carpetaUsuario}/contratos_generados`
+          `${carpetaUsuario}/contratos_generados`,
         );
 
         // Llamamos a tu endpoint que lista archivos
@@ -146,7 +146,7 @@ const SegmentosMixin = {
         Swal.fire(
           "Atención",
           "Seleccione primero la descripción del cargo arriba.",
-          "warning"
+          "warning",
         );
         return;
       }
@@ -186,7 +186,7 @@ const SegmentosMixin = {
           Swal.fire(
             "Error",
             data.message || "No se pudo copiar el archivo",
-            "error"
+            "error",
           );
         }
       } catch (error) {
@@ -194,7 +194,7 @@ const SegmentosMixin = {
         Swal.fire(
           "Error",
           "No hay conexión con el servicio de documentos.",
-          "error"
+          "error",
         );
       }
     },
@@ -216,7 +216,7 @@ const SegmentosMixin = {
         Swal.fire(
           "Atención",
           "Selecciona primero la Descripción del Cargo en el paso anterior.",
-          "warning"
+          "warning",
         );
         return;
       }
@@ -319,7 +319,7 @@ createApp({
       }
       const busqueda = this.filtroNombre.toLowerCase();
       return this.archivos.filter((archivo) =>
-        archivo.name.toLowerCase().includes(busqueda)
+        archivo.name.toLowerCase().includes(busqueda),
       );
     },
 
@@ -473,7 +473,7 @@ createApp({
           const promesaArchivos = async () => {
             // Pedimos lista al backend (Rápido, sin firmar)
             const resFiles = await fetch(
-              `${API_URL}/archivos/${userData.carpeta}`
+              `${API_URL}/archivos/${userData.carpeta}`,
             );
             const files = await resFiles.json();
 
@@ -488,7 +488,7 @@ createApp({
                 name: f.name,
                 // 2. IMPORTANTE: encodeURIComponent protege el token en la URL
                 url: `${API_URL}/ver-archivo?token=${encodeURIComponent(
-                  tokenHash
+                  tokenHash,
                 )}`,
               };
             });
@@ -529,7 +529,6 @@ createApp({
         this.usuarioActual.cargo = this.form.cargo; // Opcional: si quieres actualizar cargo aquí también
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
         this.usuarioActual.tipo_contrato = this.form.tipo_contrato; // NUEVO CAMPO
-        
 
         // ------------------------------------------------------------------
 
@@ -541,7 +540,7 @@ createApp({
               "Content-Type": "application/json",
             },
             body: JSON.stringify(this.usuarioActual),
-          }
+          },
         );
 
         const data = await response.json();
@@ -565,7 +564,7 @@ createApp({
         Swal.fire(
           "Error",
           "No se pudieron guardar los cambios: " + error.message,
-          "error"
+          "error",
         );
       }
     },
@@ -773,7 +772,6 @@ createApp({
         // IMPORTANTE: Guardamos el segmento y el PDF seleccionado
         this.usuarioActual.segmento_contrato = this.form.segmento_contrato;
         this.usuarioActual.descripcion_cargo = this.form.descripcion_cargo;
-        
 
         // 3. MARCADO DE APROBACIÓN (Esto pone el 1 en la base de datos)
         this.usuarioActual.aprobacion = 1;
@@ -787,12 +785,30 @@ createApp({
               "Content-Type": "application/json",
             },
             body: JSON.stringify(this.usuarioActual),
-          }
+          },
         );
 
         const data = await response.json();
 
         if (data.status === "ok") {
+          try {
+            await fetch(`${API_URL}/notificar-aprobacion`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: this.usuarioActual.id,
+                correo: this.usuarioActual.correo,
+                nombres: this.usuarioActual.nombres,
+                mensaje: "Sus documentos han sido aprobados exitosamente.",
+              }),
+            });
+          } catch (err) {
+            console.error(
+              "Error enviando correo, pero los datos se guardaron:",
+              err,
+            );
+          }
+
           Swal.fire({
             icon: "success",
             title: "¡Aprobado!",

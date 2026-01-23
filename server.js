@@ -251,6 +251,34 @@ app.post("/api/admin/emails", verificarSuperAdmin, (req, res) => {
 app.delete("/api/admin/emails", verificarSuperAdmin, (req, res) => {
     db.query("DELETE FROM notificaciones WHERE email = ?", [req.body.email], (err) => res.json({ status: "ok" }));
 });
+
+// Listar correos de nómina
+app.get("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
+    db.query("SELECT email FROM notificaciones_nomina", (err, results) => {
+        if (err) return res.status(500).json([]);
+        res.json(results.map(r => r.email));
+    });
+});
+
+// Agregar correo de nómina
+app.post("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
+    const { email } = req.body;
+    db.query("INSERT INTO notificaciones_nomina (email) VALUES (?)", [email], (err) => {
+        if (err) return res.status(500).json({ status: "error", message: "El correo ya existe o hubo un error." });
+        res.json({ status: "ok" });
+    });
+});
+
+// Eliminar correo de nómina
+app.delete("/api/admin/emails-nomina/:email", verificarSuperAdmin, (req, res) => {
+    const { email } = req.params;
+    db.query("DELETE FROM notificaciones_nomina WHERE email = ?", [email], (err) => {
+        if (err) return res.status(500).json({ status: "error" });
+        res.json({ status: "ok" });
+    });
+});
+
+
 const cors = require('cors');
 
 app.use(cors({

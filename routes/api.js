@@ -195,7 +195,7 @@ router.get("/cargos-por-segmento/:segmento", async (req, res) => {
     const archivosFiltrados = archivosBrutos.filter(
       (file) =>
         file.toLowerCase().endsWith(".pdf") ||
-        file.toLowerCase().endsWith(".docx")
+        file.toLowerCase().endsWith(".docx"),
     );
 
     res.json(archivosFiltrados);
@@ -271,7 +271,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
           filename: file.name,
           content: Buffer.from(response.data),
         };
-      })
+      }),
     );
 
     // 3. Diseño de correo corporativo WSAC
@@ -450,7 +450,7 @@ router.post(
         .status(500)
         .json({ status: "error", message: "Error procesando solicitud" });
     }
-  }
+  },
 );
 
 router.put("/usuario/:id", async (req, res) => {
@@ -470,7 +470,7 @@ router.put("/usuario/:id", async (req, res) => {
         .promise()
         .query(
           "SELECT carpeta, nombres, apellidos FROM usuarios WHERE id = ?",
-          [id]
+          [id],
         );
 
       if (userRows.length > 0) {
@@ -484,7 +484,7 @@ router.put("/usuario/:id", async (req, res) => {
         const rutaLocalPDF = path.join(
           RUTA_SEGMENTOS,
           data.segmento_contrato,
-          data.descripcion_cargo
+          data.descripcion_cargo,
         );
 
         if (fs.existsSync(rutaLocalPDF)) {
@@ -607,7 +607,7 @@ router.delete("/usuario/:id", (req, res) => {
               new DeleteObjectsCommand({
                 Bucket: BUCKET_NAME,
                 Delete: { Objects: objectsToDelete },
-              })
+              }),
             );
           }
         } catch (s3Error) {
@@ -620,7 +620,7 @@ router.delete("/usuario/:id", (req, res) => {
         if (errDelete) return res.status(500).json({ status: "error" });
         res.json({ status: "ok", message: "Usuario y archivos eliminados" });
       });
-    }
+    },
   );
 });
 
@@ -654,56 +654,56 @@ router.post("/solicitar-subsanar", (req, res) => {
 
           try {
             const htmlEmail = `
-    <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
-        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            <tr>
-                <td style="background-color: #e2712a; padding: 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 40px 30px;">
-                    <h2 style="color: #2c3e50; margin-top: 0;">¡Hola, ${usuario.nombres}!</h2>
-                    <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                        Se ha revisado tu solicitud en el sistema <strong>WSAC</strong> y se requiere una corrección en los documentos adjuntos.
-                    </p>
-                    
-                    <div style="background-color: #fff4ed; border-left: 4px solid #e2712a; padding: 15px; margin: 25px 0;">
-                        <strong style="color: #e2712a;">Motivo de la corrección:</strong><br>
-                        <span style="color: #444;">${motivo}</span>
-                    </div>
+              <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
+                  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                      <tr>
+                          <td style="background-color: #e2712a; padding: 30px; text-align: center;">
+                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td style="padding: 40px 30px;">
+                              <h2 style="color: #2c3e50; margin-top: 0;">¡Hola, ${usuario.nombres}!</h2>
+                              <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                                  Se ha revisado tu solicitud en el sistema <strong>WSAC</strong> y se requiere una corrección en los documentos adjuntos.
+                              </p>
+                              
+                              <div style="background-color: #fff4ed; border-left: 4px solid #e2712a; padding: 15px; margin: 25px 0;">
+                                  <strong style="color: #e2712a;">Motivo de la corrección:</strong><br>
+                                  <span style="color: #444;">${motivo}</span>
+                              </div>
 
-                    <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                        Por favor, haz clic en el siguiente botón para cargar los soportes corregidos y continuar con tu proceso:
-                    </p>
+                              <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                                  Por favor, haz clic en el siguiente botón para cargar los soportes corregidos y continuar con tu proceso:
+                              </p>
 
-                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
-                        <tr>
-                            <td align="center">
-                                <a href="${link}" style="background-color: #2c3e50; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; transition: background 0.3s;">
-                                    SUBIR DOCUMENTOS
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
-                    <p style="font-size: 12px; color: #999; margin: 0;">
-                        Este es un correo automático, por favor no respondas a este mensaje.<br>
-                        <strong>Woden Colombia - Gestión de Aprobaciones v2.0</strong>
-                    </p>
-                </td>
-            </tr>
-        </table>
-    </div>
-    `;
+                              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
+                                  <tr>
+                                      <td align="center">
+                                          <a href="${link}" style="background-color: #2c3e50; color: #ffffff; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; transition: background 0.3s;">
+                                              SUBIR DOCUMENTOS
+                                          </a>
+                                      </td>
+                                  </tr>
+                              </table>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                              <p style="font-size: 12px; color: #999; margin: 0;">
+                                  Este es un correo automático, por favor no respondas a este mensaje.<br>
+                                  <strong>Woden Colombia - Gestión de Aprobaciones v2.0</strong>
+                              </p>
+                          </td>
+                      </tr>
+                  </table>
+              </div>
+              `;
 
             await correoOutlook.sendMail({
               from: '"WSAC Notificaciones" <eagudelo@woden.com.co>',
               to: usuario.correo,
-              subject: "⚠️ Acción Requerida: Corregir Documentos - WSAC",
+              subject: "Acción Requerida: Corregir Documentos - WSAC",
               html: htmlEmail,
             });
 
@@ -714,9 +714,90 @@ router.post("/solicitar-subsanar", (req, res) => {
               .status(500)
               .json({ status: "error", message: "Error enviando correo" });
           }
-        }
+        },
       );
-    }
+    },
+  );
+});
+
+router.post("/notificar-aprobacion", async (req, res) => {
+  const { id, correo, nombres } = req.body;
+
+  // 1. Buscamos los datos del usuario para asegurar que existe
+  db.query(
+    "SELECT nombres, correo, cargo, salario FROM usuarios WHERE id = ?",
+    [id],
+    async (err, users) => {
+      if (err)
+        return res.status(500).json({ status: "error", message: err.message });
+
+      if (!users || users.length === 0) {
+        return res
+          .status(404)
+          .json({ status: "error", message: "Usuario no encontrado" });
+      }
+
+      const usuario = users[0];
+
+      try {
+        // 2. Diseño del HTML para el correo de éxito
+        const htmlEmail = `
+        <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <tr>
+                    <td style="background-color: #28a745; padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 40px 30px;">
+                        <h2 style="color: #2c3e50; margin-top: 0;">¡Felicidades, ${usuario.nombres}!</h2>
+                        <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                            Nos complace informarte que tus documentos han sido <strong>aprobados exitosamente</strong> en el sistema WSAC.
+                        </p>
+                        
+                        <div style="background-color: #f0fff4; border-left: 4px solid #28a745; padding: 15px; margin: 25px 0;">
+                            <strong style="color: #28a745;">Estado del proceso:</strong><br>
+                            <span style="color: #444;">Contrato y documentos validados correctamente.</span>
+                        </div>
+
+                        <p style="font-size: 16px; line-height: 1.6; color: #555;">
+                            Tu perfil ha sido actualizado con el cargo de <b>${usuario.cargo || "Asignado"}</b>. Pronto recibirás más instrucciones sobre los siguientes pasos.
+                        </p>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                        <p style="font-size: 12px; color: #999; margin: 0;">
+                            Este es un correo automático de confirmación.<br>
+                            <strong>Woden Colombia - Gestión de Aprobaciones v2.0</strong>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        `;
+
+        // 3. Envío del correo
+        await correoOutlook.sendMail({
+          from: '"WSAC Notificaciones" <eagudelo@woden.com.co>',
+          to: usuario.correo,
+          subject: "Documentos Aprobados - WSAC INFO",
+          html: htmlEmail,
+        });
+
+        res.json({
+          status: "ok",
+          message: "Notificación de aprobación enviada",
+        });
+      } catch (e) {
+        console.error("Error al enviar correo de aprobación:", e);
+        res
+          .status(500)
+          .json({ status: "error", message: "Error enviando correo" });
+      }
+    },
   );
 });
 
@@ -732,7 +813,7 @@ router.get("/validar-token/:token", (req, res) => {
           .status(404)
           .json({ status: "error", message: "Enlace inválido o expirado." });
       res.json({ status: "ok", usuario: result[0] });
-    }
+    },
   );
 });
 // GET /api/ver-archivo?key=ruta/al/archivo.pdf
@@ -757,11 +838,11 @@ router.get("/ver-archivo", async (req, res) => {
     // 3. CONFIGURAR CABECERAS (Para que el navegador sepa qué es)
     res.setHeader(
       "Content-Type",
-      response.ContentType || "application/octet-stream"
+      response.ContentType || "application/octet-stream",
     );
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${keyReal.split("/").pop()}"`
+      `inline; filename="${keyReal.split("/").pop()}"`,
     );
 
     // 4. STREAMING (La magia 🎩)
@@ -781,7 +862,7 @@ router.get("/permisos/:id", async (req, res) => {
   try {
     const [permisos] = await db.execute(
       "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?",
-      [req.params.id]
+      [req.params.id],
     );
     // Convertimos a un objeto fácil de usar: { gestion_contratacion: true, salario: false }
     const mapaPermisos = permisos.reduce((acc, p) => {
@@ -839,7 +920,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
           if (err) reject(err);
           else if (results.length === 0) resolve(null);
           else resolve(results[0]);
-        }
+        },
       );
     });
 
@@ -974,7 +1055,7 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
     const resultado = await vincularDescripcionCargo(
       idColaborador,
       archivoPdf,
-      segmento
+      segmento,
     );
     res.json(resultado);
   } catch (error) {
@@ -982,7 +1063,6 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
     res.status(500).json({ status: "error", message: error.toString() });
   }
 });
-
 
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
 router.post("/subir-firmados", upload.any(), async (req, res) => {
@@ -998,21 +1078,28 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
           if (err) reject(err);
           else if (results.length === 0) resolve(null);
           else resolve(results[0]);
-        }
+        },
       );
     });
 
     if (!usuario) {
-      return res.status(404).json({ status: "error", message: "Enlace de firma inválido o expirado" });
+      return res.status(404).json({
+        status: "error",
+        message: "Enlace de firma inválido o expirado",
+      });
     }
 
-    const folderName = usuario.carpeta || `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
+    const folderName =
+      usuario.carpeta ||
+      `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
 
     if (req.files && req.files.length > 0) {
       const uploadPromises = req.files.map((file) => {
         const ext = path.extname(file.originalname);
-        const nombreLimpio = path.basename(file.originalname, ext).replace(/\s+/g, "_");
-        
+        const nombreLimpio = path
+          .basename(file.originalname, ext)
+          .replace(/\s+/g, "_");
+
         // --- AQUÍ ESTÁ LA LÓGICA QUE PEDISTE ---
         // Se guarda en una subcarpeta llamada 'documentos_firmados'
         const nuevoNombre = `${nombreLimpio}_${Date.now()}${ext}`;
@@ -1032,51 +1119,67 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
       // Opcional: Limpiar el token tras la subida exitosa para que no se use dos veces
       // db.query("UPDATE usuarios SET token_firma = NULL WHERE id = ?", [usuario.id]);
 
-      res.json({ status: "ok", message: "Documentos firmados cargados exitosamente." });
+      res.json({
+        status: "ok",
+        message: "Documentos firmados cargados exitosamente.",
+      });
     } else {
-      res.status(400).json({ status: "error", message: "No se recibieron archivos." });
+      res
+        .status(400)
+        .json({ status: "error", message: "No se recibieron archivos." });
     }
   } catch (error) {
     console.error("Error en subir-firmados:", error);
-    res.status(500).json({ status: "error", message: "Error interno al subir firmados" });
+    res
+      .status(500)
+      .json({ status: "error", message: "Error interno al subir firmados" });
   }
 });
 // VALIDAR TOKEN DE FIRMA
 router.get("/validar-token-firma/:token", (req, res) => {
-    const token = req.params.token;
-    db.query(
-        "SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?",
-        [token],
-        (err, result) => {
-            if (err) return res.status(500).json({ status: "error", message: "Error en base de datos" });
-            
-            if (result.length === 0) {
-                return res.status(404).json({ status: "error", message: "El enlace es inválido o ya fue utilizado." });
-            }
-            
-            res.json({ status: "ok", usuario: result[0] });
-        }
-    );
+  const token = req.params.token;
+  db.query(
+    "SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?",
+    [token],
+    (err, result) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ status: "error", message: "Error en base de datos" });
+
+      if (result.length === 0) {
+        return res.status(404).json({
+          status: "error",
+          message: "El enlace es inválido o ya fue utilizado.",
+        });
+      }
+
+      res.json({ status: "ok", usuario: result[0] });
+    },
+  );
 });
 // --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
 router.post("/solicitar-firma-contratos", (req, res) => {
-    const { id, correo, nombres, archivosAFirmar } = req.body;
-    const token = crypto.randomBytes(20).toString("hex");
+  const { id, correo, nombres, archivosAFirmar } = req.body;
+  const token = crypto.randomBytes(20).toString("hex");
 
-    // 1. Guardar el token en la base de datos
-    db.query(
-        "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
-        [token, id],
-        async (err) => {
-            if (err) return res.status(500).json({ status: "error", message: err.message });
+  // 1. Guardar el token en la base de datos
+  db.query(
+    "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
+    [token, id],
+    async (err) => {
+      if (err)
+        return res.status(500).json({ status: "error", message: err.message });
 
-            // 2. Preparar el link
-            const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
+      // 2. Preparar el link
+      const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
 
-            // 3. Crear lista de archivos para el HTML del correo
-            const listaHtml = archivosAFirmar.map(a => `<li>📄 ${a.name}</li>`).join('');
+      // 3. Crear lista de archivos para el HTML del correo
+      const listaHtml = archivosAFirmar
+        .map((a) => `<li>📄 ${a.name}</li>`)
+        .join("");
 
-            const htmlEmail = `
+      const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
                         <h2 style="margin: 0;">WSAC SECURITY</h2>
@@ -1101,20 +1204,22 @@ router.post("/solicitar-firma-contratos", (req, res) => {
                 </div>
             `;
 
-            try {
-                await correoOutlook.sendMail({
-                    from: '"WSAC Contratación" <eagudelo@woden.com.co>',
-                    to: correo,
-                    subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
-                    html: htmlEmail,
-                });
-                res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
-            } catch (e) {
-                console.error("Error enviando correo de firma:", e);
-                res.status(500).json({ status: "error", message: "No se pudo enviar el correo" });
-            }
-        }
-    );
+      try {
+        await correoOutlook.sendMail({
+          from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+          to: correo,
+          subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
+          html: htmlEmail,
+        });
+        res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
+      } catch (e) {
+        console.error("Error enviando correo de firma:", e);
+        res
+          .status(500)
+          .json({ status: "error", message: "No se pudo enviar el correo" });
+      }
+    },
+  );
 });
 
 // GET /api/listar-firmados/:carpeta
@@ -1130,7 +1235,7 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
     const response = await s3Client.send(command);
 
     const filesPromises = (response.Contents || [])
-      .filter(item => !item.Key.endsWith('/')) // Ignorar el objeto de la carpeta misma
+      .filter((item) => !item.Key.endsWith("/")) // Ignorar el objeto de la carpeta misma
       .map(async (item) => {
         const fileName = item.Key.split("/").pop();
 
@@ -1139,12 +1244,14 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
           Key: item.Key,
         });
 
-        const signedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
+        const signedUrl = await getSignedUrl(s3Client, getCommand, {
+          expiresIn: 3600,
+        });
 
         return {
           name: fileName,
           url: signedUrl,
-          key: Buffer.from(item.Key).toString("base64") // Token para ver-archivo
+          key: Buffer.from(item.Key).toString("base64"), // Token para ver-archivo
         };
       });
 
@@ -1157,4 +1264,3 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
 });
 
 module.exports = router;
- 

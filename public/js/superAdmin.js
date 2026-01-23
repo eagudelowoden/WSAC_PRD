@@ -6,6 +6,8 @@ createApp({
       usuarios: [],
       emails: [],
       nuevoEmail: "",
+      nuevoEmailNomina: "", // Para Nómina
+      emailsNomina: [], // Lista Nómina
       isDarkMode: false,
       userPermisoId: null,
       userPermisoNombre: "",
@@ -30,32 +32,32 @@ createApp({
       localStorage.setItem("theme", theme); // Guardar preferencia
     },
     async seleccionarUsuarioPermisos(user) {
-    this.userPermisoId = user.id;
-    this.userPermisoNombre = user.nombre;
-    // Cargar permisos desde la API
-    const res = await fetch(`/api/admin/permisos/${user.id}`);
-    const data = await res.json();
-    // Resetear mapa y asignar lo que venga de la BD
-    this.mapaPermisos = {
+      this.userPermisoId = user.id;
+      this.userPermisoNombre = user.nombre;
+      // Cargar permisos desde la API
+      const res = await fetch(`/api/admin/permisos/${user.id}`);
+      const data = await res.json();
+      // Resetear mapa y asignar lo que venga de la BD
+      this.mapaPermisos = {
         tarjeta_contratacion: data.tarjeta_contratacion || false,
         editar_salario: data.editar_salario || false,
-        editar_ciudad: data.editar_ciudad || false
-    };
-},
+        editar_ciudad: data.editar_ciudad || false,
+      };
+    },
 
-async guardarPermisos() {
-    const res = await fetch("/api/admin/permisos", {
+    async guardarPermisos() {
+      const res = await fetch("/api/admin/permisos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            usuario_id: this.userPermisoId,
-            permisos: this.mapaPermisos
-        })
-    });
-    if (res.ok) {
+          usuario_id: this.userPermisoId,
+          permisos: this.mapaPermisos,
+        }),
+      });
+      if (res.ok) {
         Swal.fire("Éxito", "Permisos actualizados correctamente", "success");
-    }
-},
+      }
+    },
     async cargarDatos() {
       // Cargar Usuarios
       const resUser = await fetch("/api/admin/users");
@@ -64,6 +66,9 @@ async guardarPermisos() {
       // Cargar Emails
       const resEmail = await fetch("/api/admin/emails");
       this.emails = await resEmail.json();
+
+      const resNom = await fetch("/api/admin/emails-nomina");
+      this.emailsNomina = await resNom.json();
     },
 
     // --- LÓGICA USUARIOS ---
@@ -205,6 +210,37 @@ async guardarPermisos() {
         body: JSON.stringify({ email }),
       });
       this.cargarDatos();
+    },
+
+    async agregarEmailNomina() {
+      try {
+        const res = await fetch("/api/admin/emails-nomina", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // IMPORTANTE: Usa la variable nuevoEmailNomina
+          body: JSON.stringify({ email: this.nuevoEmailNomina }),
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          this.nuevoEmailNomina = ""; // Limpiar campo
+          await this.cargarDatos(); // Refrescar listas
+
+          Swal.fire({
+            toast: true,
+            icon: "success",
+            title: "Suscrito a Nómina",
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        Swal.fire("Error", "No se pudo agregar el correo de nómina", "error");
+      }
     },
   },
 }).mount("#app");
