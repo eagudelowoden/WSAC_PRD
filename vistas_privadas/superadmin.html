@@ -127,39 +127,87 @@
                     </div>
                 </div>
 
-                <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade">
-                    <div class="card-header bg-transparent border-0 pt-4 px-4">
-                        <h6 class="fw-bold mb-0">
-                            <i class="bi bi-envelope-at-fill text-orange me-2"></i>Suscripciones de Notificación
-                        </h6>
+                <div v-if="tab === 'emails'" class="card border-0 shadow-sm rounded-4 animate-fade overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-3 px-3 pb-0">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="fw-bold mb-0 text-dark">
+                                <i class="bi bi-envelope-paper-fill text-orange me-2"></i>Notificaciones Automatizadas
+                            </h6>
+                            <span class="badge bg-light text-muted border-0 fw-normal" style="font-size: 0.7rem;">
+                                v2.0 Config
+                            </span>
+                        </div>
+                        <hr class="opacity-10 mb-0 mt-2">
                     </div>
-                    <div class="card-body p-4">
-                        <form @submit.prevent="agregarEmail" class="row g-2 mb-4">
-                            <div class="col">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i
-                                            class="bi bi-envelope"></i></span>
-                                    <input type="email" v-model="nuevoEmail" class="form-control border-0 bg-light"
-                                        placeholder="correo@empresa.com" required />
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-orange px-4">
-                                    Suscribir
-                                </button>
-                            </div>
-                        </form>
 
-                        <div class="email-list">
-                            <div v-for="email in emails"
-                                class="email-item d-flex justify-content-between align-items-center p-3 mb-2 rounded-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="bi bi-check2-circle text-success me-3"></i>
-                                    <span>{{ email }}</span>
+                    <div class="card-body p-3">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 border h-100 bg-light-orange">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-person-badge-fill text-orange me-2"></i>
+                                        <span class="fw-bold small">Notificaciones Selección</span>
+                                        <span
+                                            class="ms-auto badge bg-orange-soft text-orange smaller">Correcciones</span>
+                                    </div>
+
+                                    <form @submit.prevent="agregarEmail" class="mb-3">
+                                        <div
+                                            class="input-group input-group-sm bg-white rounded-3 shadow-sm border overflow-hidden">
+                                            <input type="email" v-model="nuevoEmail" class="form-control border-0 px-3"
+                                                placeholder="Añadir correo..." required />
+                                            <button type="submit" class="btn btn-orange px-3 border-0">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <div class="email-scroll" style="max-height: 180px; overflow-y: auto;">
+                                        <div v-for="email in emails" :key="email"
+                                            class="d-flex align-items-center justify-content-between bg-white p-2 mb-1 rounded-3 border-start border-orange border-3 shadow-sm">
+                                            <span class="text-dark truncate-text smaller fw-medium ms-2">{{ email
+                                                }}</span>
+                                            <button class="btn btn-link btn-sm text-light-muted hover-danger p-0 me-1"
+                                                @click="eliminarEmail(email)">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button class="btn-action-delete btn-sm" @click="eliminarEmail(email)">
-                                    <i class="bi bi-x-circle-fill"></i>
-                                </button>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 border h-100 bg-light-green">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-cash-stack text-success me-2"></i>
+                                        <span class="fw-bold small text-success">Notificaciones Nómina</span>
+                                        <span class="ms-auto badge bg-success-soft text-success smaller">Ingresos</span>
+                                    </div>
+
+                                    <form @submit.prevent="agregarEmailNomina" class="mb-3">
+                                        <div
+                                            class="input-group input-group-sm bg-white rounded-3 shadow-sm border overflow-hidden">
+                                            <input type="email" v-model="nuevoEmailNomina"
+                                                class="form-control border-0 px-3" placeholder="Añadir correo..."
+                                                required />
+                                            <button type="submit" class="btn btn-success px-3 border-0">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <div class="email-scroll" style="max-height: 180px; overflow-y: auto;">
+                                        <div v-for="email in emailsNomina" :key="email"
+                                            class="d-flex align-items-center justify-content-between bg-white p-2 mb-1 rounded-3 border-start border-success border-3 shadow-sm">
+                                            <span class="text-dark truncate-text smaller fw-medium ms-2">{{ email
+                                                }}</span>
+                                            <button class="btn btn-link btn-sm text-light-muted hover-danger p-0 me-1"
+                                                @click="eliminarEmailNomina(email)">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,52 +215,58 @@
 
 
                 <div v-if="tab === 'permisos'" class="card border-0 shadow-sm rounded-4 animate-fade">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check text-orange me-2"></i>Control de Edición por Usuario</h6>
-    </div>
-    <div class="card-body p-4">
-        <div class="row g-4">
-            <div class="col-md-4 border-end">
-                <label class="form-label-mini mb-3">1. Seleccionar Usuario</label>
-                <div class="list-group list-group-flush">
-                    <button v-for="u in usuarios" 
-                        :key="u.id" 
-                        @click="seleccionarUsuarioPermisos(u)"
-                        class="list-group-item list-group-item-action border-0 rounded-3 mb-1"
-                        :class="{ active: userPermisoId === u.id }">
-                        {{ u.nombre }}
-                        <div class="small opacity-50">{{ u.rol }}</div>
-                    </button>
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check text-orange me-2"></i>Control de Edición
+                            por Usuario</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-4 border-end">
+                                <label class="form-label-mini mb-3">1. Seleccionar Usuario</label>
+                                <div class="list-group list-group-flush">
+                                    <button v-for="u in usuarios" :key="u.id" @click="seleccionarUsuarioPermisos(u)"
+                                        class="list-group-item list-group-item-action border-0 rounded-3 mb-1"
+                                        :class="{ active: userPermisoId === u.id }">
+                                        {{ u.nombre }}
+                                        <div class="small opacity-50">{{ u.rol }}</div>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-8" v-if="userPermisoId">
+                                <label class="form-label-mini mb-3">2. Permisos para: <span class="text-primary">{{
+                                        userPermisoNombre }}</span></label>
+
+                                <div class="p-3 rounded-4 bg-light border">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox"
+                                            v-model="mapaPermisos.tarjeta_contratacion">
+                                        <label class="form-check-label fw-bold">Habilitar Tarjeta de
+                                            Contratación</label>
+                                        <div class="small text-muted">Permite ver y usar la tarjeta lateral de gestión.
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox"
+                                            v-model="mapaPermisos.editar_salario">
+                                        <label class="form-check-label fw-bold">Editar Salario</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox"
+                                            v-model="mapaPermisos.editar_ciudad">
+                                        <label class="form-check-label fw-bold">Editar Ciudad</label>
+                                    </div>
+                                    <button class="btn btn-orange w-100 mt-3" @click="guardarPermisos">Actualizar
+                                        Permisos</button>
+                                </div>
+                            </div>
+                            <div class="col-md-8 text-center py-5 opacity-50" v-else>
+                                <i class="bi bi-arrow-left-circle mb-2" style="font-size: 2rem;"></i>
+                                <p>Selecciona un usuario a la izquierda para gestionar sus accesos</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-8" v-if="userPermisoId">
-                <label class="form-label-mini mb-3">2. Permisos para: <span class="text-primary">{{ userPermisoNombre }}</span></label>
-                
-                <div class="p-3 rounded-4 bg-light border">
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.tarjeta_contratacion">
-                        <label class="form-check-label fw-bold">Habilitar Tarjeta de Contratación</label>
-                        <div class="small text-muted">Permite ver y usar la tarjeta lateral de gestión.</div>
-                    </div>
-                    <hr>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.editar_salario">
-                        <label class="form-check-label fw-bold">Editar Salario</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" v-model="mapaPermisos.editar_ciudad">
-                        <label class="form-check-label fw-bold">Editar Ciudad</label>
-                    </div>
-                    <button class="btn btn-orange w-100 mt-3" @click="guardarPermisos">Actualizar Permisos</button>
-                </div>
-            </div>
-            <div class="col-md-8 text-center py-5 opacity-50" v-else>
-                <i class="bi bi-arrow-left-circle mb-2" style="font-size: 2rem;"></i>
-                <p>Selecciona un usuario a la izquierda para gestionar sus accesos</p>
-            </div>
-        </div>
-    </div>
-</div>
 
             </div>
         </div>
