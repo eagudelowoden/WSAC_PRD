@@ -242,5 +242,47 @@ createApp({
         Swal.fire("Error", "No se pudo agregar el correo de nómina", "error");
       }
     },
+
+    async eliminarEmailNomina(email) {
+      // Confirmación opcional para evitar errores
+      const result = await Swal.fire({
+        title: "¿Eliminar suscripción?",
+        text: `El correo ${email} dejará de recibir alertas de nómina.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Sí, eliminar",
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        const res = await fetch("/api/admin/emails-nomina", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email }), // Enviamos el email a eliminar
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          // Actualizamos la lista local o recargamos
+          this.cargarDatos();
+
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Eliminado",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+        Swal.fire("Error", "No se pudo eliminar el correo", "error");
+      }
+    },
   },
 }).mount("#app");
