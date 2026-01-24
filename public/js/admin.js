@@ -743,13 +743,13 @@ createApp({
       const result = await Swal.fire({
         title: "Aprobar Contrato",
         html: `
-            <p>Se aprobará a <b>${this.usuarioActual.nombres}</b></p>
-            <ul style="text-align:left">
-                <li>Cargo: <b>${this.form.cargo}</b></li>
-                <li>Salario: <b>${this.form.salario}</b></li>
-                <li>Segmento: <b>${this.form.segmento_contrato}</b></li>
-            </ul>
-        `,
+        <p>Se aprobará a <b>${this.usuarioActual.nombres}</b></p>
+        <ul style="text-align:left">
+            <li>Cargo: <b>${this.form.cargo}</b></li>
+            <li>Salario: <b>${this.form.salario}</b></li>
+            <li>Segmento: <b>${this.form.segmento_contrato}</b></li>
+        </ul>
+    `,
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#28a745",
@@ -757,76 +757,88 @@ createApp({
         cancelButtonText: "Cancelar",
       });
 
-      // Si el usuario cancela, no hacemos nada
+      // Si el usuario cancela, detenemos todo aquí
       if (!result.isConfirmed) return;
 
       try {
         Swal.showLoading();
 
-        // 2. PASO CRÍTICO: Pasar datos del FORMULARIO al USUARIO
-        this.usuarioActual.cargo = this.form.cargo;
-        this.usuarioActual.salario = this.form.salario;
-        this.usuarioActual.ciudad = this.form.ciudad;
-        this.usuarioActual.observaciones = this.form.observaciones;
+        // 2. Sincronizar datos del formulario al objeto que se enviará
+        // Asegúrate de que 'this.usuarioActual' tenga el ID correcto
+        const datosActualizados = {
+          ...this.usuarioActual,
+          cargo: this.form.cargo,
+          salario: this.form.salario,
+          ciudad: this.form.ciudad,
+          observaciones: this.form.observaciones,
+          segmento_contrato: this.form.segmento_contrato,
+          descripcion_cargo: this.form.descripcion_cargo,
+          aprobacion: 1, // Este es el que activa el cambio en DB
+        };
 
-        // IMPORTANTE: Guardamos el segmento y el PDF seleccionado
-        this.usuarioActual.segmento_contrato = this.form.segmento_contrato;
-        this.usuarioActual.descripcion_cargo = this.form.descripcion_cargo;
-
-        // 3. MARCADO DE APROBACIÓN (Esto pone el 1 en la base de datos)
-        this.usuarioActual.aprobacion = 1;
-
-        // 4. Enviamos la petición al servidor
+        // 3. PASO PRINCIPAL: Guardar en la Base de Datos
         const response = await fetch(
           `${API_URL}/usuario/${this.usuarioActual.id}`,
           {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(this.usuarioActual),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datosActualizados),
           },
         );
 
+        if (!response.ok)
+          throw new Error("Error en la respuesta del servidor al guardar");
+
         const data = await response.json();
 
+        // 4. Si el guardado fue exitoso, procedemos con las notificaciones
         if (data.status === "ok") {
-          try {
-            await fetch(`${API_URL}/notificar-aprobacion`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id: this.usuarioActual.id,
-                correo: this.usuarioActual.correo,
-                nombres: this.usuarioActual.nombres,
-                mensaje: "Sus documentos han sido aprobados exitosamente.",
-              }),
-            });
-          } catch (err) {
-            console.error(
-              "Error enviando correo, pero los datos se guardaron:",
-              err,
-            );
-          }
+          // Actualizamos el objeto local para que la UI refleje el cambio
+          Object.assign(this.usuarioActual, datosActualizados);
+
+          // 5. Lanzar notificaciones (usamos una técnica que no bloquea si el mail falla)
+          this.enviarNotificaciones(this.usuarioActual.id);
 
           Swal.fire({
             icon: "success",
             title: "¡Aprobado!",
-            text: "El contrato ha sido guardado y aprobado exitosamente.",
+            text: "El contrato ha sido guardado y las notificaciones están en proceso.",
             timer: 2000,
           });
 
-          // Recargamos la lista para ver los cambios reflejados
-          this.obtenerListaUsuarios();
+          // Recargar la lista principal
+          if (typeof this.obtenerListaUsuarios === "function") {
+            this.obtenerListaUsuarios();
+          }
         } else {
-          throw new Error(data.message);
+          throw new Error(data.message || "No se pudo actualizar el registro");
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error crítico en aprobar():", error);
         Swal.fire("Error", "No se pudo aprobar: " + error.message, "error");
       }
     },
 
+    // Función auxiliar para no ensuciar el método principal
+    async enviarNotificaciones(id) {
+      try {
+        // Notificación al Usuario
+        fetch(`${API_URL}/notificar-aprobacion`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+
+        // Notificación a Nómina
+        fetch(`${API_URL}/notificar-nomina`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+      } catch (e) {
+        console.error("Error enviando correos en segundo plano:", e);
+      }
+    },
     rechazar() {
       Swal.fire("Rechazado", "Candidato rechazado", "info");
     },
