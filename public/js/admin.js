@@ -307,7 +307,7 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
-      correoAprendizaje: "",
+      correoAprendizaje  : "",
       curso: "",
       institucion: "",
       nitInstitucion: "",
@@ -439,11 +439,11 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
-        userData.correoAprendizaje = userData.correo_institucional;
+        userData.correoAprendizaje   = userData.correoAprendizaje  ;
         userData.curso = userData.curso;
         userData.institucion = userData.institucion;
-        userData.nitInstitucion = userData.nit_institucion;
-        userData.centroSena = userData.centro_formacion;
+        userData.nitInstitucion = userData.nitinstitucion;
+        userData.centroSena = userData.centroSena;
         userData.tipo_contrato = userData.tipo_contrato;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
         if (userData.fechaSuscripcion)
@@ -463,14 +463,14 @@ createApp({
         const pdfGuardado = userData.descripcion_cargo || "";
         this.form.otroSi = userData.otro_si || "";
         this.form.tipo_contrato = userData.tipo_contrato || "";
-        this.form.correoAprendizaje = userData.correo_institucional || "";
+        this.form.correoAprendizaje   = userData.correoAprendizaje   || "";
         this.form.curso = userData.curso || "";
         this.form.institucion = userData.institucion || "";
-        this.form.nitInstitucion = userData.nit_institucion || "";
-        this.form.centroSena = userData.centro_formacion || "";
-        this.form.fechaterminacion = userData.fecha_terminacion
-          ? userData.fecha_terminacion.split("T")[0]
-          : "";
+        this.form.nitInstitucion = userData.nitinstitucion || "";
+        this.form.centroSena = userData.centroSena || "";
+        userData.fechaterminacion = userData.fechaterminacion 
+              ? userData.fechaterminacion.split("T")[0] 
+              : ""; // <--- Esto hace que se vea en el HTML
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)
@@ -786,13 +786,13 @@ createApp({
           observaciones: this.form.observaciones,
           segmento_contrato: this.form.segmento_contrato,
           descripcion_cargo: this.form.descripcion_cargo,
-          correoAprendizaje: this.form.correoAprendizaje,
-          correo_institucional: this.form.correoAprendizaje,
+          correoAprendizaje  : this.form.correoAprendizaje  ,
+          correoAprendizaje  : this.form.correoAprendizaje  ,
           curso: this.form.curso,
           institucion: this.form.institucion,
-          nit_institucion: this.form.nitInstitucion,
-          centro_formacion: this.form.centroSena,
-          fecha_terminacion: this.form.fechaterminacion,
+          nitinstitucion: this.form.nitInstitucion,
+          centroSena: this.form.centroSena,
+          fechaterminacion: this.form.fechaterminacion,
           aprobacion: 1, // Este es el que activa el cambio en DB
         };
 

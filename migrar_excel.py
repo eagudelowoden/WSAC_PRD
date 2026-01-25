@@ -79,7 +79,7 @@ def migrar_datos():
                     fechaNacimiento, eps, arl, afp, ccf, afiliaciones_familiares,
                     tipo_contrato, salario, observaciones, aprobacion, segundaaprobacion, 
                     motivoaprobacion, cargo, fecha_suscripcion, ciudad,
-                    correoAprendizaje, curso, institucion, nitInstitucion, centroSena, fechaterminacion,
+                    correoAprendizaje  , curso, institucion, nitInstitucion, centroSena, fechaterminacion,
                     descripcion_cargo, otro_si, url_contrato_legado, segmento_contrato, 
                     info_descripcion_cargo, correoEnviadoFase1, acuerdo_confidencialidad_url,
                     carpeta
@@ -114,7 +114,7 @@ def migrar_datos():
                     clean_val(row.get('cargo')),
                     formatear_fecha(row.get('FechaSuscripcion')),
                     clean_val(row.get('ciudad')),
-                    clean_val(row.get('correoAprendizaje')),
+                    clean_val(row.get('correoAprendizaje  ')),
                     clean_val(row.get('curso')),
                     clean_val(row.get('institucion')),
                     clean_val(row.get('nitInstitucion')),

@@ -342,7 +342,7 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
-      correoAprendizaje: "",
+      correoAprendizaje  : "",
       curso: "",
       institucion: "",
       nitInstitucion: "",

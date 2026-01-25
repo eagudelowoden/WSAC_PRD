@@ -155,10 +155,10 @@ router.put("/usuario/:id", (req, res) => {
             tipo_contrato = ?,
             curso = ?,
             institucion = ?,
-            nit_institucion = ?,
-            centro_formacion = ?,
-            fecha_terminacion = ?,
-            correoAprendizaje = ?
+            nitinstitucion = ?,
+            centroSena = ?,
+            fechaterminacion = ?,
+            correoAprendizaje   = ?
         WHERE id = ?
     `;
 
@@ -183,10 +183,10 @@ router.put("/usuario/:id", (req, res) => {
             data.tipo_contrato,
             data.curso,
             data.institucion,
-            data.nit_institucion,
-            data.centro_formacion,
-            data.fecha_terminacion,
-            data.correoAprendizaje,
+            data.nitinstitucion,
+            data.centroSena,
+            data.fechaterminacion,
+            data.correoAprendizaje  ,
             id // El ID siempre al final para el WHERE
         ];
 

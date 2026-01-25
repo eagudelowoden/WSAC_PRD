@@ -100,7 +100,7 @@ CREATE TABLE `usuarios` (
   `observaciones` text,
   `carpeta` varchar(200) DEFAULT NULL,
   `fechaRegistro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `correoAprendizaje` varchar(120) DEFAULT NULL,
+  `correoAprendizaje  ` varchar(120) DEFAULT NULL,
   `curso` varchar(150) DEFAULT NULL,
   `institucion` varchar(150) DEFAULT NULL,
   `nitInstitucion` varchar(50) DEFAULT NULL,

@@ -89,14 +89,14 @@ async function generarDocumento(
         fecha_nacimiento: p.fechaNacimiento
           ? new Date(p.fechaNacimiento).toLocaleDateString("es-CO")
           : "",
-        fecha_terminacion: p.fechaterminacion
+        fechaterminacion: p.fechaterminacion
           ? formatearFechaLarga(p.fechaterminacion)
           : "INDEFINIDO",
 
         // APRENDIZAJE / SENA
-        correo_aprendizaje: (p.correoAprendizaje || "").toUpperCase(),
+        correo_aprendizaje: (p.correoAprendizaje   || "").toUpperCase(),
         institucion: (p.institucion || "").toUpperCase(),
-        nit_institucion: p.nitinstitucion || "",
+        nitinstitucion: p.nitinstitucion || "",
         centro_sena: (p.centroSena || "").toUpperCase(),
 
         // OTROS CONTROL

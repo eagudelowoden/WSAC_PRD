@@ -525,6 +525,11 @@ router.put("/usuario/:id", async (req, res) => {
                 otro_si = ?,
                 tipo_contrato = ?,
                 curso = ?,
+                correoAprendizaje   = ?,
+                institucion = ?,
+                nitinstitucion = ?,
+                centroSena = ?,
+                fechaterminacion = ?,
                 fecha_suscripcion = ?
             WHERE id = ?
         `;
@@ -552,6 +557,11 @@ router.put("/usuario/:id", async (req, res) => {
       data.otroSi,
       data.tipo_contrato,
       data.curso,
+      data.correoAprendizaje  ,
+      data.institucion,
+      data.nitinstitucion,
+      data.centroSena,
+      data.fechaterminacion || null,
       data.fechaSuscripcion || null,
       id,
     ];
