@@ -307,6 +307,12 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
+      correoAprendizaje: "",
+      curso: "",
+      institucion: "",
+      nitInstitucion: "",
+      centroSena: "",
+      fechaterminacion: "",
 
       archivos: [],
       cargandoArchivos: false,
@@ -433,6 +439,11 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
+        userData.correoAprendizaje = userData.correo_institucional;
+        userData.curso = userData.curso;
+        userData.institucion = userData.institucion;
+        userData.nitInstitucion = userData.nit_institucion;
+        userData.centroSena = userData.centro_formacion;
         userData.tipo_contrato = userData.tipo_contrato;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
         if (userData.fechaSuscripcion)
@@ -452,6 +463,14 @@ createApp({
         const pdfGuardado = userData.descripcion_cargo || "";
         this.form.otroSi = userData.otro_si || "";
         this.form.tipo_contrato = userData.tipo_contrato || "";
+        this.form.correoAprendizaje = userData.correo_institucional || "";
+        this.form.curso = userData.curso || "";
+        this.form.institucion = userData.institucion || "";
+        this.form.nitInstitucion = userData.nit_institucion || "";
+        this.form.centroSena = userData.centro_formacion || "";
+        this.form.fechaterminacion = userData.fecha_terminacion
+          ? userData.fecha_terminacion.split("T")[0]
+          : "";
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)
@@ -519,27 +538,27 @@ createApp({
       try {
         Swal.showLoading();
 
-        // ------------------------------------------------------------------
-        // PASO CRÍTICO: Sincronizar los datos del formulario con el usuario
-        // ------------------------------------------------------------------
-        // Como en el HTML usas v-model="form.ciudad", el valor nuevo está en 'form'.
-        // Debemos pasarlo a 'usuarioActual' antes de enviarlo al backend.
-
+        // 1. Sincronizar lo que viene del select y campos superiores (que usan 'form')
         this.usuarioActual.ciudad = this.form.ciudad;
-        this.usuarioActual.cargo = this.form.cargo; // Opcional: si quieres actualizar cargo aquí también
-        this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
-        this.usuarioActual.tipo_contrato = this.form.tipo_contrato; // NUEVO CAMPO
+        this.usuarioActual.cargo = this.form.cargo;
+        this.usuarioActual.salario = this.form.salario;
+        this.usuarioActual.tipo_contrato = this.form.tipo_contrato;
 
-        // ------------------------------------------------------------------
+        // 2. ¡IMPORTANTE! NO IGUALAR A 'THIS.FORM' LOS CAMPOS DE APRENDIZAJE
+        // Porque en tu HTML ya usas v-model="usuarioActual.XXXX".
+        // Si haces: this.usuarioActual.curso = this.form.curso, lo vas a borrar (porque form.curso no existe).
+
+        // Si quieres estar 100% seguro de que el objeto va completo,
+        // simplemente no toques estas variables aquí, Vue ya las actualizó.
 
         const response = await fetch(
           `${API_URL}/usuario/${this.usuarioActual.id}`,
           {
-            method: "PUT", // Ruta para actualizar
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(this.usuarioActual),
+            body: JSON.stringify(this.usuarioActual), // Aquí ya van llenos curso, nit, etc.
           },
         );
 
@@ -553,19 +572,13 @@ createApp({
             timer: 1500,
             showConfirmButton: false,
           });
-
-          // Refrescamos la lista de la izquierda por si cambiaste nombres/apellidos
           this.obtenerListaUsuarios();
         } else {
           throw new Error(data.message);
         }
       } catch (error) {
         console.error(error);
-        Swal.fire(
-          "Error",
-          "No se pudieron guardar los cambios: " + error.message,
-          "error",
-        );
+        Swal.fire("Error", "No se pudieron guardar: " + error.message, "error");
       }
     },
 
@@ -773,6 +786,13 @@ createApp({
           observaciones: this.form.observaciones,
           segmento_contrato: this.form.segmento_contrato,
           descripcion_cargo: this.form.descripcion_cargo,
+          correoAprendizaje: this.form.correoAprendizaje,
+          correo_institucional: this.form.correoAprendizaje,
+          curso: this.form.curso,
+          institucion: this.form.institucion,
+          nit_institucion: this.form.nitInstitucion,
+          centro_formacion: this.form.centroSena,
+          fecha_terminacion: this.form.fechaterminacion,
           aprobacion: 1, // Este es el que activa el cambio en DB
         };
 

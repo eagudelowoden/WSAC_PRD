@@ -72,7 +72,7 @@ const SegmentosMixin = {
       this.cargandoCargos = true;
       try {
         const url = `${API_URL}/cargos-por-segmento/${encodeURIComponent(
-          segmento
+          segmento,
         )}`;
         const res = await fetch(url);
         this.listaCargosPDF = await res.json();
@@ -91,7 +91,7 @@ const SegmentosMixin = {
 
       try {
         const subcarpeta = encodeURIComponent(
-          `${carpetaUsuario}/contratos_generados`
+          `${carpetaUsuario}/contratos_generados`,
         );
 
         // Llamamos a tu endpoint que lista archivos
@@ -165,12 +165,12 @@ const SegmentosMixin = {
       if (!usuario || !usuario.carpeta) {
         console.error(
           "No se encontró la información del usuario o su carpeta",
-          usuario
+          usuario,
         );
         return Swal.fire(
           "Error",
           "No se pudo identificar la carpeta del usuario",
-          "error"
+          "error",
         );
       }
 
@@ -342,7 +342,12 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
-
+      correoAprendizaje: "",
+      curso: "",
+      institucion: "",
+      nitInstitucion: "",
+      centroSena: "",
+      fechaterminacion: "",
       archivos: [],
       cargandoArchivos: false,
     };
@@ -458,7 +463,7 @@ createApp({
 
     async cargarPermisos() {
       const res = await fetch(
-        `/api/usuarios/permisos/${this.usuarioActual.id}`
+        `/api/usuarios/permisos/${this.usuarioActual.id}`,
       );
       this.permisos = await res.json();
     },
@@ -493,6 +498,7 @@ createApp({
         userData.tipo_contrato = userData.tipo_contrato;
         userData.aprobacion = userData.aprobacion;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
+        userData.curso = userData.curso; // Nuevo campo para contrato de aprendizaje
         if (userData.fechaSuscripcion)
           userData.fechaSuscripcion = userData.fechaSuscripcion.split("T")[0];
 
@@ -511,6 +517,7 @@ createApp({
         this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
         this.form.tipo_contrato = userData.tipo_contrato || [];
         const pdfGuardado = userData.descripcion_cargo || "";
+
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);
 
@@ -534,7 +541,7 @@ createApp({
           const promesaArchivos = async () => {
             // Pedimos lista al backend (Rápido, sin firmar)
             const resFiles = await fetch(
-              `${API_URL}/archivos/${userData.carpeta}`
+              `${API_URL}/archivos/${userData.carpeta}`,
             );
             const files = await resFiles.json();
 
@@ -549,7 +556,7 @@ createApp({
                 name: f.name,
                 // 2. IMPORTANTE: encodeURIComponent protege el token en la URL
                 url: `${API_URL}/ver-archivo?token=${encodeURIComponent(
-                  tokenHash
+                  tokenHash,
                 )}`,
               };
             });
@@ -591,6 +598,7 @@ createApp({
         this.usuarioActual.salario = this.form.salario; // Opcional: si quieres actualizar salario aquí también
         this.usuarioActual.observaciones = this.form.observaciones;
         this.usuarioActual.otroSi = this.form.otroSi;
+        this.usuarioActual.curso = this.form.curso;
 
         // ------------------------------------------------------------------
 
@@ -602,7 +610,7 @@ createApp({
               "Content-Type": "application/json",
             },
             body: JSON.stringify(this.usuarioActual),
-          }
+          },
         );
 
         const data = await response.json();
@@ -626,30 +634,31 @@ createApp({
         Swal.fire(
           "Error",
           "No se pudieron guardar los cambios: " + error.message,
-          "error"
+          "error",
         );
       }
     },
-async obtenerDocumentosFirmados() {
-  if (!this.usuarioActual?.carpeta) return;
+    async obtenerDocumentosFirmados() {
+      if (!this.usuarioActual?.carpeta) return;
 
-  try {
-    // 1. Fetch rápido (el JSON ahora es mucho más ligero)
-    const res = await fetch(`/api/listar-firmados/${this.usuarioActual.carpeta}`);
-    const data = await res.json();
+      try {
+        // 1. Fetch rápido (el JSON ahora es mucho más ligero)
+        const res = await fetch(
+          `/api/listar-firmados/${this.usuarioActual.carpeta}`,
+        );
+        const data = await res.json();
 
-    // 2. Mapeo ultra-rápido en el cliente
-    this.listaFirmados = data.map(file => ({
-      ...file,
-      // Usamos tu endpoint '/api/ver-archivo' que ya gestiona el streaming o redirección
-      url: `/api/ver-archivo?token=${encodeURIComponent(file.key)}`
-    }));
-
-  } catch (error) {
-    console.error("❌ Error:", error);
-    this.listaFirmados = [];
-  }
-} ,
+        // 2. Mapeo ultra-rápido en el cliente
+        this.listaFirmados = data.map((file) => ({
+          ...file,
+          // Usamos tu endpoint '/api/ver-archivo' que ya gestiona el streaming o redirección
+          url: `/api/ver-archivo?token=${encodeURIComponent(file.key)}`,
+        }));
+      } catch (error) {
+        console.error("❌ Error:", error);
+        this.listaFirmados = [];
+      }
+    },
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
@@ -1045,7 +1054,7 @@ async obtenerDocumentosFirmados() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(this.usuarioActual),
-          }
+          },
         );
 
         const data = await response.json();
@@ -1086,29 +1095,33 @@ async obtenerDocumentosFirmados() {
         console.error("No se pudo identificar al admin:", e);
       }
     },
-enviarWhatsApp(doc) {
-    // 1. Validar que tengamos el usuario y el teléfono
-    if (!this.usuarioActual || !this.usuarioActual.telefono) {
-        Swal.fire("Atención", "El usuario no tiene un número de teléfono registrado.", "warning");
+    enviarWhatsApp(doc) {
+      // 1. Validar que tengamos el usuario y el teléfono
+      if (!this.usuarioActual || !this.usuarioActual.telefono) {
+        Swal.fire(
+          "Atención",
+          "El usuario no tiene un número de teléfono registrado.",
+          "warning",
+        );
         return;
-    }
+      }
 
-    // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
-    // Esto asegura que el link wa.me funcione correctamente
-    let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, '');
+      // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
+      // Esto asegura que el link wa.me funcione correctamente
+      let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, "");
 
-    // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
-    // if (!telefono.startsWith('57')) telefono = '57' + telefono;
+      // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
+      // if (!telefono.startsWith('57')) telefono = '57' + telefono;
 
-    // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
-    const mensaje = encodeURIComponent(
-        `Hola ${this.usuarioActual.nombres}, te envío el documento firmado: *${doc.name}*.\n\nPuedes verlo aquí: ${doc.url}`
-    );
+      // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
+      const mensaje = encodeURIComponent(
+        `Hola ${this.usuarioActual.nombres}, te envío el documento firmado: *${doc.name}*.\n\nPuedes verlo aquí: ${doc.url}`,
+      );
 
-    // 5. Construir URL y abrir
-    const url = `https://wa.me/${telefono}?text=${mensaje}`;
-    window.open(url, '_blank');
-},
+      // 5. Construir URL y abrir
+      const url = `https://wa.me/${telefono}?text=${mensaje}`;
+      window.open(url, "_blank");
+    },
     cerrarSesion() {
       this.menuAbierto = false; // Cerramos el menú al hacer click
       // 1. Borrar token y datos del usuario del navegador
