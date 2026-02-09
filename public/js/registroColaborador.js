@@ -1,6 +1,27 @@
 // Objeto global para guardar los archivos
 const storageArchivos = {};
 
+
+// Función para disparar las notificaciones en segundo plano
+async function dispararNotificaciones(id) {
+    try {
+        console.log(`🔔 Iniciando notificaciones para ID: ${id}`);
+        
+        // Llamada al endpoint que creaste
+        // Nota: Asegúrate de que la URL coincida con tu ruta de backend
+        const response = await fetch("/api/notificarRegistro", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: id }),
+        });
+
+        const data = await response.json();
+        console.log("✅ Resultado notificación:", data.message);
+    } catch (e) {
+        console.error("❌ Error enviando correos:", e);
+    }
+}
+
 // Inicializar los campos que tienen la clase 'input-acumulador'
 document.querySelectorAll('.input-acumulador').forEach(input => {
     const fieldName = input.name;
@@ -54,33 +75,24 @@ window.quitarArchivo = function(fieldName, fileName, element) {
 };
 
 // Manejo del SUBMIT
+// Manejo del SUBMIT (Modificado)
 document.getElementById("formularioRegistro").addEventListener("submit", async function (e) {
     e.preventDefault();
     
-    // Creamos el FormData desde el formulario
     const formData = new FormData(this);
 
-    // Sobrescribimos los campos acumuladores con nuestros archivos guardados
+    // Acumular archivos
     for (const fieldName in storageArchivos) {
-        // Borramos lo que el navegador crea por defecto
         formData.delete(fieldName); 
-        // Metemos nuestros archivos uno por uno
         storageArchivos[fieldName].forEach(file => {
             formData.append(fieldName, file);
         });
     }
 
-    // --- LOG PARA DEPURACIÓN (Míralo en la consola F12) ---
-    console.log("Archivos que se enviarán:");
-    for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-    }
-
-    // ... Aquí sigue tu código de SweetAlert y Fetch ...
     try {
         Swal.fire({
             title: "Enviando...",
-            text: "Subiendo documentos y datos...",
+            text: "Subiendo documentos y registrando colaborador...",
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
@@ -93,7 +105,15 @@ document.getElementById("formularioRegistro").addEventListener("submit", async f
         const data = await response.json();
 
         if (response.ok && data.status === "ok") {
-            Swal.fire("¡Éxito!", data.message, "success").then(() => {
+            // --- AQUÍ ACTIVAMOS LA NOTIFICACIÓN ---
+            // Usamos el ID que el backend debería retornar al crear el usuario
+            if (data.id) {
+                dispararNotificaciones(data.id);
+            } else {
+                console.warn("⚠️ No se recibió ID para notificar");
+            }
+
+            Swal.fire("¡Éxito!", "Registro completado.", "success").then(() => {
                 window.location.reload();
             });
         } else {

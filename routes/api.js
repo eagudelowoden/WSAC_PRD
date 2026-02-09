@@ -901,6 +901,91 @@ router.post("/notificar-nomina", async (req, res) => {
     },
   );
 });
+router.post("/notificarRegistro", async (req, res) => {
+  const { id } = req.body;
+
+  // 1. Buscamos los datos detallados del usuario/contrato
+  db.query(
+    "SELECT nombres, apellidos FROM usuarios WHERE id = ?",
+    [id],
+    async (err, users) => {
+      if (err || !users || users.length === 0) {
+        return res
+          .status(500)
+          .json({ status: "error", message: "Usuario no encontrado" });
+      }
+
+      const usuario = users[0];
+
+      // 2. Buscamos los correos de la tabla de nómina
+      db.query(
+        "SELECT email FROM notificaciones",
+        async (errNotif, resNotif) => {
+          if (errNotif || resNotif.length === 0) {
+            return res
+              .status(404)
+              .json({
+                status: "error",
+                message: "No hay correos configurados en nómina",
+              });
+          }
+
+          const listaCorreos = resNotif.map((r) => r.email);
+
+          try {
+            // 3. Diseño del HTML para Nómina
+            const htmlNomina = `
+          <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif;">
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e1e4e8;">
+                  <tr>
+                      <td style="background-color: #007bff; padding: 20px; text-align: center; border-radius: 12px 12px 0 0;">
+                          <h1 style="color: #ffffff; margin: 0; font-size: 20px;">Aviso de Nuevo Contrato</h1>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="padding: 30px;">
+                          <p style="font-size: 16px; color: #333;">Hola equipo de Selección,</p>
+                          <p style="font-size: 15px; color: #555;">Se ha registrado un nuevo colaborador:</p>
+                          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                              <p style="margin: 5px 0;"><strong>Colaborador:</strong> ${usuario.nombres} ${usuario.apellidos}</p>
+                          </div>
+
+                          <p style="font-size: 14px; color: #777;">Por favor, Validar la información del nuevo colaborador.</p>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
+                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC Security</p>
+                      </td>
+                  </tr>
+              </table>
+          </div>
+          `;
+
+            // 4. Envío de correo a la lista de nómina
+            await correoOutlook.sendMail({
+              from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+              to: listaCorreos, // Envía a todos los de la tabla
+              subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
+              html: htmlNomina,
+            });
+
+            res.json({
+              status: "ok",
+              message: "Notificación enviada",
+            });
+          } catch (e) {
+            console.error("Error al enviar correo:", e);
+            res
+              .status(500)
+              .json({ status: "error", message: "Error enviando correo" });
+          }
+        },
+      );
+    },
+  );
+});
+
 
 // B. VALIDAR TOKEN
 router.get("/validar-token/:token", (req, res) => {
