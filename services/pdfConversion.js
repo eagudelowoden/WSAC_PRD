@@ -1,52 +1,55 @@
-// Archivo: services/pdfConversion.js
-const axios = require('axios');
-require('dotenv').config();
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs').promises;
+const os = require('os');
 
-function convertirWordAPdf(wordBuffer) {
-    return new Promise(async (resolve, reject) => {
+/**
+ * Convierte Word a PDF usando la ruta directa al ejecutable.
+ */
+async function convertirWordAPdf(wordBuffer) {
+    console.log("🔄 Iniciando conversión local (Ruta Absoluta)...");
+
+    const tempDir = os.tmpdir();
+    const inputPath = path.join(tempDir, `temp_${Date.now()}.docx`);
+    
+    // DEFINIMOS LA RUTA AL EXE (Asegúrate de que sea esta)
+    const sofficePath = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`;
+
+    try {
+        await fs.writeFile(inputPath, wordBuffer);
+
+        // Usamos la ruta absoluta en el comando
+        const comando = `${sofficePath} --headless --convert-to pdf --outdir "${tempDir}" "${inputPath}"`;
         
-        const secret = process.env.CONVERTAPI_SECRET;
+        return new Promise((resolve, reject) => {
+            exec(comando, async (error, stdout, stderr) => {
+                if (error) {
+                    console.error("❌ Error en comando soffice:", stderr || error.message);
+                    return reject(new Error("Error al ejecutar LibreOffice."));
+                }
 
-        if (!secret) {
-            return reject("❌ Falta la clave CONVERTAPI_SECRET en el .env");
-        }
+                const outputPath = inputPath.replace('.docx', '.pdf');
 
-        console.log("🔄 Enviando a ConvertAPI (Modo Directo)...");
+                try {
+                    const pdfBuffer = await fs.readFile(outputPath);
+                    
+                    // Limpieza
+                    await fs.unlink(inputPath);
+                    await fs.unlink(outputPath);
 
-        try {
-            // TRUCO: Agregamos 'download=attachment' en la URL.
-            // Esto le dice a la API: "No me des un JSON, dame el archivo PDF binario ya".
-            const url = `https://v2.convertapi.com/convert/docx/to/pdf?Secret=${secret}&download=attachment`;
-
-            const response = await axios.post(url, wordBuffer, {
-                headers: {
-                    'Content-Type': 'application/octet-stream',
-                    'Content-Disposition': 'attachment; filename="archivo.docx"'
-                },
-                responseType: 'arraybuffer' // Importante: Esperamos un archivo binario
+                    console.log("✅ PDF generado con éxito.");
+                    resolve(pdfBuffer);
+                } catch (readError) {
+                    console.error("❌ No se encontró el PDF:", readError);
+                    reject(new Error("No se encontró el archivo PDF generado."));
+                }
             });
+        });
 
-            console.log("✅ PDF recibido correctamente.");
-            
-            // La respuesta YA ES el PDF. Lo convertimos a Buffer y lo devolvemos.
-            resolve(Buffer.from(response.data));
-
-        } catch (error) {
-            // Si falla, intentamos leer el mensaje de error que viene oculto en el buffer
-            let mensajeError = error.message;
-            
-            if (error.response && error.response.data) {
-                // Convertimos el buffer de error a texto para leerlo
-                const errorBody = Buffer.from(error.response.data).toString();
-                console.error("❌ Respuesta de error de ConvertAPI:", errorBody);
-                
-                // Ojo: Si dice "Seconds limit exceeded", es que se acabó el plan gratis
-                mensajeError = `Error API: ${errorBody}`;
-            }
-            
-            reject(mensajeError);
-        }
-    });
+    } catch (err) {
+        console.error("❌ Error en el proceso de conversión:", err);
+        throw err;
+    }
 }
 
 module.exports = { convertirWordAPdf };
