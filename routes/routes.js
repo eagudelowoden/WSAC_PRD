@@ -48,7 +48,7 @@ const correoOutlook = nodemailer.createTransport({
   port: 587,
   secure: false,
   requireTLS: true,
-  auth: { user: "eagudelo@woden.com.co", pass: "WmsWeb2025**" },
+  auth: { user: process.env.OUTLOOK_USER, pass: process.env.OUTLOOK_PASS },
 });
 
 // ==========================================
