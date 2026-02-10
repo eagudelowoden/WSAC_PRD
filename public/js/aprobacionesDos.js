@@ -730,8 +730,8 @@ createApp({
         title: "¿SOLICITAR FIRMA DIGITAL?",
         html: `
       <div style="text-align:left; padding:10px;">
-        <p>Se enviará un acceso a <b>${
-          this.usuarioActual.nombres
+        <p>Se enviará un acceso a <b>${ 
+          this.usuarioActual.nombres + " " + this.usuarioActual.apellidos 
         }</b> para firmar:</p>
         <ul style="font-size: 0.85rem; color: #475569;">
           ${this.listaContratos

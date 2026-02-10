@@ -316,7 +316,8 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 // ==========================================
 // 4. RUTA PRINCIPAL DE REGISTRO (/enviar)
 // ==========================================
-router.post("/enviar",
+router.post(
+  "/enviar",
   (req, res, next) => {
     // Middleware wrapper para capturar errores de Multer limpiamente
     uploadMiddleware(req, res, (err) => {
@@ -370,7 +371,7 @@ router.post("/enviar",
         const lastDotIndex = cleanOriginalName.lastIndexOf(".");
         const nombreBase = cleanOriginalName.substring(0, lastDotIndex);
         const extension = cleanOriginalName.substring(lastDotIndex);
-        
+
         const fileName = `${nombreBase}_${Date.now()}${extension}`;
         const key = `${folderName}/${fileName}`;
 
@@ -444,16 +445,17 @@ router.post("/enviar",
         }
 
         // ✅ RESPUESTA FINAL CON EL ID INCLUIDO
-        res.status(200).json({ 
-          status: "ok", 
-          message: "Registro exitoso.", 
-          id: nuevoId 
+        res.status(200).json({
+          status: "ok",
+          message: "Registro exitoso.",
+          id: nuevoId,
         });
       });
-
     } catch (generalError) {
       console.error("Error en ruta /enviar:", generalError);
-      res.status(500).json({ status: "error", message: "Error procesando solicitud" });
+      res
+        .status(500)
+        .json({ status: "error", message: "Error procesando solicitud" });
     }
   },
 );
@@ -1214,7 +1216,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
           await correoOutlook.sendMail({
             from: '"WSAC Sistema" <eagudelo@woden.com.co>',
             to: listaCorreos,
-            subject: `📢 Corrección Recibida: ${usuario.nombres}`,
+            subject: `📢 Subsanación Recibida: ${usuario.nombres} ${usuario.apellidos}`,
             html: htmlAdmin,
           });
         } catch (e) {
@@ -1345,11 +1347,11 @@ router.get("/validar-token-firma/:token", (req, res) => {
   );
 });
 // --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
-router.post("/solicitar-firma-contratos", (req, res) => {
+router.post("/solicitar-firma-contratos", async (req, res) => {
+  // Agregamos async aquí
   const { id, correo, nombres, archivosAFirmar } = req.body;
   const token = crypto.randomBytes(20).toString("hex");
 
-  // 1. Guardar el token en la base de datos
   db.query(
     "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
     [token, id],
@@ -1357,10 +1359,27 @@ router.post("/solicitar-firma-contratos", (req, res) => {
       if (err)
         return res.status(500).json({ status: "error", message: err.message });
 
-      // 2. Preparar el link
       const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
 
-      // 3. Crear lista de archivos para el HTML del correo
+      // 1. GENERAR ADJUNTOS (Esto es lo que te faltaba)
+      let attachments = [];
+      try {
+        attachments = await Promise.all(
+          archivosAFirmar.map(async (file) => {
+            const response = await axios.get(file.url, {
+              responseType: "arraybuffer",
+            });
+            return {
+              filename: file.name,
+              content: Buffer.from(response.data),
+            };
+          }),
+        );
+      } catch (e) {
+        console.error("Error descargando adjuntos:", e);
+        // Puedes decidir si fallar o enviar el correo sin adjuntos
+      }
+
       const listaHtml = archivosAFirmar
         .map((a) => `<li>📄 ${a.name}</li>`)
         .join("");
@@ -1368,7 +1387,7 @@ router.post("/solicitar-firma-contratos", (req, res) => {
       const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
-                        <h2 style="margin: 0;">WSAC SECURITY</h2>
+                        <h2 style="margin: 0;">WSAC FIRMA</h2>
                     </div>
                     <div style="padding: 30px;">
                         <h3>Hola, ${nombres}</h3>
@@ -1396,10 +1415,11 @@ router.post("/solicitar-firma-contratos", (req, res) => {
           to: correo,
           subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
           html: htmlEmail,
+          attachments: attachments, // <--- INDISPENSABLE: Aquí se anexan los archivos
         });
-        res.json({ status: "ok", message: "Solicitud enviada exitosamente" });
+        res.json({ status: "ok", message: "Solicitud enviada con archivos" });
       } catch (e) {
-        console.error("Error enviando correo de firma:", e);
+        console.error("Error enviando correo:", e);
         res
           .status(500)
           .json({ status: "error", message: "No se pudo enviar el correo" });

@@ -457,11 +457,11 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
             const mailOptions = {
               from: '"Sistema de Documentos" <eagudelo@woden.com.co>',
               to: listaCorreos,
-              subject: `📢 Corrección Recibida: ${usuario.nombre}`,
+              subject: `📢 Subsanación Recibida: ${usuario.nombre} ${usuario.apellidos}`,
               html: `
                             <div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
                                 <h2 style="color: #2c3e50;">Documentación Subsanada</h2>
-                                <p>El colaborador <strong>${usuario.nombre}</strong> ha cargado nuevos archivos.</p>
+                                <p>El colaborador <strong>${usuario.nombre} ${usuario.apellidos}</strong> ha cargado nuevos archivos.</p>
                                 
                                 <ul style="background: #f9f9f9; padding: 15px;">
                                     <li><strong>Tipo reportado:</strong> ${tipoDocumento}</li>
