@@ -499,11 +499,16 @@ createApp({
         userData.aprobacion = userData.aprobacion;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
         userData.curso = userData.curso; // Nuevo campo para contrato de aprendizaje
+        userData.curso = userData.curso; // Nuevo campo para contrato de aprendizaje
         if (userData.fechaSuscripcion)
           userData.fechaSuscripcion = userData.fechaSuscripcion.split("T")[0];
 
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
+        
+        userData.fechaterminacion = userData.fechaterminacion
+          ? userData.fechaterminacion.split("T")[0]
+          : ""; // <--- Esto hace que se vea en el HTML
 
         this.usuarioActual = userData;
 
@@ -516,6 +521,7 @@ createApp({
         this.form.segmento_contrato = userData.segmento_contrato || "";
         this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
         this.form.tipo_contrato = userData.tipo_contrato || [];
+        this.form.curso = userData.curso || "";
         const pdfGuardado = userData.descripcion_cargo || "";
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);

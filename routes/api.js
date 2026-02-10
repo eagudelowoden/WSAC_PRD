@@ -762,15 +762,15 @@ router.post("/notificar-aprobacion", async (req, res) => {
         <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                 <tr>
-                    <td style="background-color: #28a745; padding: 30px; text-align: center;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
+                    <td style="background-color: #F5B027; padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC INFO</h1>
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 40px 30px;">
                         <h2 style="color: #2c3e50; margin-top: 0;">¡Felicidades, ${usuario.nombres}!</h2>
                         <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                            Nos complace informarte que tus documentos han sido <strong>aprobados exitosamente</strong> en el sistema WSAC.
+                            Nos complace informarte que tus documentos han sido <strong>aprobados</strong> en el sistema WSAC.
                         </p>
                         
                         <div style="background-color: #f0fff4; border-left: 4px solid #28a745; padding: 15px; margin: 25px 0;">
@@ -862,7 +862,7 @@ router.post("/notificar-nomina", async (req, res) => {
                           <p style="font-size: 15px; color: #555;">Se ha aprobado un nuevo contrato en el sistema <strong>WSAC</strong> con los siguientes detalles:</p>
                           
                           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                              <p style="margin: 5px 0;"><strong>Colaborador:</strong> ${usuario.nombres}</p>
+                              <p style="margin: 5px 0;"><strong>Colaborador:</strong> ${usuario.nombres} ${usuario.apellidos}</p>
                               <p style="margin: 5px 0;"><strong>Cargo:</strong> ${usuario.cargo}</p>
                               <p style="margin: 5px 0;"><strong>Salario:</strong> $${usuario.salario}</p>
                               <p style="margin: 5px 0;"><strong>Segmento:</strong> ${usuario.segmento_contrato}</p>
@@ -885,7 +885,7 @@ router.post("/notificar-nomina", async (req, res) => {
             await correoOutlook.sendMail({
               from: '"WSAC Sistema" <eagudelo@woden.com.co>',
               to: listaCorreos, // Envía a todos los de la tabla
-              subject: `ALERTA NÓMINA: Contrato Aprobado - ${usuario.nombres}`,
+              subject: `Notifiación WSAC: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
             });
 
