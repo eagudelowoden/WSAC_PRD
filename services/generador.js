@@ -10,7 +10,7 @@ const { convertirWordAPdf } = require("./pdfConversion");
 async function generarDocumento(
   idColaborador,
   nombrePlantilla,
-  rutaBasePersonalizada
+  rutaBasePersonalizada,
 ) {
   return new Promise((resolve, reject) => {
     // 1. CORRECCIÓN: Usar la tabla correcta 'usuarios'
@@ -62,7 +62,7 @@ async function generarDocumento(
         apellidos: (p.apellidos || "").toUpperCase(),
         documento: p.documento || p.usuario || "",
         email: (p.correo || "").toUpperCase(),
-        telefono: p.telefono || "",
+        telefono: (p.telefono || "").toUpperCase(),
         direccion: (p.direccion || "").toUpperCase(),
         ciudad: (p.ciudad || "BOGOTÁ").toUpperCase(),
 
@@ -94,7 +94,7 @@ async function generarDocumento(
           : "INDEFINIDO",
 
         // APRENDIZAJE / SENA
-        correo_aprendizaje: (p.correoAprendizaje   || "").toUpperCase(),
+        correo_aprendizaje: (p.correoAprendizaje || "").toUpperCase(),
         institucion: (p.institucion || "").toUpperCase(),
         nitinstitucion: p.nitinstitucion || "",
         centro_sena: (p.centroSena || "").toUpperCase(),
@@ -124,7 +124,11 @@ async function generarDocumento(
           paragraphLoop: true,
           linebreaks: true,
           delimiters: { start: "{{", end: "}}" },
-          nullGetter: (part) => "",
+          // Este nullGetter es vital: si el campo no existe, pondrá un aviso en el Word
+          nullGetter(part) {
+            if (!part.name) return "";
+            return "[CAMPO NO ENCONTRADO: " + part.name + "]";
+          },
         });
 
         doc.render(datos);
@@ -159,7 +163,7 @@ async function generarDocumento(
           bufferPDF,
           carpetaDestino, // <--- Usamos la variable con la subcarpeta
           nombreArchivoPDF,
-          "application/pdf"
+          "application/pdf",
         );
         // ============================================================
         // 6. GUARDAR EN BASE DE DATOS (IMPORTANTE PARA QUE SE VEA EN LA LISTA)
@@ -182,7 +186,7 @@ async function generarDocumento(
             if (errInsert)
               console.error(
                 "⚠️ Advertencia: Se subió el archivo pero falló el registro en BD:",
-                errInsert.message
+                errInsert.message,
               );
 
             // Si el usuario no tenía carpeta asignada en BD, se la actualizamos
@@ -200,7 +204,7 @@ async function generarDocumento(
               url: resultadoS3.url,
               name: nombreArchivoPDF,
             });
-          }
+          },
         );
       } catch (error) {
         if (error.properties && error.properties.errors) {
