@@ -259,6 +259,7 @@ router.post("/enviar", upload.any(), (req, res) => {
     });
   }
 
+  // Corregido: Asegúrate de que coincida el número de columnas con los valores
   const sql = `
         INSERT INTO usuarios (
             nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
@@ -279,29 +280,38 @@ router.post("/enviar", upload.any(), (req, res) => {
     safeData.arlNombre,
     safeData.afpNombre,
     safeData.ccfNombre,
-    safeData.otroSi,
-    fullName,
+    fullName, // Quitamos 'otroSi' si no está en las columnas del INSERT arriba
   ];
 
-  db.query(sql, valores, async (err) => {
-    if (err)
+  // IMPORTANTE: El segundo parámetro del callback (result) trae el ID
+  db.query(sql, valores, async (err, result) => {
+    if (err) {
+      console.error("Error SQL:", err);
       return res.status(500).json({ status: "error", message: err.message });
+    }
+
+    // El ID generado por la base de datos
+    const nuevoId = result.insertId;
 
     try {
       await correoOutlook.sendMail({
-        from: "eagudelo@woden.com.co",
+        from: '"WSAC Sistema" <eagudelo@woden.com.co>',
         to: safeData.correo,
         subject: "Registro exitoso",
-        html: `<h3>Hola ${safeData.nombres},</h3><p>Documentos recibidos.</p>`,
+        html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente en el sistema.</p>`,
       });
     } catch (e) {
-      console.error(e);
+      console.error("Error enviando correo al usuario:", e);
     }
 
-    res.status(200).json({ status: "ok", message: "Registro exitoso." });
+    // ✅ AHORA ENVIAMOS EL ID AL FRONTEND
+    res.status(200).json({ 
+        status: "ok", 
+        message: "Registro exitoso.", 
+        id: nuevoId  // <--- Esto activará tu dispararNotificaciones()
+    });
   });
 });
-
 // ==========================================
 // RUTAS DE SUBSANACIÓN (MAGIC LINKS)
 // ==========================================

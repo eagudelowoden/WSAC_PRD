@@ -316,8 +316,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 // ==========================================
 // 4. RUTA PRINCIPAL DE REGISTRO (/enviar)
 // ==========================================
-router.post(
-  "/enviar",
+router.post("/enviar",
   (req, res, next) => {
     // Middleware wrapper para capturar errores de Multer limpiamente
     uploadMiddleware(req, res, (err) => {
@@ -336,9 +335,7 @@ router.post(
     try {
       const data = req.body;
 
-      // --- TRUCO: Aplanar archivos ---
-      // Como usamos upload.fields(), req.files es un Objeto { cedula: [...], hv: [...] }
-      // Lo convertimos a un Array simple para usar tu lógica de S3 existente.
+      // 1. Aplanar archivos (upload.fields -> Array simple)
       let filesArray = [];
       if (req.files) {
         Object.values(req.files).forEach((files) => {
@@ -346,7 +343,7 @@ router.post(
         });
       }
 
-      // 1. VALIDACIÓN
+      // VALIDACIÓN: Al menos un archivo
       if (filesArray.length === 0) {
         return res.status(400).json({
           status: "error",
@@ -361,28 +358,20 @@ router.post(
         otroSi: data.otroSi || "",
       };
 
-      // Sanitizar nombre de carpeta (reemplazar espacios por guiones bajos)
+      // Sanitizar nombre de carpeta
       const folderName = `${safeData.nombres}_${safeData.apellidos}`
         .trim()
         .replace(/\s+/g, "_");
       const fullName = folderName;
 
-      // 2. SUBIR A S3 (Usamos filesArray que creamos arriba)
       // 2. SUBIR A S3
       const uploadPromises = filesArray.map((file) => {
-        // 1. Limpiamos el nombre original de espacios
         const cleanOriginalName = file.originalname.replace(/\s+/g, "_");
-
-        // 2. Extraemos la extensión y el nombre base
-        // Ejemplo: "mi_foto.jpg" -> nombreBase: "mi_foto", extension: ".jpg"
         const lastDotIndex = cleanOriginalName.lastIndexOf(".");
         const nombreBase = cleanOriginalName.substring(0, lastDotIndex);
         const extension = cleanOriginalName.substring(lastDotIndex);
-
-        // 3. Creamos el nombre final con el identificador AL FINAL
-        // Resultado: "mi_foto_1715634000.jpg"
+        
         const fileName = `${nombreBase}_${Date.now()}${extension}`;
-
         const key = `${folderName}/${fileName}`;
 
         const command = new PutObjectCommand({
@@ -418,10 +407,11 @@ router.post(
         safeData.arlNombre,
         safeData.afpNombre,
         safeData.ccfNombre,
-        fullName, // Guardamos la carpeta correctamente
+        fullName,
       ];
 
-      db.query(sql, valores, async (err) => {
+      // USAMOS 'result' para capturar el ID generado
+      db.query(sql, valores, async (err, result) => {
         if (err) {
           console.error("Error SQL:", err);
           return res.status(500).json({
@@ -430,25 +420,40 @@ router.post(
           });
         }
 
-        // Enviar correo de confirmación
+        // ✅ CAPTURAMOS EL ID PARA EL FRONTEND
+        const nuevoId = result.insertId;
+
+        // 4. CORREO DE CONFIRMACIÓN AL COLABORADOR
         try {
           await correoOutlook.sendMail({
-            from: "eagudelo@woden.com.co",
+            from: '"WSAC Sistema" <eagudelo@woden.com.co>',
             to: safeData.correo,
-            subject: "Registro exitoso",
-            html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos por el area de seleccion y almacenados correctamente.</p>`,
+            subject: "Registro exitoso - Woden Colombia",
+            html: `
+              <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Hola ${safeData.nombres},</h2>
+                <p>Tus documentos han sido recibidos por el área de selección y almacenados correctamente.</p>
+                <p>Pronto nos pondremos en contacto contigo.</p>
+                <br>
+                <p><i>Este es un mensaje automático, por favor no responder.</i></p>
+              </div>
+            `,
           });
         } catch (e) {
-          console.error("Error enviando correo:", e);
+          console.error("Error enviando correo de confirmación:", e);
         }
 
-        res.status(200).json({ status: "ok", message: "Registro exitoso." });
+        // ✅ RESPUESTA FINAL CON EL ID INCLUIDO
+        res.status(200).json({ 
+          status: "ok", 
+          message: "Registro exitoso.", 
+          id: nuevoId 
+        });
       });
+
     } catch (generalError) {
       console.error("Error en ruta /enviar:", generalError);
-      res
-        .status(500)
-        .json({ status: "error", message: "Error procesando solicitud" });
+      res.status(500).json({ status: "error", message: "Error procesando solicitud" });
     }
   },
 );
@@ -557,7 +562,7 @@ router.put("/usuario/:id", async (req, res) => {
       data.otroSi,
       data.tipo_contrato,
       data.curso,
-      data.correoAprendizaje  ,
+      data.correoAprendizaje,
       data.institucion,
       data.nitinstitucion,
       data.centroSena,
@@ -833,12 +838,10 @@ router.post("/notificar-nomina", async (req, res) => {
         "SELECT email FROM notificaciones_nomina",
         async (errNotif, resNotif) => {
           if (errNotif || resNotif.length === 0) {
-            return res
-              .status(404)
-              .json({
-                status: "error",
-                message: "No hay correos configurados en nómina",
-              });
+            return res.status(404).json({
+              status: "error",
+              message: "No hay correos configurados en nómina",
+            });
           }
 
           const listaCorreos = resNotif.map((r) => r.email);
@@ -922,12 +925,10 @@ router.post("/notificarRegistro", async (req, res) => {
         "SELECT email FROM notificaciones",
         async (errNotif, resNotif) => {
           if (errNotif || resNotif.length === 0) {
-            return res
-              .status(404)
-              .json({
-                status: "error",
-                message: "No hay correos configurados en nómina",
-              });
+            return res.status(404).json({
+              status: "error",
+              message: "No hay correos configurados en nómina",
+            });
           }
 
           const listaCorreos = resNotif.map((r) => r.email);
@@ -985,7 +986,6 @@ router.post("/notificarRegistro", async (req, res) => {
     },
   );
 });
-
 
 // B. VALIDAR TOKEN
 router.get("/validar-token/:token", (req, res) => {

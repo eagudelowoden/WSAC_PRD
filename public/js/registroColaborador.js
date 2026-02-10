@@ -76,6 +76,27 @@ window.quitarArchivo = function(fieldName, fileName, element) {
 
 // Manejo del SUBMIT
 // Manejo del SUBMIT (Modificado)
+// Función para disparar las notificaciones en segundo plano
+async function dispararNotificaciones(id) {
+    try {
+        console.log(`🔔 Iniciando notificaciones para ID: ${id}`);
+        
+        // Llamada al endpoint que creaste
+        // Nota: Asegúrate de que la URL coincida con tu ruta de backend
+        const response = await fetch("/api/notificarRegistro", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: id }),
+        });
+
+        const data = await response.json();
+        console.log("✅ Resultado notificación:", data.message);
+    } catch (e) {
+        console.error("❌ Error enviando correos:", e);
+    }
+}
+
+// Manejo del SUBMIT (Modificado)
 document.getElementById("formularioRegistro").addEventListener("submit", async function (e) {
     e.preventDefault();
     
@@ -113,7 +134,7 @@ document.getElementById("formularioRegistro").addEventListener("submit", async f
                 console.warn("⚠️ No se recibió ID para notificar");
             }
 
-            Swal.fire("¡Éxito!", "Registro completado.", "success").then(() => {
+            Swal.fire("¡Éxito!", "Registro completado y equipo de nómina notificado.", "success").then(() => {
                 window.location.reload();
             });
         } else {
