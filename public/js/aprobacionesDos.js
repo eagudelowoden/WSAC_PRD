@@ -456,7 +456,7 @@ createApp({
 
       // 3. Una vez cargado el usuarioActual, traemos sus archivos específicos
       if (this.usuarioActual && this.usuarioActual.carpeta) {
-        await this.obtenerHistorialS3(); // Contratos generados por admin
+        // await this.obtenerHistorialS3(); // Contratos generados por admin
         await this.obtenerDocumentosFirmados(); // Documentos subidos por el colaborador
       }
     },
@@ -505,7 +505,7 @@ createApp({
 
         if (userData.fechaNacimiento)
           userData.fechaNacimiento = userData.fechaNacimiento.split("T")[0];
-        
+
         userData.fechaterminacion = userData.fechaterminacion
           ? userData.fechaterminacion.split("T")[0]
           : ""; // <--- Esto hace que se vea en el HTML
@@ -730,8 +730,8 @@ createApp({
         title: "¿SOLICITAR FIRMA DIGITAL?",
         html: `
       <div style="text-align:left; padding:10px;">
-        <p>Se enviará un acceso a <b>${ 
-          this.usuarioActual.nombres + " " + this.usuarioActual.apellidos 
+        <p>Se enviará un acceso a <b>${
+          this.usuarioActual.nombres + " " + this.usuarioActual.apellidos
         }</b> para firmar:</p>
         <ul style="font-size: 0.85rem; color: #475569;">
           ${this.listaContratos
@@ -1101,31 +1101,40 @@ createApp({
       }
     },
     enviarWhatsApp(doc) {
-      // 1. Validar que tengamos el usuario y el teléfono
       if (!this.usuarioActual || !this.usuarioActual.telefono) {
         Swal.fire(
           "Atención",
-          "El usuario no tiene un número de teléfono registrado.",
+          "El usuario no tiene teléfono registrado.",
           "warning",
         );
         return;
       }
 
-      // 2. Limpiar el número (quitar espacios, guiones o el signo + si existen)
-      // Esto asegura que el link wa.me funcione correctamente
+      // 1. Limpiar el número de cualquier caracter no numérico
       let telefono = this.usuarioActual.telefono.toString().replace(/\D/g, "");
 
-      // 3. Opcional: Si el número no tiene código de país, puedes anteponerlo (ej: 57 para Colombia)
-      // if (!telefono.startsWith('57')) telefono = '57' + telefono;
+      // 2. Validar y forzar el código 57 (Colombia)
+      // Si el número tiene 10 dígitos (celular normal en Colombia), le ponemos el 57
+      if (telefono.length === 10) {
+        telefono = "57" + telefono;
+      }
+      // Si ya tiene el 57 al inicio pero solo son 10 dígitos después, lo dejamos así.
+      // Si el número empieza por 3 (celular) y no tiene el 57, se lo ponemos.
+      else if (telefono.startsWith("3") && telefono.length === 10) {
+        telefono = "57" + telefono;
+      }
 
-      // 4. Crear el mensaje incluyendo el nombre del archivo y la URL para que lo vean de una vez
       const mensaje = encodeURIComponent(
         `Hola ${this.usuarioActual.nombres}, te envío el documento firmado: *${doc.name}*.\n\nPuedes verlo aquí: ${doc.url}`,
       );
 
-      // 5. Construir URL y abrir
+      // 3. Construir URL
       const url = `https://wa.me/${telefono}?text=${mensaje}`;
-      window.open(url, "_blank");
+
+      // 4. CONTROL DE VENTANA:
+      // En lugar de '_blank' (que siempre abre una nueva), usamos un nombre fijo como 'WhatsAppWindow'.
+      // Esto hará que si ya hay una pestaña de WhatsApp abierta por tu app, se REUSE esa misma.
+      window.open(url, "WhatsAppWindow");
     },
     async cerrarSesion() {
       this.menuAbierto = false;
