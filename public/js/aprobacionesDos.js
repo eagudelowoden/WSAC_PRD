@@ -342,7 +342,7 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
-      correoAprendizaje  : "",
+      correoAprendizaje: "",
       curso: "",
       institucion: "",
       nitInstitucion: "",
@@ -517,7 +517,6 @@ createApp({
         this.form.fechaSuscripcion = userData.fechaSuscripcion || "";
         this.form.tipo_contrato = userData.tipo_contrato || [];
         const pdfGuardado = userData.descripcion_cargo || "";
-
 
         console.log("Usuario cargado:", this.usuarioActual.aprobacion);
 
@@ -1122,21 +1121,39 @@ createApp({
       const url = `https://wa.me/${telefono}?text=${mensaje}`;
       window.open(url, "_blank");
     },
-    cerrarSesion() {
-      this.menuAbierto = false; // Cerramos el menú al hacer click
-      // 1. Borrar token y datos del usuario del navegador
+    async cerrarSesion() {
+      this.menuAbierto = false;
+
+      try {
+        // 1. PETICIÓN AL BACKEND: Destruir la sesión en el servidor
+        // Esto borra el registro de la tabla de MySQL y limpia la cookie
+        const response = await fetch("/api/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          console.warn(
+            "El servidor no pudo cerrar la sesión, pero procederemos localmente.",
+          );
+        }
+      } catch (error) {
+        console.error("Error de red al intentar cerrar sesión:", error);
+      }
+
+      // 2. LIMPIEZA LOCAL: Borrar token y datos del navegador
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");
-      sessionStorage.clear(); // Limpia la sesión actual por seguridad
+      sessionStorage.clear();
 
-      // 2. Mensaje opcional (puedes quitarlo si quieres salir de inmediato)
+      // 3. MENSAJE Y REDIRECCIÓN
       Swal.fire({
         icon: "success",
         title: "Sesión cerrada",
         showConfirmButton: false,
         timer: 1000,
       }).then(() => {
-        // 3. Redirigir al Login (Ajusta la ruta si tu login es '/login' o '/index.html')
+        // IMPORTANTE: Al redirigir, el navegador ya no enviará la cookie vieja
         window.location.href = "/login.html";
       });
     },

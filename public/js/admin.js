@@ -307,7 +307,7 @@ createApp({
         "CONTRATO APRENDIZAJE ETAPA PRODUCTIVA",
         "TERMINO FIJO",
       ],
-      correoAprendizaje  : "",
+      correoAprendizaje: "",
       curso: "",
       institucion: "",
       nitInstitucion: "",
@@ -439,7 +439,7 @@ createApp({
         userData.afpNombre = userData.afp;
         userData.ccfNombre = userData.ccf;
         userData.otroSi = userData.otro_si;
-        userData.correoAprendizaje   = userData.correoAprendizaje  ;
+        userData.correoAprendizaje = userData.correoAprendizaje;
         userData.curso = userData.curso;
         userData.institucion = userData.institucion;
         userData.nitInstitucion = userData.nitinstitucion;
@@ -463,14 +463,14 @@ createApp({
         const pdfGuardado = userData.descripcion_cargo || "";
         this.form.otroSi = userData.otro_si || "";
         this.form.tipo_contrato = userData.tipo_contrato || "";
-        this.form.correoAprendizaje   = userData.correoAprendizaje   || "";
+        this.form.correoAprendizaje = userData.correoAprendizaje || "";
         this.form.curso = userData.curso || "";
         this.form.institucion = userData.institucion || "";
         this.form.nitInstitucion = userData.nitinstitucion || "";
         this.form.centroSena = userData.centroSena || "";
-        userData.fechaterminacion = userData.fechaterminacion 
-              ? userData.fechaterminacion.split("T")[0] 
-              : ""; // <--- Esto hace que se vea en el HTML
+        userData.fechaterminacion = userData.fechaterminacion
+          ? userData.fechaterminacion.split("T")[0]
+          : ""; // <--- Esto hace que se vea en el HTML
 
         // ============================================================
         // 2. PARALELISMO (Cargar Cargos y Archivos a la vez)
@@ -786,8 +786,8 @@ createApp({
           observaciones: this.form.observaciones,
           segmento_contrato: this.form.segmento_contrato,
           descripcion_cargo: this.form.descripcion_cargo,
-          correoAprendizaje  : this.form.correoAprendizaje  ,
-          correoAprendizaje  : this.form.correoAprendizaje  ,
+          correoAprendizaje: this.form.correoAprendizaje,
+          correoAprendizaje: this.form.correoAprendizaje,
           curso: this.form.curso,
           institucion: this.form.institucion,
           nitinstitucion: this.form.nitInstitucion,
@@ -876,21 +876,39 @@ createApp({
         console.error("No se pudo identificar al admin:", e);
       }
     },
-    cerrarSesion() {
-      this.menuAbierto = false; // Cerramos el menú al hacer click
-      // 1. Borrar token y datos del usuario del navegador
+    async cerrarSesion() {
+      this.menuAbierto = false;
+
+      try {
+        // 1. PETICIÓN AL BACKEND: Destruir la sesión en el servidor
+        // Esto borra el registro de la tabla de MySQL y limpia la cookie
+        const response = await fetch("/api/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          console.warn(
+            "El servidor no pudo cerrar la sesión, pero procederemos localmente.",
+          );
+        }
+      } catch (error) {
+        console.error("Error de red al intentar cerrar sesión:", error);
+      }
+
+      // 2. LIMPIEZA LOCAL: Borrar token y datos del navegador
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");
-      sessionStorage.clear(); // Limpia la sesión actual por seguridad
+      sessionStorage.clear();
 
-      // 2. Mensaje opcional (puedes quitarlo si quieres salir de inmediato)
+      // 3. MENSAJE Y REDIRECCIÓN
       Swal.fire({
         icon: "success",
         title: "Sesión cerrada",
         showConfirmButton: false,
         timer: 1000,
       }).then(() => {
-        // 3. Redirigir al Login (Ajusta la ruta si tu login es '/login' o '/index.html')
+        // IMPORTANTE: Al redirigir, el navegador ya no enviará la cookie vieja
         window.location.href = "/login.html";
       });
     },

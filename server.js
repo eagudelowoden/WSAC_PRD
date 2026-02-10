@@ -153,9 +153,34 @@ app.post("/api/login", (req, res) => {
   );
 });
 
-app.get("/api/logout", (req, res) =>
-  req.session.destroy(() => res.redirect("/login.html")),
-);
+// En tu archivo de rutas de Express (ej. routes/auth.js o app.js)
+app.post("/api/logout", (req, res) => {
+  // 1. Si usas Passport.js, esto limpia el objeto req.user
+  if (req.logout) {
+    req.logout(() => {}); 
+  }
+
+  // 2. Destruimos la sesión en el MySQLStore
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error al destruir la sesión:", err);
+      return res.status(500).json({ status: "error", message: "Error al cerrar sesión" });
+    }
+
+    // 3. Limpiamos la cookie del navegador de forma explícita
+    // Usamos el nombre 'session_cookie_name' que definiste en tu config
+    res.clearCookie("session_cookie_name", {
+      path: "/", // Importante para que limpie la cookie en todo el sitio
+      httpOnly: true,
+    });
+
+    // 4. Respondemos al frontend
+    res.status(200).json({ 
+      status: "ok", 
+      message: "Sesión eliminada en servidor y cookie limpiada" 
+    });
+  });
+});
 
 // ==========================================
 // 5. RUTAS DE VISTAS Y SEGURIDAD
