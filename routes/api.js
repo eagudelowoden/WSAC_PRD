@@ -282,7 +282,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
       html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
-                        <h2 style="margin: 0;">WSAC SECURITY</h2>
+                        <h2 style="margin: 0;">WSAC Info</h2>
                         <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Gestión Documental de Contratación</p>
                     </div>
                     <div style="padding: 30px; color: #333; line-height: 1.6;">
@@ -677,7 +677,7 @@ router.post("/solicitar-subsanar", (req, res) => {
                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                       <tr>
                           <td style="background-color: #e2712a; padding: 30px; text-align: center;">
-                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC Security</h1>
+                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC CLOUD</h1>
                           </td>
                       </tr>
                       <tr>
@@ -876,7 +876,7 @@ router.post("/notificar-nomina", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC Security - Gestión Documental</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD - Gestión Documental</p>
                       </td>
                   </tr>
               </table>
@@ -958,7 +958,7 @@ router.post("/notificarRegistro", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC Security</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD</p>
                       </td>
                   </tr>
               </table>
@@ -1370,12 +1370,10 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
     }
   } catch (error) {
     console.error("Error en subir-firmados:", error);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Error interno al procesar la subida",
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al procesar la subida",
+    });
   }
 });
 // VALIDAR TOKEN DE FIRMA

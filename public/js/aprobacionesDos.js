@@ -759,7 +759,7 @@ createApp({
       // 2. Cargando
       Swal.fire({
         title: "PROCESANDO SOLICITUD",
-        html: "Generando link seguro y preparando documentos...",
+        html: "Generando link y preparando documentos...",
         didOpen: () => Swal.showLoading(),
         allowOutsideClick: false,
       });
