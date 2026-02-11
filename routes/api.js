@@ -1121,24 +1121,31 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
       usuario.carpeta || `${usuario.nombres} ${usuario.apellidos}`.trim();
     let listaArchivos = [];
 
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file, index) => {
-        const ext = path.extname(file.originalname);
-        const nuevoNombre = `${tipoDocumento}_CORREGIDO_${Date.now()}_${index}${ext}`;
-        const key = `${folderName}/${nuevoNombre}`;
+if (req.files && req.files.length > 0) {
+  const uploadPromises = req.files.map((file, index) => {
+    // 1. Extraemos el nombre original sin la extensión
+    const nombreBase = path.parse(file.originalname).name;
+    // 2. Obtenemos la extensión (ej: .pdf, .jpg)
+    const ext = path.extname(file.originalname);
+    
+    // 3. Construimos el nombre con el sufijo _sub y el identificador
+    const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
+    const key = `${folderName}/${nuevoNombre}`;
 
-        listaArchivos.push(nuevoNombre);
+    listaArchivos.push(nuevoNombre);
 
-        const command = new PutObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: key,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        });
-        return s3Client.send(command);
-      });
-      await Promise.all(uploadPromises);
-    }
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+    
+    return s3Client.send(command);
+  });
+
+  await Promise.all(uploadPromises);
+}
 
     db.query("UPDATE usuarios SET token_subsanar = NULL WHERE id = ?", [
       usuario.id,

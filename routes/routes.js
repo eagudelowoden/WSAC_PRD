@@ -414,30 +414,33 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
       let listaArchivos = [];
 
       // 2. Movemos el archivo
-      if (req.files && req.files.length > 0) {
-        req.files.forEach((file, index) => {
-          const oldPath = file.path;
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file, index) => {
+        const oldPath = file.path;
 
-          // Generamos nombre único por si sube varios del mismo tipo
-          const ext = path.extname(file.originalname);
-          // Agregamos un número (index) o fecha para que no se sobrescriban si sube 2 archivos
-          const nuevoNombre = `${tipoDocumento}_CORREGIDO_${Date.now()}_${index}${ext}`;
+        // Obtenemos el nombre base sin la extensión
+        const nombreBase = path.parse(file.originalname).name;
+        // Obtenemos la extensión
+        const ext = path.extname(file.originalname);
+        
+        // Construimos el nuevo nombre: Original_sub_Timestamp_Index.ext
+        const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
 
-          const newPath = path.join(userFolder, nuevoNombre);
+        const newPath = path.join(userFolder, nuevoNombre);
 
-          try {
-            // Si la carpeta del usuario no existe, la creamos (por seguridad)
-            if (!fs.existsSync(userFolder)) {
-              fs.mkdirSync(userFolder, { recursive: true });
-            }
-
-            fs.renameSync(oldPath, newPath);
-            listaArchivos.push(nuevoNombre); // Guardamos el nombre para el email
-          } catch (mvErr) {
-            console.error("Error moviendo corrección:", mvErr);
+        try {
+          // Si la carpeta del usuario no existe, la creamos
+          if (!fs.existsSync(userFolder)) {
+            fs.mkdirSync(userFolder, { recursive: true });
           }
-        });
-      }
+
+          fs.renameSync(oldPath, newPath);
+          listaArchivos.push(nuevoNombre); 
+        } catch (mvErr) {
+          console.error("Error moviendo subsanación:", mvErr);
+        }
+      });
+    }
 
       // 3. Borramos el token por seguridad
       db.query("UPDATE usuarios SET token_subsanar = NULL WHERE id = ?", [
