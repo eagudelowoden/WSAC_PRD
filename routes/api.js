@@ -1254,7 +1254,7 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
 
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
 router.post("/subir-firmados", upload.any(), async (req, res) => {
-  const { token } = req.body; // El token_firma enviado por correo
+  const { token } = req.body;
 
   try {
     // 1. Validar que el token de firma exista y sea válido
@@ -1282,14 +1282,12 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
       `${usuario.nombres}_${usuario.apellidos}`.replace(/\s+/g, "_");
 
     if (req.files && req.files.length > 0) {
+      // 2. Subir archivos a S3
       const uploadPromises = req.files.map((file) => {
         const ext = path.extname(file.originalname);
         const nombreLimpio = path
           .basename(file.originalname, ext)
           .replace(/\s+/g, "_");
-
-        // --- AQUÍ ESTÁ LA LÓGICA QUE PEDISTE ---
-        // Se guarda en una subcarpeta llamada 'documentos_firmados'
         const nuevoNombre = `${nombreLimpio}_${Date.now()}${ext}`;
         const s3Key = `${folderName}/documentos_firmados/${nuevoNombre}`;
 
@@ -1304,12 +1302,66 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
 
       await Promise.all(uploadPromises);
 
-      // Opcional: Limpiar el token tras la subida exitosa para que no se use dos veces
-      // db.query("UPDATE usuarios SET token_firma = NULL WHERE id = ?", [usuario.id]);
+      // --- INICIO DE LÓGICA DE NOTIFICACIÓN ---
+      db.query(
+        "SELECT email FROM notificaciones",
+        async (errNotif, resNotif) => {
+          if (!errNotif && resNotif.length > 0) {
+            const listaCorreos = resNotif.map((r) => r.email).join(", ");
+            try {
+              const htmlAdmin = `
+              <div style="background-color: #f0f2f5; padding: 30px; font-family: 'Segoe UI', Arial, sans-serif;">
+                  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 15px; overflow: hidden; border: 1px solid #e1e4e8;">
+                      <tr>
+                          <td style="background-color: #2c3e50; padding: 20px 30px; text-align: left;">
+                              <h1 style="color: #ffffff; margin: 5px 0 0 0; font-size: 20px;">Documentos Firmados Recibidos</h1>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td style="padding: 35px 30px;">
+                              <p style="font-size: 15px; color: #666; margin-bottom: 25px;">Se informa que un colaborador ha completado el proceso de firma y cargado sus documentos:</p>
+                              <table width="100%" style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+                                  <tr>
+                                      <td style="padding-bottom: 10px;">
+                                          <span style="color: #999; font-size: 12px; text-transform: uppercase;">Colaborador</span><br>
+                                          <strong style="color: #2c3e50; font-size: 16px;">${usuario.nombres} ${usuario.apellidos}</strong>
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td>
+                                          <span style="color: #999; font-size: 12px; text-transform: uppercase;">Archivos Cargados</span><br>
+                                          <strong style="color: #e2712a; font-size: 16px;">${req.files.length} documento(s)</strong>
+                                      </td>
+                                  </tr>
+                              </table>
+                              <p style="font-size: 14px; color: #555; line-height: 1.5;">Los archivos se han organizado en la carpeta: <b>${folderName}/documentos_firmados/</b></p>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
+                              <p style="font-size: 11px; color: #bbb; margin: 0;">WSAC Auto-Notificaciones | Generado el: ${new Date().toLocaleString()}</p>
+                          </td>
+                      </tr>
+                  </table>
+              </div>`;
+
+              await correoOutlook.sendMail({
+                from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+                to: listaCorreos,
+                subject: `✅ Firma Completada: ${usuario.nombres} ${usuario.apellidos}`,
+                html: htmlAdmin,
+              });
+            } catch (e) {
+              console.error("Error enviando correo de notificación:", e);
+            }
+          }
+        },
+      );
+      // --- FIN DE LÓGICA DE NOTIFICACIÓN ---
 
       res.json({
         status: "ok",
-        message: "Documentos firmados cargados exitosamente.",
+        message: "Documentos firmados cargados y notificados exitosamente.",
       });
     } else {
       res
@@ -1320,7 +1372,10 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
     console.error("Error en subir-firmados:", error);
     res
       .status(500)
-      .json({ status: "error", message: "Error interno al subir firmados" });
+      .json({
+        status: "error",
+        message: "Error interno al procesar la subida",
+      });
   }
 });
 // VALIDAR TOKEN DE FIRMA
