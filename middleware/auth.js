@@ -5,7 +5,7 @@ const verificarToken = (req, res, next) => {
     if (!token) return res.status(403).json({ message: "Acceso denegado" });
 
     // Usa la misma lógica de "fallback" que en el login para la clave secreta
-    const secret = process.env.JWT_SECRET || 'Secret_WSAC_Key_123';
+    const secret = process.env.JWT_SECRET || 'Secret_WAS_Key_123';
 
     jwt.verify(token, secret, (err, user) => {
         if (err) return res.status(401).json({ message: "Token inválido" });

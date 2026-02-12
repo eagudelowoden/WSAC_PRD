@@ -10,7 +10,7 @@ DB_CONFIG = {
     'host': 'dbwoden-aurora-cluster.cluster-cyeyhpu1wzr0.us-east-2.rds.amazonaws.com',
     'user': 'usrwdsa',
     'password': 'Wd2019**',
-    'database': 'dbdocumentos_wsac'
+    'database': 'dbdocumentos_WAS'
 }
 
 ARCHIVO_EXCEL = 'Respuestas.xlsx'

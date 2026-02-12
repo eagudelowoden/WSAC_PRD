@@ -295,7 +295,7 @@ router.post("/enviar", upload.any(), (req, res) => {
 
     try {
       await correoOutlook.sendMail({
-        from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+        from: '"WAS Sistema" <eagudelo@woden.com.co>',
         to: safeData.correo,
         subject: "Registro exitoso",
         html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente en el sistema.</p>`,
