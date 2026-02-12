@@ -199,11 +199,14 @@ const SegmentosMixin = {
       }
     },
 
-    async eliminarContrato(nombreArchivo) {
-      // 1. Preguntar confirmación
+    async eliminarContrato(archivo) {
+      // 1. Determinar el nombre para mostrar en la alerta
+      const nombreParaMostrar =
+        typeof archivo === "string" ? archivo : archivo.name;
+
       const result = await Swal.fire({
-        title: "¿Borrar este documento?",
-        text: "Esta acción no se puede deshacer.",
+        title: "¿Borrar documento?",
+        text: `Vas a eliminar: ${nombreParaMostrar}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -213,40 +216,65 @@ const SegmentosMixin = {
 
       if (!result.isConfirmed) return;
 
-      // 2. Construir la ruta (Key)
-      const carpetaUsuario = this.usuarioActual.carpeta;
-      const key = `${carpetaUsuario}/contratos_generados/${nombreArchivo}`;
+      // 2. CONSTRUIR LA KEY CORRECTA
+      let keyFinal = "";
+      if (typeof archivo === "object") {
+        keyFinal = `${this.usuarioActual.carpeta}/${archivo.name}`;
+      } else {
+        keyFinal = `${this.usuarioActual.carpeta}/contratos_generados/${archivo}`;
+      }
 
-      Swal.showLoading();
+      // --- VENTANA DE CARGA (AQUÍ EMPIEZA LO BUENO) ---
+      Swal.fire({
+        title: "Eliminando archivo...",
+        text: "Espere un momento",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
       try {
-        // 3. AQUÍ ESTÁ LA CLAVE: Usamos fetch, no llamamos a eliminarArchivo()
         const response = await fetch("/api/docs/eliminar-archivo", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: key }),
+          body: JSON.stringify({ key: keyFinal }),
         });
 
-        const data = await response.json();
-
-        if (data.status === "ok") {
+        if (response.ok) {
+          // Éxito: Notificamos con un Toast para no interrumpir mucho
           Swal.fire({
             icon: "success",
-            title: "Eliminado",
+            title: "Archivo eliminado",
+            timer: 1500,
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 1500,
           });
 
-          // 4. Recargar la lista
-          await this.buscarContratoExistente(carpetaUsuario);
+          // 3. REFRESCAR AMBAS LISTAS
+          // Ponemos las variables de carga en true para que los spinners de las listas se vean
+          this.cargandoArchivos = true;
+          this.cargandoCargos = true;
+
+          await this.buscarContratoExistente(this.usuarioActual.carpeta);
+          if (this.obtenerArchivosS3) {
+            await this.obtenerArchivosS3();
+          }
         } else {
-          throw new Error(data.message);
+          Swal.fire(
+            "Error",
+            "S3 no pudo encontrar o borrar el archivo físico.",
+            "error",
+          );
         }
       } catch (error) {
-        console.error(error);
-        Swal.fire("Error", "No se pudo borrar el archivo", "error");
+        console.error("Error al borrar:", error);
+        Swal.fire("Error", "Error de red al intentar conectar con S3", "error");
+      } finally {
+        // Cerramos cualquier estado de carga residual
+        this.cargandoArchivos = false;
+        this.cargandoCargos = false;
       }
     },
     async vincularPdfAlExpediente() {

@@ -471,6 +471,35 @@ router.post(
     }
   },
 );
+router.delete("/docs/eliminar-archivo", async (req, res) => {
+  const { key } = req.body;
+
+  if (!key) {
+    return res
+      .status(400)
+      .json({ status: "error", message: "Falta la ruta (key) del archivo" });
+  }
+
+  try {
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: key,
+    };
+
+    // Comando real para borrar en S3
+    await s3Client.send(new DeleteObjectCommand(params));
+
+    console.log(`🗑️ Archivo eliminado de S3: ${key}`);
+
+    res.json({ status: "ok", message: "Archivo eliminado físicamente de S3" });
+  } catch (error) {
+    console.error("Error eliminando de S3:", error);
+    res.status(500).json({
+      status: "error",
+      message: "No se pudo eliminar el archivo de la nube",
+    });
+  }
+});
 
 router.put("/usuario/:id", async (req, res) => {
   // OJO: Ahora es async
@@ -1016,47 +1045,49 @@ router.get("/validar-token/:token", (req, res) => {
     },
   );
 });
-// GET /api/ver-archivo?key=ruta/al/archivo.pdf
 router.get("/ver-archivo", async (req, res) => {
-  const { token } = req.query; // Cambiamos 'key' por 'token' para que se vea más pro
+  const { token } = req.query;
 
   if (!token) return res.status(400).send("Falta el token del archivo");
 
   try {
-    // 1. DECODIFICAR EL "HASH" (Base64 a Texto)
-    // El frontend nos manda algo como "dXN1YXJpby80..." y nosotros recuperamos la ruta real
+    // 1. DECODIFICAR EL "HASH"
     const keyReal = Buffer.from(token, "base64").toString("utf-8");
+    const nombreArchivo = keyReal.split("/").pop();
+    const extension = path.extname(nombreArchivo).toLowerCase(); // Aquí usa el 'path' global
 
     const getCommand = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: keyReal,
     });
 
-    // 2. PEDIR EL ARCHIVO A S3 (Sin firmar URL, pedimos el objeto directo)
     const response = await s3Client.send(getCommand);
 
-    // 3. CONFIGURAR CABECERAS (Para que el navegador sepa qué es)
-    res.setHeader(
-      "Content-Type",
-      response.ContentType || "application/octet-stream",
-    );
+    // 2. DETECCIÓN DE TIPO DE CONTENIDO
+    let contentType = response.ContentType;
+
+    // Si viene genérico, forzamos según extensión
+    if (!contentType || contentType.includes("octet-stream")) {
+      if (extension === ".pdf") contentType = "application/pdf";
+      else if (extension === ".jpg" || extension === ".jpeg")
+        contentType = "image/jpeg";
+      else if (extension === ".png") contentType = "image/png";
+    }
+
+    // 3. CONFIGURAR CABECERAS PARA VISUALIZACIÓN
+    res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${keyReal.split("/").pop()}"`,
+      `inline; filename="${encodeURIComponent(nombreArchivo)}"`,
     );
 
-    // 4. STREAMING (La magia 🎩)
-    // En lugar de redirigir, "entubamos" el archivo de S3 directo al usuario
-    // El usuario verá: http://localhost:8081/api/ver-archivo?token=XYZ...
-    // Nunca verá s3.amazonaws.com
+    // 4. ENVIAR ARCHIVO
     response.Body.pipe(res);
   } catch (err) {
     console.error("Error streaming archivo:", err);
-    // Evitamos dar pistas del error exacto al usuario
-    res.status(404).send("Archivo no disponible o acceso denegado.");
+    res.status(404).send("Archivo no disponible.");
   }
 });
-
 // Obtener permisos del usuario
 router.get("/permisos/:id", async (req, res) => {
   try {
@@ -1315,31 +1346,35 @@ router.post(
     }
   },
 );
+const mime = require("mime-types");
 router.post("/renombrar-archivo-s3", async (req, res) => {
   const { carpeta, nombreActual, nuevoNombre } = req.body;
 
-  if (!nuevoNombre || !nombreActual)
-    return res.status(400).send("Faltan nombres");
-
-  // Aseguramos que el nuevo nombre tenga la extensión correcta si el usuario no la pone
-  const ext = path.extname(nombreActual);
-  let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
-  if (!nombreFinal.endsWith(ext)) nombreFinal += ext;
-
-  const oldKey = `${carpeta}/${nombreActual}`;
-  const newKey = `${carpeta}/${nombreFinal}`;
-
   try {
-    // 1. Copiar el objeto con el nuevo nombre
+    const ext = path.extname(nombreActual);
+    let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
+    if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
+      nombreFinal += ext;
+    }
+
+    const oldKey = `${carpeta}/${nombreActual}`;
+    const newKey = `${carpeta}/${nombreFinal}`;
+
+    // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
+    const contentType = mime.lookup(nombreFinal) || "application/pdf";
+
+    // 1. Copiar objeto con METADATOS NUEVOS
     await s3Client.send(
-      new PutObjectCommand({
+      new CopyObjectCommand({
         Bucket: BUCKET_NAME,
+        CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
         Key: newKey,
-        CopySource: `${BUCKET_NAME}/${oldKey}`,
+        ContentType: contentType, // Forzamos el tipo de contenido
+        MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
       }),
     );
 
-    // 2. Eliminar el objeto viejo
+    // 2. Eliminar original
     await s3Client.send(
       new DeleteObjectCommand({
         Bucket: BUCKET_NAME,
@@ -1347,10 +1382,10 @@ router.post("/renombrar-archivo-s3", async (req, res) => {
       }),
     );
 
-    res.json({ status: "ok", nuevoNombre: nombreFinal });
-  } catch (err) {
-    console.error("Error al renombrar:", err);
-    res.status(500).json({ error: err.message });
+    res.json({ status: "success", nuevoNombre: nombreFinal });
+  } catch (error) {
+    console.error("Error al renombrar:", error);
+    res.status(500).json({ status: "error", message: error.message });
   }
 });
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
