@@ -89,6 +89,7 @@ const uploadMiddleware = uploadSeguro.fields([
   { name: "hv", maxCount: 1 },
   { name: "habeas", maxCount: 1 },
   { name: "consentimiento", maxCount: 1 },
+  { name: "historialPensional", maxCount: 1 },
 ]);
 
 // ==========================================
