@@ -2,7 +2,7 @@ name: Deploy WSAC Backend
 
 on:
   push:
-    branches: [ main ] # Se activa cuando haces push a main
+    branches: [ main ] # Se activa cuando haces push a main en el proyecto WMS-Backend
 
 jobs:
   deploy:
@@ -15,12 +15,12 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cmd /c "cd /d C:\Users\Administrator\Documents\WSAC_PROD && echo --- LOG DE DIAGNOSTICO --- > success_log.txt && cd >> success_log.txt && git fetch --all >> success_log.txt 2>&1 && git reset --hard origin/main >> success_log.txt 2>&1 && pm2 restart woden-app --update-env >> success_log.txt 2>&1 && echo FINALIZADO EL %DATE% >> success_log.txt"
             @echo off
-            :: Entrar a la carpeta usando la ruta de Windows
+            :: Entrar a la carpeta oficial del proyecto
             cd /d C:\Users\Administrator\Documents\WSAC_PROD
             
             echo --- INICIANDO ACTUALIZACION --- > success_log.txt
+            cd >> success_log.txt
             
             :: 1. Forzar la actualización desde GitHub
             git fetch --all >> success_log.txt 2>&1
@@ -32,5 +32,20 @@ jobs:
             :: 3. Reiniciar el proceso woden-app y actualizar variables de entorno
             pm2 restart woden-app --update-env >> success_log.txt 2>&1
             
-            :: 4. Marcar el éxito final con fecha y hora
+            :: 4. Marcar el éxito final con fecha y hora para Daniel
             echo Finalizado con exito el %DATE% a las %TIME% >> success_log.txt
+
+      - name: Notificar a Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🚀 *¡Despliegue Exitoso en AWS!*
+            
+            📦 *Proyecto:* WSAC-Backend (woden-app)
+            👤 *Autor:* Daniel
+            📝 *Commit:* ${{ github.event.head_commit.message }}
+            🌐 *URL:* http://3.133.217.145:8081
+            
+            ✅ El servidor se ha actualizado y PM2 ha reiniciado el servicio correctamente.
