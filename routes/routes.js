@@ -295,7 +295,11 @@ router.post("/enviar", upload.any(), (req, res) => {
 
     try {
       await correoOutlook.sendMail({
+<<<<<<< HEAD
         from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+        from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
         to: safeData.correo,
         subject: "Registro exitoso",
         html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente en el sistema.</p>`,
@@ -414,10 +418,11 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
       let listaArchivos = [];
 
       // 2. Movemos el archivo
-      if (req.files && req.files.length > 0) {
-        req.files.forEach((file, index) => {
-          const oldPath = file.path;
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file, index) => {
+        const oldPath = file.path;
 
+<<<<<<< HEAD
           // Obtenemos el nombre base sin la extensión
           const nombreBase = path.parse(file.originalname).name;
           // Obtenemos la extensión
@@ -425,9 +430,19 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
 
           // Construimos el nuevo nombre: Original_sub_Timestamp_Index.ext
           const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
+=======
+        // Obtenemos el nombre base sin la extensión
+        const nombreBase = path.parse(file.originalname).name;
+        // Obtenemos la extensión
+        const ext = path.extname(file.originalname);
+        
+        // Construimos el nuevo nombre: Original_sub_Timestamp_Index.ext
+        const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 
-          const newPath = path.join(userFolder, nuevoNombre);
+        const newPath = path.join(userFolder, nuevoNombre);
 
+<<<<<<< HEAD
           try {
             // Si la carpeta del usuario no existe, la creamos
             if (!fs.existsSync(userFolder)) {
@@ -438,9 +453,21 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
             listaArchivos.push(nuevoNombre);
           } catch (mvErr) {
             console.error("Error moviendo subsanación:", mvErr);
+=======
+        try {
+          // Si la carpeta del usuario no existe, la creamos
+          if (!fs.existsSync(userFolder)) {
+            fs.mkdirSync(userFolder, { recursive: true });
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
           }
-        });
-      }
+
+          fs.renameSync(oldPath, newPath);
+          listaArchivos.push(nuevoNombre); 
+        } catch (mvErr) {
+          console.error("Error moviendo subsanación:", mvErr);
+        }
+      });
+    }
 
       // 3. Borramos el token por seguridad
       db.query("UPDATE usuarios SET token_subsanar = NULL WHERE id = ?", [

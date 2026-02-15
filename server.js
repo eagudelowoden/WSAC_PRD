@@ -117,7 +117,7 @@ app.post("/api/login", (req, res) => {
 
           const token = jwt.sign(
             tokenPayload,
-            process.env.JWT_SECRET || "Secret_WSAC_Key_123",
+            process.env.JWT_SECRET || "Secret_WAS_Key_123",
             {
               expiresIn: "8h",
             },
@@ -157,14 +157,16 @@ app.post("/api/login", (req, res) => {
 app.post("/api/logout", (req, res) => {
   // 1. Si usas Passport.js, esto limpia el objeto req.user
   if (req.logout) {
-    req.logout(() => {}); 
+    req.logout(() => {});
   }
 
   // 2. Destruimos la sesión en el MySQLStore
   req.session.destroy((err) => {
     if (err) {
       console.error("Error al destruir la sesión:", err);
-      return res.status(500).json({ status: "error", message: "Error al cerrar sesión" });
+      return res
+        .status(500)
+        .json({ status: "error", message: "Error al cerrar sesión" });
     }
 
     // 3. Limpiamos la cookie del navegador de forma explícita
@@ -175,9 +177,9 @@ app.post("/api/logout", (req, res) => {
     });
 
     // 4. Respondemos al frontend
-    res.status(200).json({ 
-      status: "ok", 
-      message: "Sesión eliminada en servidor y cookie limpiada" 
+    res.status(200).json({
+      status: "ok",
+      message: "Sesión eliminada en servidor y cookie limpiada",
     });
   });
 });
@@ -346,12 +348,10 @@ app.post("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
     [email],
     (err) => {
       if (err)
-        return res
-          .status(500)
-          .json({
-            status: "error",
-            message: "El correo ya existe o hubo un error.",
-          });
+        return res.status(500).json({
+          status: "error",
+          message: "El correo ya existe o hubo un error.",
+        });
       res.json({ status: "ok" });
     },
   );

@@ -9,10 +9,15 @@ const wordService = require("../services/generador");
 const { eliminarArchivo } = require("../services/s3Service");
 
 // RUTA REAL DE TUS PLANTILLAS
-//const RUTA_PLANTILLAS = "C:\\Users\\Daniel\\Documents\\MigracionCapitalHumano\\WSAC_PRD\\PlantillasActualizadas";
+//const RUTA_PLANTILLAS = "C:\\Users\\Daniel\\Documents\\MigracionCapitalHumano\\WAS_PRD\\PlantillasActualizadas";
 //const RUTA_PLANTILLAS = "C:\\Users\\e.agudelo\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PlantillasActualizadas";
+<<<<<<< HEAD
 //const RUTA_PLANTILLAS ="C:\\Users\\e.agudelo\\Documents\\WSAC_PROD\\PlantillasActualizadas";
   const RUTA_PLANTILLAS ="C:\\Users\\Administrator\\Documents\\WSAC_PROD\\PlantillasActualizadas";
+=======
+const RUTA_PLANTILLAS =
+  "C:\\Users\\e.agudelo\\Documents\\WAS_PROD\\PlantillasActualizadas";
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 
 // ============================================================
 // 1. OBTENER LISTA DE PLANTILLAS DISPONIBLES

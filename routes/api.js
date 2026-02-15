@@ -34,13 +34,20 @@ const {
   CopyObjectCommand,
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
+<<<<<<< HEAD
+=======
+
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 // Configurar las credenciales (si no las tienes globales)
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION,
 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 
 const uploadSeguro = multer({
   storage: multer.memoryStorage(),
@@ -89,6 +96,7 @@ const uploadMiddleware = uploadSeguro.fields([
   { name: "hv", maxCount: 1 },
   { name: "habeas", maxCount: 1 },
   { name: "consentimiento", maxCount: 1 },
+  { name: "historialPensional", maxCount: 1 },
 ]);
 
 // ==========================================
@@ -286,15 +294,19 @@ router.post("/enviar-historial-contratos", async (req, res) => {
       }),
     );
 
-    // 3. Diseño de correo corporativo WSAC
+    // 3. Diseño de correo corporativo WAS
     const mailOptions = {
+<<<<<<< HEAD
       from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
+=======
+      from: '"WAS Contratación" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
       to: usuario.correo,
       subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
       html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
-                        <h2 style="margin: 0;">WSAC Info</h2>
+                        <h2 style="margin: 0;">WAS Info</h2>
                         <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Gestión Documental de Contratación</p>
                     </div>
                     <div style="padding: 30px; color: #333; line-height: 1.6;">
@@ -307,7 +319,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
                         </div>
                     </div>
                     <div style="background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 0.75rem; color: #94a3b8;">
-                        &copy; 2025 WSAC - Todos los derechos reservados.
+                        &copy; 2025 WAS - Todos los derechos reservados.
                     </div>
                 </div>
             `,
@@ -439,7 +451,11 @@ router.post(
         // 4. CORREO DE CONFIRMACIÓN AL COLABORADOR
         try {
           await correoOutlook.sendMail({
+<<<<<<< HEAD
             from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+            from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
             to: safeData.correo,
             subject: "Registro exitoso - Woden Colombia",
             html: `
@@ -471,6 +487,35 @@ router.post(
     }
   },
 );
+router.delete("/docs/eliminar-archivo", async (req, res) => {
+  const { key } = req.body;
+
+  if (!key) {
+    return res
+      .status(400)
+      .json({ status: "error", message: "Falta la ruta (key) del archivo" });
+  }
+
+  try {
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: key,
+    };
+
+    // Comando real para borrar en S3
+    await s3Client.send(new DeleteObjectCommand(params));
+
+    console.log(`🗑️ Archivo eliminado de S3: ${key}`);
+
+    res.json({ status: "ok", message: "Archivo eliminado físicamente de S3" });
+  } catch (error) {
+    console.error("Error eliminando de S3:", error);
+    res.status(500).json({
+      status: "error",
+      message: "No se pudo eliminar el archivo de la nube",
+    });
+  }
+});
 
 router.put("/usuario/:id", async (req, res) => {
   // OJO: Ahora es async
@@ -689,14 +734,14 @@ router.post("/solicitar-subsanar", (req, res) => {
                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                       <tr>
                           <td style="background-color: #e2712a; padding: 30px; text-align: center;">
-                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC CLOUD</h1>
+                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WAS CLOUD</h1>
                           </td>
                       </tr>
                       <tr>
                           <td style="padding: 40px 30px;">
                               <h2 style="color: #2c3e50; margin-top: 0;">¡Hola, ${usuario.nombres}!</h2>
                               <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                                  Se ha revisado tu solicitud en el sistema <strong>WSAC</strong> y se requiere una corrección en los documentos adjuntos.
+                                  Se ha revisado tu solicitud en el sistema <strong>WAS</strong> y se requiere una corrección en los documentos adjuntos.
                               </p>
                               
                               <div style="background-color: #fff4ed; border-left: 4px solid #e2712a; padding: 15px; margin: 25px 0;">
@@ -732,9 +777,13 @@ router.post("/solicitar-subsanar", (req, res) => {
               `;
 
             await correoOutlook.sendMail({
+<<<<<<< HEAD
               from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
+=======
+              from: '"WAS Notificaciones" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: usuario.correo,
-              subject: "Acción Requerida: Corregir Documentos - WSAC",
+              subject: "Acción Requerida: Corregir Documentos - WAS",
               html: htmlEmail,
             });
 
@@ -777,14 +826,14 @@ router.post("/notificar-aprobacion", async (req, res) => {
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                 <tr>
                     <td style="background-color: #F5B027; padding: 30px; text-align: center;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC INFO</h1>
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WAS INFO</h1>
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 40px 30px;">
                         <h2 style="color: #2c3e50; margin-top: 0;">¡Felicidades, ${usuario.nombres}!</h2>
                         <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                            Nos complace informarte que tus documentos han sido <strong>aprobados</strong> en el sistema WSAC.
+                            Nos complace informarte que tus documentos han sido <strong>aprobados</strong> en el sistema WAS.
                         </p>
                         
                         <div style="background-color: #f0fff4; border-left: 4px solid #28a745; padding: 15px; margin: 25px 0;">
@@ -812,9 +861,13 @@ router.post("/notificar-aprobacion", async (req, res) => {
 
         // 3. Envío del correo
         await correoOutlook.sendMail({
+<<<<<<< HEAD
           from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
+=======
+          from: '"WAS Notificaciones" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
           to: usuario.correo,
-          subject: "Documentos Aprobados - WSAC INFO",
+          subject: "Documentos Aprobados - WAS INFO",
           html: htmlEmail,
         });
 
@@ -873,7 +926,7 @@ router.post("/notificar-nomina", async (req, res) => {
                   <tr>
                       <td style="padding: 30px;">
                           <p style="font-size: 16px; color: #333;">Hola equipo de Nómina,</p>
-                          <p style="font-size: 15px; color: #555;">Se ha aprobado un nuevo contrato en el sistema <strong>WSAC</strong> con los siguientes detalles:</p>
+                          <p style="font-size: 15px; color: #555;">Se ha aprobado un nuevo contrato en el sistema <strong>WAS</strong> con los siguientes detalles:</p>
                           
                           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                               <p style="margin: 5px 0;"><strong>Colaborador:</strong> ${usuario.nombres} ${usuario.apellidos}</p>
@@ -888,7 +941,7 @@ router.post("/notificar-nomina", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD - Gestión Documental</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WAS CLOUD - Gestión Documental</p>
                       </td>
                   </tr>
               </table>
@@ -897,9 +950,13 @@ router.post("/notificar-nomina", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
+<<<<<<< HEAD
               from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+              from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: listaCorreos, // Envía a todos los de la tabla
-              subject: `Notifiación WSAC: Contrato Aprobado - ${usuario.nombres}`,
+              subject: `Notifiación WAS: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
             });
 
@@ -970,7 +1027,7 @@ router.post("/notificarRegistro", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WAS CLOUD</p>
                       </td>
                   </tr>
               </table>
@@ -979,7 +1036,11 @@ router.post("/notificarRegistro", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
+<<<<<<< HEAD
               from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+              from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1016,7 +1077,6 @@ router.get("/validar-token/:token", (req, res) => {
     },
   );
 });
-// GET /api/ver-archivo?key=ruta/al/archivo.pdf
 router.get("/ver-archivo", async (req, res) => {
   const { token } = req.query;
 
@@ -1060,7 +1120,6 @@ router.get("/ver-archivo", async (req, res) => {
     res.status(404).send("Archivo no disponible.");
   }
 });
-
 // Obtener permisos del usuario
 router.get("/permisos/:id", async (req, res) => {
   try {
@@ -1225,7 +1284,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
             <tr>
                 <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
                     <p style="font-size: 11px; color: #bbb; margin: 0;">
-                        WSAC Auto-Notificaciones | ID de Transacción: ${Date.now()}<br>
+                        WAS Auto-Notificaciones | ID de Transacción: ${Date.now()}<br>
                         Generado el: ${new Date().toLocaleString()}
                     </p>
                 </td>
@@ -1235,7 +1294,11 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
     `;
 
           await correoOutlook.sendMail({
+<<<<<<< HEAD
             from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+            from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
             to: listaCorreos,
             subject: `📢 Subsanación Recibida: ${usuario.nombres} ${usuario.apellidos}`,
             html: htmlAdmin,
@@ -1272,7 +1335,93 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
     res.status(500).json({ status: "error", message: error.toString() });
   }
 });
+// Ejemplo rápido de lo que debería recibir tu API
+// Esta es la ruta corregida y validada
+router.post(
+  "/upload-documento-colaborador",
+  upload.single("file"), // Usamos el 'upload' básico que declaraste arriba
+  async (req, res) => {
+    try {
+      const file = req.file;
+      const { idColaborador, rutaDestino } = req.body;
 
+      if (!file) {
+        return res
+          .status(400)
+          .json({ status: "error", message: "No se recibió archivo" });
+      }
+
+      // IMPORTANTE: Limpiamos el nombre para evitar errores en el token Base64
+      const nombreLimpio = file.originalname.replace(/\s+/g, "_");
+
+      // SOLUCIÓN AL ERROR DE CARGA:
+      // Subimos directamente a 'rutaDestino' (que es la carpeta del usuario)
+      // SIN agregar '/contratos_generados' para que la cuadrícula inferior lo vea.
+      const keyFinal = `${rutaDestino}/${nombreLimpio}`;
+
+      const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: keyFinal,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      });
+
+      await s3Client.send(command);
+
+      res.json({
+        status: "success",
+        message: "Archivo cargado correctamente",
+        nombre: nombreLimpio,
+        key: keyFinal,
+      });
+    } catch (error) {
+      console.error("Error en upload:", error);
+      res.status(500).json({ status: "error", message: error.toString() });
+    }
+  },
+);
+const mime = require("mime-types");
+router.post("/renombrar-archivo-s3", async (req, res) => {
+  const { carpeta, nombreActual, nuevoNombre } = req.body;
+
+  try {
+    const ext = path.extname(nombreActual);
+    let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
+    if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
+      nombreFinal += ext;
+    }
+
+    const oldKey = `${carpeta}/${nombreActual}`;
+    const newKey = `${carpeta}/${nombreFinal}`;
+
+    // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
+    const contentType = mime.lookup(nombreFinal) || "application/pdf";
+
+    // 1. Copiar objeto con METADATOS NUEVOS
+    await s3Client.send(
+      new CopyObjectCommand({
+        Bucket: BUCKET_NAME,
+        CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
+        Key: newKey,
+        ContentType: contentType, // Forzamos el tipo de contenido
+        MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
+      }),
+    );
+
+    // 2. Eliminar original
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: oldKey,
+      }),
+    );
+
+    res.json({ status: "success", nuevoNombre: nombreFinal });
+  } catch (error) {
+    console.error("Error al renombrar:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+});
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
 router.post("/subir-firmados", upload.any(), async (req, res) => {
   const { token } = req.body;
@@ -1360,14 +1509,18 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
                       </tr>
                       <tr>
                           <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
-                              <p style="font-size: 11px; color: #bbb; margin: 0;">WSAC Auto-Notificaciones | Generado el: ${new Date().toLocaleString()}</p>
+                              <p style="font-size: 11px; color: #bbb; margin: 0;">WAS Auto-Notificaciones | Generado el: ${new Date().toLocaleString()}</p>
                           </td>
                       </tr>
                   </table>
               </div>`;
 
               await correoOutlook.sendMail({
+<<<<<<< HEAD
                 from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+=======
+                from: '"WAS Sistema" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
                 to: listaCorreos,
                 subject: `✅ Firma Completada: ${usuario.nombres} ${usuario.apellidos}`,
                 html: htmlAdmin,
@@ -1461,7 +1614,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
       const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
-                        <h2 style="margin: 0;">WSAC FIRMA</h2>
+                        <h2 style="margin: 0;">WAS FIRMA</h2>
                     </div>
                     <div style="padding: 30px;">
                         <h3>Hola, ${nombres}</h3>
@@ -1485,9 +1638,13 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
 
       try {
         await correoOutlook.sendMail({
+<<<<<<< HEAD
           from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
+=======
+          from: '"WAS Contratación" <eagudelo@woden.com.co>',
+>>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
           to: correo,
-          subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
+          subject: "📝 Acción Requerida: Firma de Contratos - WAS",
           html: htmlEmail,
           attachments: attachments, // <--- INDISPENSABLE: Aquí se anexan los archivos
         });
