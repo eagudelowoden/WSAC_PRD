@@ -15,8 +15,8 @@ module.exports = {
       host: "3.133.217.145",
       ref: "origin/main", // O la rama que estés usando
       repo: "git@github.com:eagudelowoden/WSAC_PRD.git",
-      path: "C:\\Users\\Administrator\\Documents\\WSAC_PROD",
-      // Comando para actualizar:
+      path: "C:/Users/Administrator/Documents/WSAC_PROD",
+      // Comando para actualizar: /pruebas
       "post-deploy": "npm install && pm2 reload ecosystem.config.js"
     }
   }
