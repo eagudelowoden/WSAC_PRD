@@ -13,11 +13,19 @@ jobs:
         with:
           host: 3.133.217.145
           username: Administrator
-          #PRUEBAS GENERALES
-          #PRUEBAS
-          key: ${{ secrets.SSH_PRIVATE_KEY }} # Esto lo configuraremos ahora
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd C:/Users/Administrator/Documents/WSAC_PROD
-            git pull origin main
-            npm install
-            pm2 restart all
+            
+            :: 1. Bajar cambios (forzando para evitar conflictos)
+            git fetch --all
+            git reset --hard origin/main
+            
+            :: 2. Instalar dependencias
+            npm install --production
+            
+            :: 3. Reiniciar la app específica
+            pm2 restart woden-app --update-env
+            
+            :: 4. GENERAR TU LOG DE ÉXITO (Formato Windows)
+            echo Despliegue exitoso el %DATE% a las %TIME% > success_log.txt
