@@ -13,6 +13,7 @@ jobs:
         with:
           host: 3.133.217.145
           username: Administrator
+          #PRUEBAS GENERALES
           key: ${{ secrets.SSH_PRIVATE_KEY }} # Esto lo configuraremos ahora
           script: |
             cd C:/Users/Administrator/Documents/WSAC_PROD
