@@ -29,6 +29,18 @@ const ALLOWED_MIME_TYPES = [
   "image/png",
   "image/jpg",
 ];
+const AWS = require("aws-sdk");
+const {
+  CopyObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+// Configurar las credenciales (si no las tienes globales)
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
 
 const uploadSeguro = multer({
   storage: multer.memoryStorage(),
@@ -1006,42 +1018,46 @@ router.get("/validar-token/:token", (req, res) => {
 });
 // GET /api/ver-archivo?key=ruta/al/archivo.pdf
 router.get("/ver-archivo", async (req, res) => {
-  const { token } = req.query; // Cambiamos 'key' por 'token' para que se vea más pro
+  const { token } = req.query;
 
   if (!token) return res.status(400).send("Falta el token del archivo");
 
   try {
-    // 1. DECODIFICAR EL "HASH" (Base64 a Texto)
-    // El frontend nos manda algo como "dXN1YXJpby80..." y nosotros recuperamos la ruta real
+    // 1. DECODIFICAR EL "HASH"
     const keyReal = Buffer.from(token, "base64").toString("utf-8");
+    const nombreArchivo = keyReal.split("/").pop();
+    const extension = path.extname(nombreArchivo).toLowerCase(); // Aquí usa el 'path' global
 
     const getCommand = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: keyReal,
     });
 
-    // 2. PEDIR EL ARCHIVO A S3 (Sin firmar URL, pedimos el objeto directo)
     const response = await s3Client.send(getCommand);
 
-    // 3. CONFIGURAR CABECERAS (Para que el navegador sepa qué es)
-    res.setHeader(
-      "Content-Type",
-      response.ContentType || "application/octet-stream",
-    );
+    // 2. DETECCIÓN DE TIPO DE CONTENIDO
+    let contentType = response.ContentType;
+
+    // Si viene genérico, forzamos según extensión
+    if (!contentType || contentType.includes("octet-stream")) {
+      if (extension === ".pdf") contentType = "application/pdf";
+      else if (extension === ".jpg" || extension === ".jpeg")
+        contentType = "image/jpeg";
+      else if (extension === ".png") contentType = "image/png";
+    }
+
+    // 3. CONFIGURAR CABECERAS PARA VISUALIZACIÓN
+    res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${keyReal.split("/").pop()}"`,
+      `inline; filename="${encodeURIComponent(nombreArchivo)}"`,
     );
 
-    // 4. STREAMING (La magia 🎩)
-    // En lugar de redirigir, "entubamos" el archivo de S3 directo al usuario
-    // El usuario verá: http://localhost:8081/api/ver-archivo?token=XYZ...
-    // Nunca verá s3.amazonaws.com
+    // 4. ENVIAR ARCHIVO
     response.Body.pipe(res);
   } catch (err) {
     console.error("Error streaming archivo:", err);
-    // Evitamos dar pistas del error exacto al usuario
-    res.status(404).send("Archivo no disponible o acceso denegado.");
+    res.status(404).send("Archivo no disponible.");
   }
 });
 
@@ -1484,6 +1500,92 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
       }
     },
   );
+});
+// Esta es la ruta corregida y validada
+router.post(
+  "/upload-documento-colaborador",
+  upload.single("file"), // Usamos el 'upload' básico que declaraste arriba
+  async (req, res) => {
+    try {
+      const file = req.file;
+      const { idColaborador, rutaDestino } = req.body;
+
+      if (!file) {
+        return res
+          .status(400)
+          .json({ status: "error", message: "No se recibió archivo" });
+      }
+
+      // IMPORTANTE: Limpiamos el nombre para evitar errores en el token Base64
+      const nombreLimpio = file.originalname.replace(/\s+/g, "_");
+
+      // SOLUCIÓN AL ERROR DE CARGA:
+      // Subimos directamente a 'rutaDestino' (que es la carpeta del usuario)
+      // SIN agregar '/contratos_generados' para que la cuadrícula inferior lo vea.
+      const keyFinal = `${rutaDestino}/${nombreLimpio}`;
+
+      const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: keyFinal,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      });
+
+      await s3Client.send(command);
+
+      res.json({
+        status: "success",
+        message: "Archivo cargado correctamente",
+        nombre: nombreLimpio,
+        key: keyFinal,
+      });
+    } catch (error) {
+      console.error("Error en upload:", error);
+      res.status(500).json({ status: "error", message: error.toString() });
+    }
+  },
+);
+const mime = require("mime-types");
+router.post("/renombrar-archivo-s3", async (req, res) => {
+  const { carpeta, nombreActual, nuevoNombre } = req.body;
+
+  try {
+    const ext = path.extname(nombreActual);
+    let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
+    if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
+      nombreFinal += ext;
+    }
+
+    const oldKey = `${carpeta}/${nombreActual}`;
+    const newKey = `${carpeta}/${nombreFinal}`;
+
+    // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
+    const contentType = mime.lookup(nombreFinal) || "application/pdf";
+
+    // 1. Copiar objeto con METADATOS NUEVOS
+    await s3Client.send(
+      new CopyObjectCommand({
+        Bucket: BUCKET_NAME,
+        CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
+        Key: newKey,
+        ContentType: contentType, // Forzamos el tipo de contenido
+        MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
+      }),
+    );
+
+    // 2. Eliminar original
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: oldKey,
+      }),
+    );
+
+    res.json({ status: "success", nuevoNombre: nombreFinal });
+  } catch (error) {
+    console.error("Error al renombrar:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
 });
 
 // GET /api/listar-firmados/:carpeta

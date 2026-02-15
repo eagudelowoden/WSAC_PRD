@@ -36,7 +36,7 @@ CREATE TABLE `notificaciones` (
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
-INSERT INTO `notificaciones` VALUES (2,'danielpita868@gmail.com'),(1,'eagudelo@woden.com.co');
+INSERT INTO `notificaciones` VALUES (2,'danielpita868@gmail.com'),(1,'alertasynotificaciones@woden.com.co');
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 

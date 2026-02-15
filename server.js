@@ -394,6 +394,28 @@ app.use(
     maxAge: 86400, // <--- ESTO ES CLAVE: Caché del permiso por 24 horas
   }),
 );
+app.get("/time-colombia", (req, res) => {
+    try {
+        const ahora = new Date();
+        
+        // Formato para mostrar (puedes ajustar el nombre si tu frontend busca 'fecha_hora')
+        const fechaColombiaStr = ahora.toLocaleString('es-CO', {
+            timeZone: 'America/Bogota',
+            hour12: false
+        });
+
+        res.json({
+            // Enviamos el objeto Date real para que Ionic no falle al procesarlo
+            datetime: ahora.toISOString(), 
+            formatted: fechaColombiaStr,
+            // Agregamos este campo por si tu frontend lo busca con este nombre
+            fecha_hora: ahora.toISOString(), 
+            status: "ok"
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
 
 // ==========================================
 // 7. INICIAR SERVIDOR

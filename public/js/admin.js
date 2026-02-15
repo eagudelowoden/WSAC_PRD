@@ -24,6 +24,8 @@ const SegmentosMixin = {
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       menuAbierto: false, // Controla si se ve el menú
       sidebarContraida: false,
+      archivoSeleccionado: null,
+      cargandoSubida: false,
     };
   },
   mounted() {
@@ -90,11 +92,120 @@ const SegmentosMixin = {
         console.error("Error buscando contratos:", error);
       }
     },
-    async eliminarContrato(nombreArchivo) {
-      // 1. Preguntar confirmación
+    handleFileUpload(event) {
+      this.archivoSeleccionado = event.target.files[0];
+    },
+    async subirArchivoAS3() {
+      if (!this.archivoSeleccionado || !this.usuarioActual) return;
+      // ... (tu código de Swal)
+
+      const formData = new FormData();
+      formData.append("file", this.archivoSeleccionado);
+      formData.append("idColaborador", this.usuarioActual.id);
+
+      // MANDAMOS SOLO LA CARPETA RAÍZ DEL USUARIO
+      // Esto hace que aparezca en "Archivos Cargados"
+      formData.append("rutaDestino", this.usuarioActual.carpeta);
+
+      try {
+        const response = await fetch("/api/upload-documento-colaborador", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          Swal.fire("¡Éxito!", "Archivo cargado correctamente", "success");
+          this.archivoSeleccionado = null;
+          this.$refs.fileInput.value = "";
+
+          // RECARGA EL HISTORIAL DE ARRIBA
+          await this.buscarContratoExistente(this.usuarioActual.carpeta);
+
+          // RECARGA LA CUADRÍCULA DE ABAJO
+          // Llama a la función que hace el GET a /api/archivos/:carpeta
+          // Basándome en tu código, debería ser algo como:
+          await this.obtenerArchivosS3();
+        }
+      } catch (error) {
+        Swal.fire("Error", "No se pudo subir", "error");
+      }
+    },
+    async obtenerArchivosS3() {
+      if (!this.usuarioActual || !this.usuarioActual.carpeta) return;
+
+      this.cargandoArchivos = true;
+      try {
+        const res = await fetch(
+          `${API_URL}/archivos/${this.usuarioActual.carpeta}`,
+        );
+        const files = await res.json();
+
+        // Mapeamos con el mismo formato de TOKEN que usas en cargarUsuarioDesdeBD
+        this.archivos = files.map((f) => {
+          const rutaReal = f.key || this.usuarioActual.carpeta + "/" + f.name;
+          const tokenHash = btoa(unescape(encodeURIComponent(rutaReal)));
+          return {
+            name: f.name,
+            url: `${API_URL}/ver-archivo?token=${encodeURIComponent(tokenHash)}`,
+          };
+        });
+      } catch (err) {
+        console.error("Error cargando archivos:", err);
+      } finally {
+        this.cargandoArchivos = false;
+      }
+    },
+    async pedirNuevoNombre(nombreActual) {
+      const { value: nuevoNombre } = await Swal.fire({
+        title: "Renombrar archivo",
+        input: "text",
+        inputLabel: "Nuevo nombre para el documento",
+        inputValue: nombreActual.split(".")[0], // Sugerimos el nombre actual sin extensión
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) return "¡Debes escribir un nombre!";
+        },
+      });
+
+      if (nuevoNombre) {
+        this.ejecutarRenombrado(nombreActual, nuevoNombre);
+      }
+    },
+
+    async ejecutarRenombrado(nombreActual, nuevoNombre) {
+      Swal.fire({ title: "Renombrando...", didOpen: () => Swal.showLoading() });
+
+      try {
+        const response = await fetch("/api/renombrar-archivo-s3", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            carpeta: this.usuarioActual.carpeta, // Usamos la carpeta raíz o la subcarpeta según necesites
+            nombreActual: nombreActual,
+            nuevoNombre: nuevoNombre,
+          }),
+        });
+
+        if (response.ok) {
+          Swal.fire("¡Listo!", "Archivo renombrado con éxito", "success");
+          // Refrescamos las listas para ver el cambio
+          await this.buscarContratoExistente(this.usuarioActual.carpeta);
+          if (this.obtenerArchivosS3) await this.obtenerArchivosS3();
+        } else {
+          throw new Error("Error en el servidor");
+        }
+      } catch (error) {
+        Swal.fire("Error", "No se pudo renombrar el archivo", "error");
+      }
+    },
+    async eliminarContrato(archivo) {
+      // 1. Determinar el nombre para mostrar en la alerta
+      const nombreParaMostrar =
+        typeof archivo === "string" ? archivo : archivo.name;
+
       const result = await Swal.fire({
-        title: "¿Borrar este documento?",
-        text: "Esta acción no se puede deshacer.",
+        title: "¿Borrar documento?",
+        text: `Vas a eliminar: ${nombreParaMostrar}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -104,40 +215,65 @@ const SegmentosMixin = {
 
       if (!result.isConfirmed) return;
 
-      // 2. Construir la ruta (Key)
-      const carpetaUsuario = this.usuarioActual.carpeta;
-      const key = `${carpetaUsuario}/contratos_generados/${nombreArchivo}`;
+      // 2. CONSTRUIR LA KEY CORRECTA
+      let keyFinal = "";
+      if (typeof archivo === "object") {
+        keyFinal = `${this.usuarioActual.carpeta}/${archivo.name}`;
+      } else {
+        keyFinal = `${this.usuarioActual.carpeta}/contratos_generados/${archivo}`;
+      }
 
-      Swal.showLoading();
+      // --- VENTANA DE CARGA (AQUÍ EMPIEZA LO BUENO) ---
+      Swal.fire({
+        title: "Eliminando archivo...",
+        text: "Espere un momento",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
       try {
-        // 3. AQUÍ ESTÁ LA CLAVE: Usamos fetch, no llamamos a eliminarArchivo()
         const response = await fetch("/api/docs/eliminar-archivo", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: key }),
+          body: JSON.stringify({ key: keyFinal }),
         });
 
-        const data = await response.json();
-
-        if (data.status === "ok") {
+        if (response.ok) {
+          // Éxito: Notificamos con un Toast para no interrumpir mucho
           Swal.fire({
             icon: "success",
-            title: "Eliminado",
+            title: "Archivo eliminado",
+            timer: 1500,
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 1500,
           });
 
-          // 4. Recargar la lista
-          await this.buscarContratoExistente(carpetaUsuario);
+          // 3. REFRESCAR AMBAS LISTAS
+          // Ponemos las variables de carga en true para que los spinners de las listas se vean
+          this.cargandoArchivos = true;
+          this.cargandoCargos = true;
+
+          await this.buscarContratoExistente(this.usuarioActual.carpeta);
+          if (this.obtenerArchivosS3) {
+            await this.obtenerArchivosS3();
+          }
         } else {
-          throw new Error(data.message);
+          Swal.fire(
+            "Error",
+            "S3 no pudo encontrar o borrar el archivo físico.",
+            "error",
+          );
         }
       } catch (error) {
-        console.error(error);
-        Swal.fire("Error", "No se pudo borrar el archivo", "error");
+        console.error("Error al borrar:", error);
+        Swal.fire("Error", "Error de red al intentar conectar con S3", "error");
+      } finally {
+        // Cerramos cualquier estado de carga residual
+        this.cargandoArchivos = false;
+        this.cargandoCargos = false;
       }
     },
     async vincularPdfAlExpediente() {
@@ -585,7 +721,7 @@ createApp({
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
-        title: "¿Estás seguro?",
+        title: "¿Estás seguroooo?",
         text: "No podrás revertir esta acción.",
         icon: "warning",
         showCancelButton: true,
