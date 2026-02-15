@@ -163,32 +163,32 @@ router.put("/usuario/:id", (req, res) => {
     `;
 
   // Mapeo de datos: El frontend envía 'epsNombre', la BD espera 'eps'
-    const valores = [
-            data.nombres,
-            data.apellidos,
-            data.documento,
-            data.telefono,
-            data.direccion,
-            data.correo,
-            data.fechaNacimiento,
-            data.epsNombre || data.eps, // Si epsNombre viene vacío, usa data.eps
-            data.arlNombre || data.arl, 
-            data.afpNombre || data.afp, 
-            data.ccfNombre || data.ccf,
-            data.ciudad,
-            data.salario,
-            data.cargo,
-            data.afiliaciones_familiares,
-            data.aprobacion,
-            data.tipo_contrato,
-            data.curso,
-            data.institucion,
-            data.nitinstitucion,
-            data.centroSena,
-            data.fechaterminacion,
-            data.correoAprendizaje  ,
-            id // El ID siempre al final para el WHERE
-        ];
+  const valores = [
+    data.nombres,
+    data.apellidos,
+    data.documento,
+    data.telefono,
+    data.direccion,
+    data.correo,
+    data.fechaNacimiento,
+    data.epsNombre || data.eps, // Si epsNombre viene vacío, usa data.eps
+    data.arlNombre || data.arl,
+    data.afpNombre || data.afp,
+    data.ccfNombre || data.ccf,
+    data.ciudad,
+    data.salario,
+    data.cargo,
+    data.afiliaciones_familiares,
+    data.aprobacion,
+    data.tipo_contrato,
+    data.curso,
+    data.institucion,
+    data.nitinstitucion,
+    data.centroSena,
+    data.fechaterminacion,
+    data.correoAprendizaje,
+    id // El ID siempre al final para el WHERE
+  ];
 
   db.query(sql, valores, (err, result) => {
     if (err) {
@@ -295,7 +295,7 @@ router.post("/enviar", upload.any(), (req, res) => {
 
     try {
       await correoOutlook.sendMail({
-        from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+        from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
         to: safeData.correo,
         subject: "Registro exitoso",
         html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente en el sistema.</p>`,
@@ -305,10 +305,10 @@ router.post("/enviar", upload.any(), (req, res) => {
     }
 
     // ✅ AHORA ENVIAMOS EL ID AL FRONTEND
-    res.status(200).json({ 
-        status: "ok", 
-        message: "Registro exitoso.", 
-        id: nuevoId  // <--- Esto activará tu dispararNotificaciones()
+    res.status(200).json({
+      status: "ok",
+      message: "Registro exitoso.",
+      id: nuevoId  // <--- Esto activará tu dispararNotificaciones()
     });
   });
 });
@@ -342,7 +342,7 @@ router.post("/solicitar-subsanar", (req, res) => {
 
         try {
           await correoOutlook.sendMail({
-            from: "eagudelo@woden.com.co",
+            from: "alertasynotificaciones@woden.com.co",
             to: usuario.correo,
             subject: "⚠️ Acción Requerida: Corregir Documentos",
             html: `
@@ -418,23 +418,26 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
         req.files.forEach((file, index) => {
           const oldPath = file.path;
 
-          // Generamos nombre único por si sube varios del mismo tipo
+          // Obtenemos el nombre base sin la extensión
+          const nombreBase = path.parse(file.originalname).name;
+          // Obtenemos la extensión
           const ext = path.extname(file.originalname);
-          // Agregamos un número (index) o fecha para que no se sobrescriban si sube 2 archivos
-          const nuevoNombre = `${tipoDocumento}_CORREGIDO_${Date.now()}_${index}${ext}`;
+
+          // Construimos el nuevo nombre: Original_sub_Timestamp_Index.ext
+          const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
 
           const newPath = path.join(userFolder, nuevoNombre);
 
           try {
-            // Si la carpeta del usuario no existe, la creamos (por seguridad)
+            // Si la carpeta del usuario no existe, la creamos
             if (!fs.existsSync(userFolder)) {
               fs.mkdirSync(userFolder, { recursive: true });
             }
 
             fs.renameSync(oldPath, newPath);
-            listaArchivos.push(nuevoNombre); // Guardamos el nombre para el email
+            listaArchivos.push(nuevoNombre);
           } catch (mvErr) {
-            console.error("Error moviendo corrección:", mvErr);
+            console.error("Error moviendo subsanación:", mvErr);
           }
         });
       }
@@ -455,7 +458,7 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
 
           if (transporter) {
             const mailOptions = {
-              from: '"Sistema de Documentos" <eagudelo@woden.com.co>',
+              from: '"Sistema de Documentos" <alertasynotificaciones@woden.com.co>',
               to: listaCorreos,
               subject: `📢 Subsanación Recibida: ${usuario.nombre} ${usuario.apellidos}`,
               html: `

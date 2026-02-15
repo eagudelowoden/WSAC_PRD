@@ -276,7 +276,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 
     // 3. Diseño de correo corporativo WSAC
     const mailOptions = {
-      from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+      from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
       to: usuario.correo,
       subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
       html: `
@@ -427,7 +427,7 @@ router.post(
         // 4. CORREO DE CONFIRMACIÓN AL COLABORADOR
         try {
           await correoOutlook.sendMail({
-            from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+            from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
             to: safeData.correo,
             subject: "Registro exitoso - Woden Colombia",
             html: `
@@ -720,7 +720,7 @@ router.post("/solicitar-subsanar", (req, res) => {
               `;
 
             await correoOutlook.sendMail({
-              from: '"WSAC Notificaciones" <eagudelo@woden.com.co>',
+              from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
               to: usuario.correo,
               subject: "Acción Requerida: Corregir Documentos - WSAC",
               html: htmlEmail,
@@ -800,7 +800,7 @@ router.post("/notificar-aprobacion", async (req, res) => {
 
         // 3. Envío del correo
         await correoOutlook.sendMail({
-          from: '"WSAC Notificaciones" <eagudelo@woden.com.co>',
+          from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
           to: usuario.correo,
           subject: "Documentos Aprobados - WSAC INFO",
           html: htmlEmail,
@@ -885,7 +885,7 @@ router.post("/notificar-nomina", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-              from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+              from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notifiación WSAC: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
@@ -967,7 +967,7 @@ router.post("/notificarRegistro", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-              from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+              from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1123,8 +1123,13 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       const uploadPromises = req.files.map((file, index) => {
+        // 1. Extraemos el nombre original sin la extensión
+        const nombreBase = path.parse(file.originalname).name;
+        // 2. Obtenemos la extensión (ej: .pdf, .jpg)
         const ext = path.extname(file.originalname);
-        const nuevoNombre = `${tipoDocumento}_CORREGIDO_${Date.now()}_${index}${ext}`;
+
+        // 3. Construimos el nombre con el sufijo _sub y el identificador
+        const nuevoNombre = `${nombreBase}_sub_${Date.now()}_${index}${ext}`;
         const key = `${folderName}/${nuevoNombre}`;
 
         listaArchivos.push(nuevoNombre);
@@ -1135,8 +1140,10 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
           Body: file.buffer,
           ContentType: file.mimetype,
         });
+
         return s3Client.send(command);
       });
+
       await Promise.all(uploadPromises);
     }
 
@@ -1175,17 +1182,15 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
                         <tr>
                             <td style="padding-bottom: 10px;">
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Colaborador</span><br>
-                                <strong style="color: #2c3e50; font-size: 16px;">${
-                                  usuario.nombres
-                                }</strong>
+                                <strong style="color: #2c3e50; font-size: 16px;">${usuario.nombres
+            }</strong>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Archivos Recibidos</span><br>
-                                <strong style="color: #e2712a; font-size: 16px;">${
-                                  listaArchivos.length
-                                } documento(s) cargado(s)</strong>
+                                <strong style="color: #e2712a; font-size: 16px;">${listaArchivos.length
+            } documento(s) cargado(s)</strong>
                             </td>
                         </tr>
                     </table>
@@ -1214,7 +1219,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
     `;
 
           await correoOutlook.sendMail({
-            from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+            from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
             to: listaCorreos,
             subject: `📢 Subsanación Recibida: ${usuario.nombres} ${usuario.apellidos}`,
             html: htmlAdmin,
@@ -1346,7 +1351,7 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
               </div>`;
 
               await correoOutlook.sendMail({
-                from: '"WSAC Sistema" <eagudelo@woden.com.co>',
+                from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
                 to: listaCorreos,
                 subject: `✅ Firma Completada: ${usuario.nombres} ${usuario.apellidos}`,
                 html: htmlAdmin,
@@ -1464,7 +1469,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
 
       try {
         await correoOutlook.sendMail({
-          from: '"WSAC Contratación" <eagudelo@woden.com.co>',
+          from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
           to: correo,
           subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
           html: htmlEmail,

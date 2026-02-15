@@ -585,7 +585,7 @@ createApp({
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
-        title: "¿Estás seguroooo?",
+        title: "¿Estás seguro?",
         text: "No podrás revertir esta acción.",
         icon: "warning",
         showCancelButton: true,

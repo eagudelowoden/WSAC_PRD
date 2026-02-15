@@ -22,7 +22,8 @@ async function vincularDescripcionCargo(idColaborador, nombreArchivoPdf, segment
       // 3. Ruta de ORIGEN en tu DISCO LOCAL
       // Usamos la ruta que me pasaste
 
-      const rutaLocalBase = `C:\\Users\\e.agudelo\\Documents\\WSAC_PROD\\PublicaSegmentos`;
+      //const rutaLocalBase = `C:\\Users\\e.agudelo\\Documents\\WSAC_PROD\\PublicaSegmentos`;
+	  const rutaLocalBase = `C:\\Users\\Administrator\\Documents\\WSAC_PROD\\PublicaSegmentos`;
       //const rutaLocalBase = `C:\\Users\\e.agudelo\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PublicaSegmentos`;
       const rutaArchivoLocal = path.join(rutaLocalBase, segmento, nombreArchivoPdf);
 
