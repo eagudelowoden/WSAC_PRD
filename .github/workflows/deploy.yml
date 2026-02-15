@@ -15,17 +15,21 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd C:/Users/Administrator/Documents/WSAC_PROD
+            @echo off
+            :: Entrar a la carpeta usando la ruta de Windows
+            cd /d C:\Users\Administrator\Documents\WSAC_PROD
             
-            :: 1. Bajar cambios (forzando para evitar conflictos)
-            git fetch --all
-            git reset --hard origin/main
+            echo --- INICIANDO ACTUALIZACION --- > success_log.txt
             
-            :: 2. Instalar dependencias
-            npm install --production
+            :: 1. Forzar la actualización desde GitHub
+            git fetch --all >> success_log.txt 2>&1
+            git reset --hard origin/main >> success_log.txt 2>&1
             
-            :: 3. Reiniciar la app específica
-            pm2 restart woden-app --update-env
+            :: 2. Instalar solo dependencias de producción
+            npm install --production >> success_log.txt 2>&1
             
-            :: 4. GENERAR TU LOG DE ÉXITO (Formato Windows)
-            echo Despliegue exitoso el %DATE% a las %TIME% > success_log.txt
+            :: 3. Reiniciar el proceso woden-app y actualizar variables de entorno
+            pm2 restart woden-app --update-env >> success_log.txt 2>&1
+            
+            :: 4. Marcar el éxito final con fecha y hora
+            echo Finalizado con exito el %DATE% a las %TIME% >> success_log.txt
