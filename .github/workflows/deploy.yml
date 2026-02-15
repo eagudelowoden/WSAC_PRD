@@ -20,4 +20,4 @@ jobs:
             cd C:/Users/Administrator/Documents/WSAC_PROD
             git pull origin main
             npm install
-            pm2 restart woden-app
+            pm2 restart all
