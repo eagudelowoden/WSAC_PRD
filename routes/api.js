@@ -286,7 +286,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
       }),
     );
 
-    // 3. Diseño de correo corporativo WAS
+    // 3. Diseño de correo corporativo WSAC
     const mailOptions = {
       from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
       to: usuario.correo,
@@ -294,7 +294,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
       html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
-                        <h2 style="margin: 0;">WAS Info</h2>
+                        <h2 style="margin: 0;">WSAC Info</h2>
                         <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">Gestión Documental de Contratación</p>
                     </div>
                     <div style="padding: 30px; color: #333; line-height: 1.6;">
@@ -307,7 +307,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
                         </div>
                     </div>
                     <div style="background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 0.75rem; color: #94a3b8;">
-                        &copy; 2025 WAS - Todos los derechos reservados.
+                        &copy; 2025 WSAC - Todos los derechos reservados.
                     </div>
                 </div>
             `,
@@ -718,14 +718,14 @@ router.post("/solicitar-subsanar", (req, res) => {
                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                       <tr>
                           <td style="background-color: #e2712a; padding: 30px; text-align: center;">
-                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WAS CLOUD</h1>
+                              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC CLOUD</h1>
                           </td>
                       </tr>
                       <tr>
                           <td style="padding: 40px 30px;">
                               <h2 style="color: #2c3e50; margin-top: 0;">¡Hola, ${usuario.nombres}!</h2>
                               <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                                  Se ha revisado tu solicitud en el sistema <strong>WAS</strong> y se requiere una corrección en los documentos adjuntos.
+                                  Se ha revisado tu solicitud en el sistema <strong>WSAC</strong> y se requiere una corrección en los documentos adjuntos.
                               </p>
                               
                               <div style="background-color: #fff4ed; border-left: 4px solid #e2712a; padding: 15px; margin: 25px 0;">
@@ -763,7 +763,7 @@ router.post("/solicitar-subsanar", (req, res) => {
             await correoOutlook.sendMail({
               from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
               to: usuario.correo,
-              subject: "Acción Requerida: Corregir Documentos - WAS",
+              subject: "Acción Requerida: Corregir Documentos - WSAC",
               html: htmlEmail,
             });
 
@@ -806,14 +806,14 @@ router.post("/notificar-aprobacion", async (req, res) => {
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                 <tr>
                     <td style="background-color: #F5B027; padding: 30px; text-align: center;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WAS INFO</h1>
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">WSAC INFO</h1>
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 40px 30px;">
                         <h2 style="color: #2c3e50; margin-top: 0;">¡Felicidades, ${usuario.nombres}!</h2>
                         <p style="font-size: 16px; line-height: 1.6; color: #555;">
-                            Nos complace informarte que tus documentos han sido <strong>aprobados</strong> en el sistema WAS.
+                            Nos complace informarte que tus documentos han sido <strong>aprobados</strong> en el sistema WSAC.
                         </p>
                         
                         <div style="background-color: #f0fff4; border-left: 4px solid #28a745; padding: 15px; margin: 25px 0;">
@@ -843,7 +843,7 @@ router.post("/notificar-aprobacion", async (req, res) => {
         await correoOutlook.sendMail({
           from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
           to: usuario.correo,
-          subject: "Documentos Aprobados - WAS INFO",
+          subject: "Documentos Aprobados - WSAC INFO",
           html: htmlEmail,
         });
 
@@ -902,7 +902,7 @@ router.post("/notificar-nomina", async (req, res) => {
                   <tr>
                       <td style="padding: 30px;">
                           <p style="font-size: 16px; color: #333;">Hola equipo de Nómina,</p>
-                          <p style="font-size: 15px; color: #555;">Se ha aprobado un nuevo contrato en el sistema <strong>WAS</strong> con los siguientes detalles:</p>
+                          <p style="font-size: 15px; color: #555;">Se ha aprobado un nuevo contrato en el sistema <strong>WSAC</strong> con los siguientes detalles:</p>
                           
                           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                               <p style="margin: 5px 0;"><strong>Colaborador:</strong> ${usuario.nombres} ${usuario.apellidos}</p>
@@ -917,7 +917,7 @@ router.post("/notificar-nomina", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WAS CLOUD - Gestión Documental</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD - Gestión Documental</p>
                       </td>
                   </tr>
               </table>
@@ -928,7 +928,7 @@ router.post("/notificar-nomina", async (req, res) => {
             await correoOutlook.sendMail({
               from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
               to: listaCorreos, // Envía a todos los de la tabla
-              subject: `Notifiación WAS: Contrato Aprobado - ${usuario.nombres}`,
+              subject: `Notificación WSAC: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
             });
 
@@ -999,7 +999,7 @@ router.post("/notificarRegistro", async (req, res) => {
                   </tr>
                   <tr>
                       <td style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 0 0 12px 12px;">
-                          <p style="font-size: 11px; color: #999; margin: 0;">WAS CLOUD</p>
+                          <p style="font-size: 11px; color: #999; margin: 0;">WSAC CLOUD</p>
                       </td>
                   </tr>
               </table>
@@ -1252,7 +1252,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
             <tr>
                 <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
                     <p style="font-size: 11px; color: #bbb; margin: 0;">
-                        WAS Auto-Notificaciones | ID de Transacción: ${Date.now()}<br>
+                        WSAC Auto-Notificaciones | ID de Transacción: ${Date.now()}<br>
                         Generado el: ${new Date().toLocaleString()}
                     </p>
                 </td>
@@ -1473,7 +1473,7 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
                       </tr>
                       <tr>
                           <td style="background-color: #ffffff; padding: 20px 30px; text-align: center; border-top: 1px solid #f0f0f0;">
-                              <p style="font-size: 11px; color: #bbb; margin: 0;">WAS Auto-Notificaciones | Generado el: ${new Date().toLocaleString()}</p>
+                              <p style="font-size: 11px; color: #bbb; margin: 0;">WSAC Auto-Notificaciones | Generado el: ${new Date().toLocaleString()}</p>
                           </td>
                       </tr>
                   </table>
@@ -1574,7 +1574,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
       const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
-                        <h2 style="margin: 0;">WAS FIRMA</h2>
+                        <h2 style="margin: 0;">WSAC FIRMA</h2>
                     </div>
                     <div style="padding: 30px;">
                         <h3>Hola, ${nombres}</h3>
@@ -1600,7 +1600,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
         await correoOutlook.sendMail({
           from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
           to: correo,
-          subject: "📝 Acción Requerida: Firma de Contratos - WAS",
+          subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
           html: htmlEmail,
           attachments: attachments, // <--- INDISPENSABLE: Aquí se anexan los archivos
         });
