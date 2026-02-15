@@ -34,20 +34,12 @@ const {
   CopyObjectCommand,
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
-<<<<<<< HEAD
-=======
-
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 // Configurar las credenciales (si no las tienes globales)
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION,
 });
-<<<<<<< HEAD
-
-=======
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
 
 const uploadSeguro = multer({
   storage: multer.memoryStorage(),
@@ -296,11 +288,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 
     // 3. Diseño de correo corporativo WAS
     const mailOptions = {
-<<<<<<< HEAD
       from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
-=======
-      from: '"WAS Contratación" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
       to: usuario.correo,
       subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
       html: `
@@ -451,11 +439,7 @@ router.post(
         // 4. CORREO DE CONFIRMACIÓN AL COLABORADOR
         try {
           await correoOutlook.sendMail({
-<<<<<<< HEAD
             from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-=======
-            from: '"WAS Sistema" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
             to: safeData.correo,
             subject: "Registro exitoso - Woden Colombia",
             html: `
@@ -777,11 +761,7 @@ router.post("/solicitar-subsanar", (req, res) => {
               `;
 
             await correoOutlook.sendMail({
-<<<<<<< HEAD
               from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
-=======
-              from: '"WAS Notificaciones" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: usuario.correo,
               subject: "Acción Requerida: Corregir Documentos - WAS",
               html: htmlEmail,
@@ -861,11 +841,7 @@ router.post("/notificar-aprobacion", async (req, res) => {
 
         // 3. Envío del correo
         await correoOutlook.sendMail({
-<<<<<<< HEAD
           from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
-=======
-          from: '"WAS Notificaciones" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
           to: usuario.correo,
           subject: "Documentos Aprobados - WAS INFO",
           html: htmlEmail,
@@ -950,11 +926,7 @@ router.post("/notificar-nomina", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-<<<<<<< HEAD
               from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-=======
-              from: '"WAS Sistema" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notifiación WAS: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1036,11 +1008,7 @@ router.post("/notificarRegistro", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-<<<<<<< HEAD
               from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-=======
-              from: '"WAS Sistema" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1294,11 +1262,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
     `;
 
           await correoOutlook.sendMail({
-<<<<<<< HEAD
             from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-=======
-            from: '"WAS Sistema" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
             to: listaCorreos,
             subject: `📢 Subsanación Recibida: ${usuario.nombres} ${usuario.apellidos}`,
             html: htmlAdmin,
@@ -1516,11 +1480,7 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
               </div>`;
 
               await correoOutlook.sendMail({
-<<<<<<< HEAD
                 from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-=======
-                from: '"WAS Sistema" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
                 to: listaCorreos,
                 subject: `✅ Firma Completada: ${usuario.nombres} ${usuario.apellidos}`,
                 html: htmlAdmin,
@@ -1638,11 +1598,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
 
       try {
         await correoOutlook.sendMail({
-<<<<<<< HEAD
           from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
-=======
-          from: '"WAS Contratación" <eagudelo@woden.com.co>',
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
           to: correo,
           subject: "📝 Acción Requerida: Firma de Contratos - WAS",
           html: htmlEmail,
@@ -1702,7 +1658,7 @@ router.post(
     }
   },
 );
-const mime = require("mime-types");
+
 router.post("/renombrar-archivo-s3", async (req, res) => {
   const { carpeta, nombreActual, nuevoNombre } = req.body;
 

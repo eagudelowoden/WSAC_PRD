@@ -198,10 +198,6 @@ const SegmentosMixin = {
         Swal.fire("Error", "No se pudo renombrar el archivo", "error");
       }
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> a12eae74f94e3927595cd63fe76f797b5d3249c2
     async eliminarContrato(archivo) {
       // 1. Determinar el nombre para mostrar en la alerta
       const nombreParaMostrar =
