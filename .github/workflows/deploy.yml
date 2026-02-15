@@ -15,7 +15,7 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }} # Esto lo configuraremos ahora
           script: |
-            cd C:/Users/Administrator/Documents/WSAC_PROD/source
+            cd C:/Users/Administrator/Documents/WSAC_PROD
             git pull origin main
             npm install
-            pm2 reload WSAC-Backend
+            pm2 reload woden-app
