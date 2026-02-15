@@ -15,6 +15,7 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            cmd /c "cd /d C:\Users\Administrator\Documents\WSAC_PROD && echo --- LOG DE DIAGNOSTICO --- > success_log.txt && cd >> success_log.txt && git fetch --all >> success_log.txt 2>&1 && git reset --hard origin/main >> success_log.txt 2>&1 && pm2 restart woden-app --update-env >> success_log.txt 2>&1 && echo FINALIZADO EL %DATE% >> success_log.txt"
             @echo off
             :: Entrar a la carpeta usando la ruta de Windows
             cd /d C:\Users\Administrator\Documents\WSAC_PROD
