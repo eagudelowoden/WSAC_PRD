@@ -48,4 +48,4 @@ jobs:
             📝 *Commit:* ${{ github.event.head_commit.message }}
             🌐 *URL:* http://3.133.217.145:8081
             
-            ✅ El servidor se ha actualizado y PM2 ha reiniciado el servicio correctamente.
+            ✅ El servidor se ha actualizado y PM2 ha reiniciado el servicio correctamente. ingresa para verificar
