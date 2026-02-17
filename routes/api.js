@@ -43,7 +43,7 @@ const s3 = new AWS.S3({
 
 const uploadSeguro = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
+  limits: { fileSize: 20 * 1024 * 1024 }, // Límite de 5MB
   fileFilter: (req, file, cb) => {
     const ALLOWED_TYPES = [
       "application/pdf",
@@ -88,7 +88,7 @@ const uploadMiddleware = uploadSeguro.fields([
   { name: "hv", maxCount: 1 },
   { name: "habeas", maxCount: 1 },
   { name: "consentimiento", maxCount: 1 },
-  { name: "historialPensional", maxCount: 1 },
+  { name: "historialLaboral", maxCount: 1 },
 ]);
 
 // ==========================================
