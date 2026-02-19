@@ -427,6 +427,16 @@ createApp({
     this.cargarSegmentos(); // Viene del Mixin
   },
   methods: {
+    seleccionarFiltro(estado) {
+      // 1. Cambiamos el estado (tu lógica actual)
+      this.filtroEstado = estado;
+
+      // 2. Forzamos el cierre del menú haciendo un click rápido al botón
+      if (this.$refs.dropdownBoton) {
+        this.$refs.dropdownBoton.click();
+      }
+    },
+
     async obtenerListaUsuarios() {
       // 1. Activamos el spinner antes de empezar
       this.cargandoUsuarios = true;
