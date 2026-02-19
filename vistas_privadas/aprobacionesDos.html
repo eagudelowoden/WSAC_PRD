@@ -63,54 +63,60 @@
           <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
         </button>
 
-        <div class="search-header" v-show="!sidebarContraida">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h6 class="fw-bold text-dark m-0">Colaboradores</h6>
-            <span class="badge bg-light text-secondary rounded-pill border">{{ usuariosFiltrados.length }}</span>
-          </div>
-
-          <div class="input-group mb-2">
-            <input type="text" class="form-control form-control-sm search-input" v-model="busqueda"
-              placeholder="Buscar..." />
-          </div>
-
-          <div class="d-flex justify-content-center mb-3">
-            <div class="dropdown">
-              <button ref="dropdownBoton" class="btn btn-xs rounded-pill dropdown-toggle shadow-sm" type="button"
-                data-bs-toggle="dropdown" :class="{
-        'btn-primary': filtroEstado === 'pendientes',
-        'btn-success': filtroEstado === 'aprobados',
-        'btn-secondary': filtroEstado === 'todos'
-      }">
-                <i class="bi bi-funnel-fill me-1"></i>
-                {{ filtroEstado === 'todos' ? 'Ver Todos' : 'Filtrar: ' + filtroEstado }}
+        <div class="search-header px-3 pt-3 pb-2" v-show="!sidebarContraida">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <h6 class="sidebar-label m-0">Colaboradores</h6>
+              <button class="refresh-icon-btn" :class="{ 'is-spinning': cargandoUsuarios }"
+                @click="obtenerListaUsuarios" :disabled="cargandoUsuarios">
+                <i class="bi bi-arrow-clockwise"></i>
               </button>
-
-              <ul class="dropdown-menu shadow border-0">
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" href="#"
-                    @click.prevent="seleccionarFiltro('pendientes')">
-                    <span class="badge bg-primary rounded-circle me-2">&nbsp;</span> Pendientes
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" href="#"
-                    @click.prevent="seleccionarFiltro('aprobados')">
-                    <span class="badge bg-success rounded-circle me-2">&nbsp;</span> Aprobados
-                  </a>
-                </li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" href="#"
-                    @click.prevent="seleccionarFiltro('todos')">
-                    <span class="badge bg-secondary rounded-circle me-2">&nbsp;</span> Ver Todos
-                  </a>
-                </li>
-              </ul>
             </div>
+            <span class="count-pill">{{ usuariosFiltrados.length }}</span>
           </div>
+
+          <div class="search-wrapper mb-2">
+            <i class="bi bi-search search-inside-icon"></i>
+            <input type="text" class="form-control pro-search-input" v-model="busqueda"
+              placeholder="Buscar nombre..." />
+          </div>
+
+<div class="dropdown w-100">
+  <button 
+    ref="dropdownBoton" 
+    class="mini-select-btn w-100" 
+    type="button"
+    data-bs-toggle="dropdown" 
+    :class="filtroEstado"
+  >
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <span class="mini-status-dot me-2" :class="'bg-' + filtroEstado"></span>
+        <span class="mini-text">{{ filtroEstado }}</span>
+      </div>
+      <i class="bi bi-chevron-expand opacity-50" style="font-size: 0.65rem;"></i>
+    </div>
+  </button>
+
+  <ul class="dropdown-menu mini-dropdown-menu shadow-sm border-0">
+    <li>
+      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('pendientes')">
+        <span class="dot-xs bg-pendientes"></span> Pendientes
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('aprobados')">
+        <span class="dot-xs bg-aprobados"></span> Aprobados
+      </a>
+    </li>
+    <li><hr class="dropdown-divider my-1 opacity-50"></li>
+    <li>
+      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('todos')">
+        <span class="dot-xs bg-todos"></span> Todos
+      </a>
+    </li>
+  </ul>
+</div>
         </div>
 
         <div class="user-list-container">

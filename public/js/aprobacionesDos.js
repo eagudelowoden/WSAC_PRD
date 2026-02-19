@@ -1061,7 +1061,7 @@ createApp({
         this.usuarioActual.descripcion_cargo = this.form.descripcion_cargo;
 
         // 3. MARCADO DE APROBACIÓN (Esto pone el 1 en la base de datos)
-        this.usuarioActual.aprobacion = 2;
+        this.usuarioActual.aprobacion = 3;
 
         // 4. Enviamos la petición al servidor
         const response = await fetch(

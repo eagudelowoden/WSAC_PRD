@@ -688,3 +688,290 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
     transform: scale(1.1);
     color: white;
 }
+/* Animación de rotación para el botón de refresco */
+.spinner-border-sm {
+  /* Esto hace que el icono de Bootstrap gire sobre su eje */
+  animation: spin-animation 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin-animation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efecto hover sutil para el icono */
+.bi-arrow-clockwise {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.bi-arrow-clockwise:hover {
+  color: #0d6efd !important; /* Cambia a azul al pasar el mouse */
+  transform: scale(1.1);    /* Se agranda un poquito */
+}
+
+/* Estilo para los puntitos de los filtros en el dropdown */
+.rounded-circle {
+  display: inline-block;
+  vertical-align: middle;
+}
+/* Input de búsqueda plano */
+.minimal-input {
+  width: 100%;
+  border: none;
+  background: rgba(0,0,0,0.03);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: background 0.2s;
+}
+
+.minimal-input:focus {
+  background: rgba(0,0,0,0.06);
+}
+
+/* Botón de selección estilo "Ghost" */
+.btn-ghost-select {
+  background: transparent;
+  border: none;
+  padding: 6px 4px;
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-transform: capitalize;
+}
+
+.btn-ghost-select:hover {
+  color: #000;
+}
+
+/* El punto de color pequeño */
+.mini-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ccc;
+}
+.mini-dot.pendientes { background: #0d6efd; }
+.mini-dot.aprobados { background: #198754; }
+.mini-dot.todos { background: #6c757d; }
+
+/* Icono de refresco minimalista */
+.refresh-mini {
+  font-size: 14px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.refresh-mini:hover { color: #666; }
+
+.refresh-mini.spinning {
+  display: inline-block;
+  animation: spin-min 1s infinite linear;
+  color: #0d6efd;
+}
+
+@keyframes spin-min {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Ajustes del menú desplegable */
+.mini-menu {
+  font-size: 13px;
+  border-radius: 8px;
+}
+/* --- Cabecera y Etiquetas --- */
+.sidebar-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b; /* Gris azulado moderno */
+  font-weight: 700;
+}
+
+.count-pill {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+/* --- Botón de Refresh --- */
+.refresh-icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 0;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.refresh-icon-btn:hover:not(:disabled) {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.refresh-icon-btn.is-spinning i {
+  display: inline-block;
+  animation: rotate-sync 0.8s infinite linear;
+  color: #3b82f6;
+}
+
+@keyframes rotate-sync {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- Input de Búsqueda --- */
+.search-wrapper {
+  position: relative;
+}
+
+.search-inside-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 0.85rem;
+  z-index: 5;
+}
+
+.pro-search-input {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding-left: 32px !important;
+  font-size: 0.85rem !important;
+  height: 38px;
+  transition: all 0.2s ease;
+}
+
+.pro-search-input:focus {
+  background-color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* --- Botón de Filtro Select --- */
+.filter-select-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.filter-select-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Indicadores laterales de color según estado */
+.filter-select-btn.pendientes { border-left: 4px solid #3b82f6; }
+.filter-select-btn.aprobados { border-left: 4px solid #10b981; }
+.filter-select-btn.todos { border-left: 4px solid #64748b; }
+
+/* --- Menú Dropdown --- */
+.pro-dropdown {
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 200px;
+}
+
+.dropdown-item {
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.dot-primary { background: #3b82f6; }
+.dot-success { background: #10b981; }
+.dot-secondary { background: #64748b; }
+
+/* Botón principal mucho más bajito */
+.mini-select-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 10px; /* Reducido al mínimo */
+  height: 30px;      /* Altura fija pequeña */
+  transition: all 0.2s;
+}
+
+.mini-select-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Texto compacto */
+.mini-text {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 500;
+  color: #475569;
+  text-transform: capitalize;
+}
+
+/* Punto de estado más pequeño */
+.mini-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Dropdown Menu Compacto */
+.mini-dropdown-menu {
+  padding: 4px;
+  min-width: 100%;
+  border-radius: 8px;
+}
+
+.mini-item {
+  padding: 4px 10px !important;
+  font-size: 0.75rem !important;
+  border-radius: 4px;
+  color: #64748b;
+}
+
+/* Colores de estados (Puntos extra pequeños) */
+.dot-xs {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+.bg-pendientes { background-color: #3b82f6; }
+.bg-aprobados  { background-color: #10b981; }
+.bg-todos      { background-color: #94a3b8; }
