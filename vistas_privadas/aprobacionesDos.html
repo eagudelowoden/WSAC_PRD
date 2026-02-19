@@ -74,43 +74,43 @@
               placeholder="Buscar..." />
           </div>
 
-<div class="d-flex justify-content-center mb-3">
-  <div class="dropdown">
-    <button 
-      ref="dropdownBoton"
-      class="btn btn-xs rounded-pill dropdown-toggle shadow-sm" 
-      type="button" 
-      data-bs-toggle="dropdown"
-      :class="{
+          <div class="d-flex justify-content-center mb-3">
+            <div class="dropdown">
+              <button ref="dropdownBoton" class="btn btn-xs rounded-pill dropdown-toggle shadow-sm" type="button"
+                data-bs-toggle="dropdown" :class="{
         'btn-primary': filtroEstado === 'pendientes',
         'btn-success': filtroEstado === 'aprobados',
         'btn-secondary': filtroEstado === 'todos'
-      }"
-    >
-      <i class="bi bi-funnel-fill me-1"></i>
-      {{ filtroEstado === 'todos' ? 'Ver Todos' : 'Filtrar: ' + filtroEstado }}
-    </button>
+      }">
+                <i class="bi bi-funnel-fill me-1"></i>
+                {{ filtroEstado === 'todos' ? 'Ver Todos' : 'Filtrar: ' + filtroEstado }}
+              </button>
 
-    <ul class="dropdown-menu shadow border-0">
-      <li>
-        <a class="dropdown-item d-flex align-items-center" href="#" @click.prevent="seleccionarFiltro('pendientes')">
-          <span class="badge bg-primary rounded-circle me-2">&nbsp;</span> Pendientes
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item d-flex align-items-center" href="#" @click.prevent="seleccionarFiltro('aprobados')">
-          <span class="badge bg-success rounded-circle me-2">&nbsp;</span> Aprobados
-        </a>
-      </li>
-      <li><hr class="dropdown-divider"></li>
-      <li>
-        <a class="dropdown-item d-flex align-items-center" href="#" @click.prevent="seleccionarFiltro('todos')">
-          <span class="badge bg-secondary rounded-circle me-2">&nbsp;</span> Ver Todos
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
+              <ul class="dropdown-menu shadow border-0">
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="#"
+                    @click.prevent="seleccionarFiltro('pendientes')">
+                    <span class="badge bg-primary rounded-circle me-2">&nbsp;</span> Pendientes
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="#"
+                    @click.prevent="seleccionarFiltro('aprobados')">
+                    <span class="badge bg-success rounded-circle me-2">&nbsp;</span> Aprobados
+                  </a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="#"
+                    @click.prevent="seleccionarFiltro('todos')">
+                    <span class="badge bg-secondary rounded-circle me-2">&nbsp;</span> Ver Todos
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
 
         <div class="user-list-container">
@@ -626,4 +626,5 @@
     </div>
     <script src="js/aprobacionesDos.js"></script>
 </body>
+
 </html>

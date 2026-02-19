@@ -390,6 +390,9 @@ createApp({
         });
       } else if (this.filtroEstado === "pendientes") {
         lista = lista.filter((u) => u.aprobacion === "1");
+      } else if (this.filtroEstado === "aprobados") {
+        // Aquí agregamos la condición para que filtre los que tengan valor "3"
+        lista = lista.filter((u) => u.aprobacion === "3");
       }
 
       // -----------------------------------------------------
