@@ -153,6 +153,34 @@ app.post("/api/login", (req, res) => {
   );
 });
 
+// AGREGA ESTO AQUÍ (Justo después de 'const app = express()')
+const serverID = Date.now().toString(); 
+
+app.get('/api/check-version', (req, res) => {
+  console.log("🔍 Petición de chequeo de versión recibida"); // Esto te servirá para ver en consola si llega
+  res.json({ version: serverID });
+});
+// Variable global para guardar el estado del aviso
+let avisoMantenimientoApp = {
+    activo: false,
+    mensaje: '',
+    fecha: ''
+};
+
+// RUTA 1: Para que cualquier usuario consulte si hay mantenimiento
+app.get('/api/check-mantenimiento', (req, res) => {
+    res.json(avisoMantenimientoApp);
+});
+
+// RUTA 2: Para que el Super Admin guarde/actualice el aviso
+app.post('/api/update-mantenimiento', (req, res) => {
+    const { activo, mensaje, fecha } = req.body;
+    
+    avisoMantenimientoApp = { activo, mensaje, fecha };
+    
+    console.log("📢 Aviso de mantenimiento actualizado por Admin");
+    res.json({ status: 'ok', message: 'Aviso actualizado correctamente' });
+});
 // En tu archivo de rutas de Express (ej. routes/auth.js o app.js)
 app.post("/api/logout", (req, res) => {
   // 1. Si usas Passport.js, esto limpia el objeto req.user

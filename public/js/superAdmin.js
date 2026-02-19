@@ -11,11 +11,30 @@ createApp({
       isDarkMode: false,
       userPermisoId: null,
       userPermisoNombre: "",
-      mapaPermisos: {
-        tarjeta_contratacion: false,
-        editar_salario: false,
-        editar_ciudad: false,
-      },
+      // Mantenemos solo lo que pertenece a permisos aquí
+    mapaPermisos: {
+      tarjeta_contratacion: false,
+      editar_salario: false,
+      editar_ciudad: false
+    },
+    // Sacamos estas propiedades al nivel principal para que el HTML las vea
+    avisoGlobal: { 
+      activo: false, 
+      mensaje: '', 
+      fecha: '' 
+    },
+    avisoMantenimiento: { 
+      activo: false, 
+      mensaje: '', 
+      fecha: '' 
+    },
+    modulosSistema: [
+      { id: 'admin', nombre: 'Panel Administrativo', checkVersion: true },
+      { id: 'aprobador', nombre: 'Panel Aprobadores', checkVersion: true },
+      { id: 'nomina', nombre: 'Módulo Nómina', checkVersion: false }
+    ],
+
+
     };
   },
   mounted() {
@@ -165,6 +184,28 @@ createApp({
         });
       }
     },
+    async guardarAvisoGlobal() {
+    if (!this.avisoMantenimiento.mensaje) {
+        Swal.fire('Atención', 'Escribe un mensaje para el aviso', 'warning');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/update-mantenimiento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(this.avisoMantenimiento)
+        });
+
+        if (res.ok) {
+            // Actualizamos la vista local
+            this.avisoGlobal = { ...this.avisoMantenimiento };
+            Swal.fire('¡Publicado!', 'El aviso ha sido enviado al servidor y será visible para todos.', 'success');
+        }
+    } catch (error) {
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+    }
+},
 
     async eliminarUsuario(id) {
       const result = await Swal.fire({

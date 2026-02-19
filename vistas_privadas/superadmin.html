@@ -11,6 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="css/superadmin.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="js/actualizacion-check.js"></script>
 </head>
 
 <body>
@@ -72,6 +75,11 @@
                         <button class="nav-link mb-2 py-3" :class="{ active: tab === 'permisos' }"
                             @click="tab = 'permisos'">
                             <i class="bi bi-key-fill me-2"></i> Permisos Especiales
+                        </button>
+
+                        <button class="nav-link mb-2 py-3" :class="{ active: tab === 'mantenimiento' }"
+                            @click="tab = 'mantenimiento'">
+                            <i class="bi bi-rocket-takeoff-fill me-2"></i> Control de Despliegue
                         </button>
 
 
@@ -268,6 +276,79 @@
                         </div>
                     </div>
                 </div>
+                <div v-if="tab === 'mantenimiento'" class="card border-0 shadow-sm rounded-4 animate-fade">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-tools text-orange me-2"></i>Gestión de Actualizaciones
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end">
+                                <label class="form-label-mini mb-3">1. Notificación Programada</label>
+                                <div class="p-3 rounded-4 bg-light-orange border border-orange border-opacity-25">
+                                    <div class="mb-3">
+                                        <label class="small fw-bold mb-1">Mensaje de Aviso</label>
+                                        <textarea v-model="avisoMantenimiento.mensaje"
+                                            class="form-control form-control-sm border-0 shadow-sm" rows="2"
+                                            placeholder="Ej: Realizaremos mantenimiento el viernes a las 6:00 PM..."></textarea>
+                                    </div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="small fw-bold mb-1">Fecha</label>
+                                            <input type="date" v-model="avisoMantenimiento.fecha"
+                                                class="form-control form-control-sm border-0 shadow-sm">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="small fw-bold mb-1">Habilitar</label>
+                                            <div class="form-check form-switch mt-1">
+                                                <input class="form-check-input" type="checkbox"
+                                                    v-model="avisoMantenimiento.activo">
+                                                <span class="small text-muted">{{ avisoMantenimiento.activo ? 'Visible'
+                                                    : 'Oculto' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-orange w-100 btn-sm rounded-3" @click="guardarAvisoGlobal">
+                                        <i class="bi bi-megaphone-fill me-1"></i> Publicar Aviso Global
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-mini mb-3">2. Forzar Cierre por Versión (PM2)</label>
+                                <div class="p-3 rounded-4 bg-light border">
+                                    <p class="smaller text-muted">Habilita qué módulos verán el aviso de "Nueva Versión"
+                                        tras el reinicio del servidor.</p>
+
+                                    <div class="list-group list-group-flush mb-3">
+                                        <div v-for="modulo in modulosSistema" :key="modulo.id"
+                                            class="list-group-item bg-transparent px-0 border-0">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                    v-model="modulo.checkVersion">
+                                                <label class="form-check-label small fw-bold">{{ modulo.nombre
+                                                    }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-warning py-2 border-0 rounded-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            <span style="font-size: 10px;">Al habilitar, los usuarios de estos módulos
+                                                serán desconectados al detectar un reinicio de PM2.</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-dark w-100 btn-sm rounded-3"
+                                        @click="actualizarPoliticaVersiones">
+                                        Guardar Configuración
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
         </div>

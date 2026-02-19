@@ -15,10 +15,32 @@
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script src="js/actualizacion-check.js"></script>
 </head>
 
 <body>
-  <div id="app">
+
+  <div id="app"> <transition name="slide-fade">
+      <div v-if="avisoGlobal && avisoGlobal.activo" class="maintenance-banner">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="pulse-icon"></div>
+            <div class="banner-content text-start">
+              <span class="banner-title">COMUNICADO OFICIAL</span>
+              <span class="banner-text">{{ avisoGlobal.mensaje }}</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="banner-date">
+              <i class="bi bi-calendar3 me-1"></i> {{ avisoGlobal.fecha }}
+            </span>
+            <button class="btn-close-banner" @click="avisoGlobal.activo = false">&times;</button>
+          </div>
+        </div>
+      </div>
+    </transition>
     <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
       style="flex-shrink: 0; min-height: 40px;">
       <span class="navbar-brand mb-0 d-flex align-items-center gap-2">

@@ -22,12 +22,18 @@ const SegmentosMixin = {
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       usuarioLogueadoId: null,
+      avisoGlobal: { 
+            activo: false, 
+            mensaje: '', 
+            fecha: '' 
+        },
     };
   },
   mounted() {
     // Al cargar la página, pedimos las listas necesarias
     this.cargarPlantillas();
     this.cargarSegmentos();
+    this.chequearAvisoMantenimiento();
   },
   methods: {
     // --- A. SEGMENTOS Y PDFs ---
@@ -428,6 +434,7 @@ createApp({
     this.obtenerListaUsuarios();
     this.cargarPlantillas(); // Viene del Mixin
     this.cargarSegmentos(); // Viene del Mixin
+    await this.chequearAvisoMantenimiento();
   },
   methods: {
     seleccionarFiltro(estado) {
@@ -439,7 +446,25 @@ createApp({
         this.$refs.dropdownBoton.click();
       }
     },
+    async chequearAvisoMantenimiento() {
+    try {
+        const response = await fetch('/api/check-mantenimiento');
+        const data = await response.json();
 
+        console.log("Datos recibidos del servidor:", data); // Mira si esto sale en F12
+
+        if (data && data.activo) {
+            // ASIGNACIÓN DIRECTA Y LIMPIA
+            this.avisoGlobal.activo = true;
+            this.avisoGlobal.mensaje = data.mensaje;
+            this.avisoGlobal.fecha = data.fecha;
+            
+            console.log("Variable avisoGlobal actualizada:", this.avisoGlobal);
+        }
+    } catch (error) {
+        console.error("Error al obtener mantenimiento:", error);
+    }
+},
     async obtenerListaUsuarios() {
       // 1. Activamos el spinner antes de empezar
       this.cargandoUsuarios = true;
