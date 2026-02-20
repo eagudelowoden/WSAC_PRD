@@ -15,14 +15,16 @@
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/socket.io/socket.io.js"></script>
 
 
-<script src="js/actualizacion-check.js"></script>
+  <script src="js/actualizacion-check.js"></script>
 </head>
 
 <body>
 
-  <div id="app"> <transition name="slide-fade">
+  <div id="app">
+    <transition name="slide-fade">
       <div v-if="avisoGlobal && avisoGlobal.activo" class="maintenance-banner">
         <div class="container-fluid d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-3">
@@ -103,42 +105,39 @@
               placeholder="Buscar nombre..." />
           </div>
 
-<div class="dropdown w-100">
-  <button 
-    ref="dropdownBoton" 
-    class="mini-select-btn w-100" 
-    type="button"
-    data-bs-toggle="dropdown" 
-    :class="filtroEstado"
-  >
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <span class="mini-status-dot me-2" :class="'bg-' + filtroEstado"></span>
-        <span class="mini-text">{{ filtroEstado }}</span>
-      </div>
-      <i class="bi bi-chevron-expand opacity-50" style="font-size: 0.65rem;"></i>
-    </div>
-  </button>
+          <div class="dropdown w-100">
+            <button ref="dropdownBoton" class="mini-select-btn w-100" type="button" data-bs-toggle="dropdown"
+              :class="filtroEstado">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                  <span class="mini-status-dot me-2" :class="'bg-' + filtroEstado"></span>
+                  <span class="mini-text">{{ filtroEstado }}</span>
+                </div>
+                <i class="bi bi-chevron-expand opacity-50" style="font-size: 0.65rem;"></i>
+              </div>
+            </button>
 
-  <ul class="dropdown-menu mini-dropdown-menu shadow-sm border-0">
-    <li>
-      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('pendientes')">
-        <span class="dot-xs bg-pendientes"></span> Pendientes
-      </a>
-    </li>
-    <li>
-      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('aprobados')">
-        <span class="dot-xs bg-aprobados"></span> Aprobados
-      </a>
-    </li>
-    <li><hr class="dropdown-divider my-1 opacity-50"></li>
-    <li>
-      <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('todos')">
-        <span class="dot-xs bg-todos"></span> Todos
-      </a>
-    </li>
-  </ul>
-</div>
+            <ul class="dropdown-menu mini-dropdown-menu shadow-sm border-0">
+              <li>
+                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('pendientes')">
+                  <span class="dot-xs bg-pendientes"></span> Pendientes
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('aprobados')">
+                  <span class="dot-xs bg-aprobados"></span> Aprobados
+                </a>
+              </li>
+              <li>
+                <hr class="dropdown-divider my-1 opacity-50">
+              </li>
+              <li>
+                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('todos')">
+                  <span class="dot-xs bg-todos"></span> Todos
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div class="user-list-container">

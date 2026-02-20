@@ -22,11 +22,12 @@ const SegmentosMixin = {
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       usuarioLogueadoId: null,
-      avisoGlobal: { 
-            activo: false, 
-            mensaje: '', 
-            fecha: '' 
-        },
+      avisoGlobal: {
+        activo: false,
+        mensaje: "",
+        fecha: "",
+      },
+      socket: null,
     };
   },
   mounted() {
@@ -34,6 +35,19 @@ const SegmentosMixin = {
     this.cargarPlantillas();
     this.cargarSegmentos();
     this.chequearAvisoMantenimiento();
+    this.socket = io();
+    if (typeof io !== "undefined") {
+      this.socket = io();
+      console.log("🔌 Socket conectado");
+
+      this.socket.on("nuevo-aviso-global", (aviso) => {
+        console.log("📢 Aviso recibido:", aviso);
+        // Forzamos la reactividad reemplazando el objeto completo
+        this.avisoGlobal = { ...aviso };
+      });
+    } else {
+      console.warn("⚠️ Socket.io no está cargado en el HTML");
+    }
   },
   methods: {
     // --- A. SEGMENTOS Y PDFs ---
@@ -447,24 +461,17 @@ createApp({
       }
     },
     async chequearAvisoMantenimiento() {
-    try {
-        const response = await fetch('/api/check-mantenimiento');
+      try {
+        const response = await fetch("/api/check-mantenimiento");
         const data = await response.json();
-
-        console.log("Datos recibidos del servidor:", data); // Mira si esto sale en F12
-
-        if (data && data.activo) {
-            // ASIGNACIÓN DIRECTA Y LIMPIA
-            this.avisoGlobal.activo = true;
-            this.avisoGlobal.mensaje = data.mensaje;
-            this.avisoGlobal.fecha = data.fecha;
-            
-            console.log("Variable avisoGlobal actualizada:", this.avisoGlobal);
+        if (data) {
+          // Reemplazo total para asegurar que v-if lo detecte
+          this.avisoGlobal = Object.assign({}, data);
         }
-    } catch (error) {
-        console.error("Error al obtener mantenimiento:", error);
-    }
-},
+      } catch (error) {
+        console.error("❌ Error al obtener mantenimiento:", error);
+      }
+    },
     async obtenerListaUsuarios() {
       // 1. Activamos el spinner antes de empezar
       this.cargandoUsuarios = true;

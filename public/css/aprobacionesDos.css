@@ -1,7 +1,12 @@
-
 /* Contenedores */
-.icon-box-mini { background-color: #fff4e5; padding: 6px 10px; }
-.separator-dashed { border-top: 1px dashed #eee; width: 100%; }
+.icon-box-mini {
+  background-color: #fff4e5;
+  padding: 6px 10px;
+}
+.separator-dashed {
+  border-top: 1px dashed #eee;
+  width: 100%;
+}
 
 /* Labels */
 .form-label-mini {
@@ -14,7 +19,12 @@
 }
 
 /* Inputs y Selects */
-.input-group-mini { position: relative; display: flex; align-items: center; width: 100%; }
+.input-group-mini {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
 .icon-mini {
   position: absolute;
   left: 10px;
@@ -23,9 +33,10 @@
   z-index: 5;
 }
 
-.form-select-mini, .form-control-mini {
+.form-select-mini,
+.form-control-mini {
   width: 100%;
-  padding: 6px 8px 6px 30px; 
+  padding: 6px 8px 6px 30px;
   background-color: #f8f9fa;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -35,7 +46,8 @@
 }
 
 /* Campos sin icono */
-input:not(.ps-4).form-control-mini, textarea.form-control-mini {
+input:not(.ps-4).form-control-mini,
+textarea.form-control-mini {
   padding-left: 10px;
 }
 
@@ -63,12 +75,19 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   font-size: 0.8rem;
 }
 
-.btn-gray-mini:hover { background-color: #8e95a1; opacity: 0.9; }
+.btn-gray-mini:hover {
+  background-color: #8e95a1;
+  opacity: 0.9;
+}
 
 /* AJUSTES RESPONSIVE ADICIONALES */
 @media (max-width: 576px) {
-  .card-body { padding: 1rem !important; }
-  .form-label-mini { font-size: 0.6rem; }
+  .card-body {
+    padding: 1rem !important;
+  }
+  .form-label-mini {
+    font-size: 0.6rem;
+  }
 }
 
 .flex-grow-1 {
@@ -79,11 +98,18 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   margin-top: auto; /* Empuja los botones hacia el fondo si la card crece */
 }
 
-
 /* Contenedores */
-.bg-primary-light { background-color: #e7f1ff; padding: 4px 8px; }
-.bg-faint { background-color: #fcfcfc; }
-.border-dashed { border-style: dashed !important; border-color: #eee !important; }
+.bg-primary-light {
+  background-color: #e7f1ff;
+  padding: 4px 8px;
+}
+.bg-faint {
+  background-color: #fcfcfc;
+}
+.border-dashed {
+  border-style: dashed !important;
+  border-color: #eee !important;
+}
 
 /* Tipografía equilibrada */
 .form-label-mini {
@@ -137,12 +163,15 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 }
 
 /* Colores */
-.bg-orange-light { background-color: #fffaf0 !important; }
-.border-orange { border-color: #ffec99 !important; }
-.text-orange { color: #f08c00 !important; }
-
-
-
+.bg-orange-light {
+  background-color: #fffaf0 !important;
+}
+.border-orange {
+  border-color: #ffec99 !important;
+}
+.text-orange {
+  color: #f08c00 !important;
+}
 
 /* Elimina bordes y reset del select para integración total */
 .form-select-mini-borderless {
@@ -212,19 +241,22 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   display: flex;
   align-items: center;
 }
-.btn-icon-link:hover { opacity: 0.7; }
-
-
+.btn-icon-link:hover {
+  opacity: 0.7;
+}
 
 /* Scrollbar minimalista */
-.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
 .custom-scroll::-webkit-scrollbar-thumb {
   background: #dee2e6;
   border-radius: 10px;
 }
 
-.transition-all { transition: all 0.2s ease-in-out; }
-
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
 
 /* Botón Azul de la Imagen */
 .btn-primary-action {
@@ -276,7 +308,9 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   text-transform: uppercase;
 }
 
-.w-100 { width: 100% !important; }
+.w-100 {
+  width: 100% !important;
+}
 /* Altura máxima y control de scroll */
 .scroll-historial {
   max-height: 160px; /* Ajusta este valor según prefieras (aprox 4-5 filas) */
@@ -314,9 +348,6 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   border-bottom: 1px solid #f1f1f1 !important;
 }
 
-
-
-
 /* Grid de documentos */
 .doc-grid {
   display: grid;
@@ -339,7 +370,7 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 
 .doc-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
   border-color: #dee2e6;
 }
 
@@ -414,7 +445,6 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-
 /* Contenedor del Scroll */
 .scroll-area {
   max-height: 400px; /* Altura máxima antes de activar el scroll */
@@ -463,7 +493,7 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 .doc-card:hover {
   border-color: #3498db;
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 /* Icono PDF */
@@ -533,57 +563,57 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   font-size: 0.8rem;
 }
 .btn-contract-mini {
-    background-color: #1e3a8a; /* Azul Navy Profesional */
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 10px 15px;
-    border-radius: 10px;
-    border: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  background-color: #1e3a8a; /* Azul Navy Profesional */
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-contract-mini:hover {
-    background-color: #cd4b23; /* Azul un poco más claro al pasar el mouse */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.3);
-    color: white;
+  background-color: #cd4b23; /* Azul un poco más claro al pasar el mouse */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(30, 58, 138, 0.3);
+  color: white;
 }
 
 .btn-contract-mini:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .btn-contract-mini i {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
 }
 .btn-contract-mini {
-    background-color: #1a3a8a !important; /* Azul oscuro de tu imagen */
-    color: white !important;
-    border-radius: 12px;
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px !important;
-    box-shadow: 0 4px 12px rgba(26, 58, 138, 0.2);
+  background-color: #1a3a8a !important; /* Azul oscuro de tu imagen */
+  color: white !important;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px !important;
+  box-shadow: 0 4px 12px rgba(26, 58, 138, 0.2);
 }
 
 .btn-contract-mini i {
-    background: white;
-    color: #1a3a8a;
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-size: 0.9rem;
+  background: white;
+  color: #1a3a8a;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 /* Alineación para móviles */
@@ -595,66 +625,65 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 
 /* Botón Firma Muy Pequeño y Moderno */
 .btn-signature-compact {
-    background-color: #0891b2;
-    color: white !important;
-    border: none;
-    border-radius: 8px; /* Bordes un poco menos redondeados para el tamaño pequeño */
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 32px; /* Altura fija para control total */
+  background-color: #0891b2;
+  color: white !important;
+  border: none;
+  border-radius: 8px; /* Bordes un poco menos redondeados para el tamaño pequeño */
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px; /* Altura fija para control total */
 }
 
 .btn-signature-compact:hover:not(:disabled) {
-    background-color: #0e7490;
-    box-shadow: 0 4px 8px rgba(8, 145, 178, 0.2);
+  background-color: #0e7490;
+  box-shadow: 0 4px 8px rgba(8, 145, 178, 0.2);
 }
 
 .btn-signature-compact:disabled {
-    background-color: #f1f5f9;
-    color: #cbd5e1 !important;
-    cursor: not-allowed;
+  background-color: #f1f5f9;
+  color: #cbd5e1 !important;
+  cursor: not-allowed;
 }
 
 /* Ajuste del icono para que no se vea gigante */
 .btn-signature-compact i {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
 }
 
 /* Botones de acción miniatura */
 .btn-action-circle-mini {
-    width: 24px;  /* Reducido de 34px */
-    height: 24px; /* Reducido de 34px */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
+  width: 24px; /* Reducido de 34px */
+  height: 24px; /* Reducido de 34px */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-action-circle-mini i {
-    font-size: 0.65rem; /* Iconos internos más pequeños */
+  font-size: 0.65rem; /* Iconos internos más pequeños */
 }
 
 /* Colores corporativos */
 
-
 .btn-action-circle-mini:hover {
-    transform: scale(1.1);
-    filter: brightness(0.9);
+  transform: scale(1.1);
+  filter: brightness(0.9);
 }
 
 /* Ajuste de la fila */
 .item-modern-pdf {
-    background-color: #f8f9fa;
-    transition: background-color 0.2s;
+  background-color: #f8f9fa;
+  transition: background-color 0.2s;
 }
 
 .item-modern-pdf:hover {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 /* Scrollbar ultra fino */
@@ -666,27 +695,25 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   border-radius: 10px;
 }
 
-
-
 .bg-success-custom {
-    background-color: #25d366;
-    color: white;
-    border: none;
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 0.8rem;
-    transition: 0.3s;
-    text-decoration: none;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  transition: 0.3s;
+  text-decoration: none;
 }
 
 .bg-success-custom:hover {
-    background-color: #128c7e;
-    transform: scale(1.1);
-    color: white;
+  background-color: #128c7e;
+  transform: scale(1.1);
+  color: white;
 }
 /* Animación de rotación para el botón de refresco */
 .spinner-border-sm {
@@ -706,12 +733,14 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 
 /* Efecto hover sutil para el icono */
 .bi-arrow-clockwise {
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .bi-arrow-clockwise:hover {
   color: #0d6efd !important; /* Cambia a azul al pasar el mouse */
-  transform: scale(1.1);    /* Se agranda un poquito */
+  transform: scale(1.1); /* Se agranda un poquito */
 }
 
 /* Estilo para los puntitos de los filtros en el dropdown */
@@ -723,7 +752,7 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 .minimal-input {
   width: 100%;
   border: none;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 13px;
@@ -732,7 +761,7 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 }
 
 .minimal-input:focus {
-  background: rgba(0,0,0,0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* Botón de selección estilo "Ghost" */
@@ -759,9 +788,15 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   border-radius: 50%;
   background: #ccc;
 }
-.mini-dot.pendientes { background: #0d6efd; }
-.mini-dot.aprobados { background: #198754; }
-.mini-dot.todos { background: #6c757d; }
+.mini-dot.pendientes {
+  background: #0d6efd;
+}
+.mini-dot.aprobados {
+  background: #198754;
+}
+.mini-dot.todos {
+  background: #6c757d;
+}
 
 /* Icono de refresco minimalista */
 .refresh-mini {
@@ -771,7 +806,9 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   transition: color 0.2s;
 }
 
-.refresh-mini:hover { color: #666; }
+.refresh-mini:hover {
+  color: #666;
+}
 
 .refresh-mini.spinning {
   display: inline-block;
@@ -780,8 +817,12 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 }
 
 @keyframes spin-min {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Ajustes del menú desplegable */
@@ -831,8 +872,12 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 }
 
 @keyframes rotate-sync {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Input de Búsqueda --- */
@@ -884,9 +929,15 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
 }
 
 /* Indicadores laterales de color según estado */
-.filter-select-btn.pendientes { border-left: 4px solid #3b82f6; }
-.filter-select-btn.aprobados { border-left: 4px solid #10b981; }
-.filter-select-btn.todos { border-left: 4px solid #64748b; }
+.filter-select-btn.pendientes {
+  border-left: 4px solid #3b82f6;
+}
+.filter-select-btn.aprobados {
+  border-left: 4px solid #10b981;
+}
+.filter-select-btn.todos {
+  border-left: 4px solid #64748b;
+}
 
 /* --- Menú Dropdown --- */
 .pro-dropdown {
@@ -915,9 +966,15 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   margin-right: 12px;
 }
 
-.dot-primary { background: #3b82f6; }
-.dot-success { background: #10b981; }
-.dot-secondary { background: #64748b; }
+.dot-primary {
+  background: #3b82f6;
+}
+.dot-success {
+  background: #10b981;
+}
+.dot-secondary {
+  background: #64748b;
+}
 
 /* Botón principal mucho más bajito */
 .mini-select-btn {
@@ -925,7 +982,7 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   padding: 4px 10px; /* Reducido al mínimo */
-  height: 30px;      /* Altura fija pequeña */
+  height: 30px; /* Altura fija pequeña */
   transition: all 0.2s;
 }
 
@@ -972,6 +1029,115 @@ input:not(.ps-4).form-control-mini, textarea.form-control-mini {
   display: inline-block;
 }
 
-.bg-pendientes { background-color: #3b82f6; }
-.bg-aprobados  { background-color: #10b981; }
-.bg-todos      { background-color: #94a3b8; }
+.bg-pendientes {
+  background-color: #3b82f6;
+}
+.bg-aprobados {
+  background-color: #10b981;
+}
+.bg-todos {
+  background-color: #94a3b8;
+}
+
+/* --- Contenedor Flotante Compacto --- */
+.maintenance-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  min-width: 300px;
+  max-width: 400px;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #0d6efd; /* Color azul profesional o usa #f39c12 para alerta */
+}
+
+/* --- Títulos y Textos Pequeños --- */
+.banner-title {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #6c757d;
+  letter-spacing: 0.8px;
+  margin-bottom: 1px;
+}
+
+.banner-text {
+  display: block;
+  font-size: 0.85rem;
+  color: #212529;
+  line-height: 1.2;
+}
+
+.banner-date {
+  font-size: 0.75rem;
+  color: #adb5bd;
+  white-space: nowrap;
+}
+
+/* --- El Punto de Pulso (Más discreto) --- */
+.pulse-icon {
+  width: 8px;
+  height: 8px;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  position: relative;
+}
+
+.pulse-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* --- Botón de Cierre --- */
+.btn-close-banner {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #dee2e6;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.btn-close-banner:hover {
+  color: #6c757d;
+}
+
+/* --- Animación de Entrada (Desliza desde la derecha) --- */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.4s ease-out;
+}
+
+.slide-fade-enter-from {
+  transform: translateX(100px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
+}

@@ -19,6 +19,13 @@ const jwt = require("jsonwebtoken");
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+const io = new Server(server);
+app.use(express.json());
+
 // ==========================================
 // 2. CONFIGURACIONES GLOBALES (MySQL Store y Correo)
 // ==========================================
@@ -154,32 +161,35 @@ app.post("/api/login", (req, res) => {
 });
 
 // AGREGA ESTO AQUÍ (Justo después de 'const app = express()')
-const serverID = Date.now().toString(); 
+const serverID = Date.now().toString();
 
-app.get('/api/check-version', (req, res) => {
+app.get("/api/check-version", (req, res) => {
   console.log("🔍 Petición de chequeo de versión recibida"); // Esto te servirá para ver en consola si llega
   res.json({ version: serverID });
 });
 // Variable global para guardar el estado del aviso
 let avisoMantenimientoApp = {
-    activo: false,
-    mensaje: '',
-    fecha: ''
+  activo: false,
+  mensaje: "",
+  fecha: "",
 };
 
 // RUTA 1: Para que cualquier usuario consulte si hay mantenimiento
-app.get('/api/check-mantenimiento', (req, res) => {
-    res.json(avisoMantenimientoApp);
+app.get("/api/check-mantenimiento", (req, res) => {
+  res.json(avisoMantenimientoApp);
 });
 
 // RUTA 2: Para que el Super Admin guarde/actualice el aviso
-app.post('/api/update-mantenimiento', (req, res) => {
-    const { activo, mensaje, fecha } = req.body;
-    
-    avisoMantenimientoApp = { activo, mensaje, fecha };
-    
-    console.log("📢 Aviso de mantenimiento actualizado por Admin");
-    res.json({ status: 'ok', message: 'Aviso actualizado correctamente' });
+// RUTA POST: Cuando el Admin guarda, el servidor "Grita" el aviso a todos
+app.post("/api/update-mantenimiento", (req, res) => {
+  const { activo, mensaje, fecha } = req.body;
+  avisoMantenimientoApp = { activo, mensaje, fecha };
+
+  // 📢 ESTA ES LA MAGIA: Envía el objeto a TODOS los clientes conectados
+  io.emit("nuevo-aviso-global", avisoMantenimientoApp);
+
+  console.log("📢 Aviso emitido por Socket a todos los usuarios");
+  res.json({ status: "ok" });
 });
 // En tu archivo de rutas de Express (ej. routes/auth.js o app.js)
 app.post("/api/logout", (req, res) => {
@@ -423,26 +433,26 @@ app.use(
   }),
 );
 app.get("/time-colombia", (req, res) => {
-    try {
-        const ahora = new Date();
-        
-        // Formato para mostrar (puedes ajustar el nombre si tu frontend busca 'fecha_hora')
-        const fechaColombiaStr = ahora.toLocaleString('es-CO', {
-            timeZone: 'America/Bogota',
-            hour12: false
-        });
+  try {
+    const ahora = new Date();
 
-        res.json({
-            // Enviamos el objeto Date real para que Ionic no falle al procesarlo
-            datetime: ahora.toISOString(), 
-            formatted: fechaColombiaStr,
-            // Agregamos este campo por si tu frontend lo busca con este nombre
-            fecha_hora: ahora.toISOString(), 
-            status: "ok"
-        });
-    } catch (error) {
-        res.status(500).json({ status: "error", message: error.message });
-    }
+    // Formato para mostrar (puedes ajustar el nombre si tu frontend busca 'fecha_hora')
+    const fechaColombiaStr = ahora.toLocaleString("es-CO", {
+      timeZone: "America/Bogota",
+      hour12: false,
+    });
+
+    res.json({
+      // Enviamos el objeto Date real para que Ionic no falle al procesarlo
+      datetime: ahora.toISOString(),
+      formatted: fechaColombiaStr,
+      // Agregamos este campo por si tu frontend lo busca con este nombre
+      fecha_hora: ahora.toISOString(),
+      status: "ok",
+    });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
 });
 
 // ==========================================
