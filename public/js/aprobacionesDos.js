@@ -19,9 +19,9 @@ const SegmentosMixin = {
       docGenerado: null, // <--- AGREGA ESTO AQUÍ
       cargandoCargos: false,
       cargandoUsuario: false,
-      usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       usuarioLogueadoId: null,
+      usuarioSys: null,
       avisoGlobal: {
         activo: false,
         mensaje: "",
@@ -35,19 +35,24 @@ const SegmentosMixin = {
     this.cargarPlantillas();
     this.cargarSegmentos();
     this.chequearAvisoMantenimiento();
-    this.socket = io();
-    if (typeof io !== "undefined") {
-      this.socket = io();
-      console.log("🔌 Socket conectado");
 
-      this.socket.on("nuevo-aviso-global", (aviso) => {
-        console.log("📢 Aviso recibido:", aviso);
-        // Forzamos la reactividad reemplazando el objeto completo
-        this.avisoGlobal = { ...aviso };
-      });
-    } else {
-      console.warn("⚠️ Socket.io no está cargado en el HTML");
-    }
+    // if (typeof io !== "undefined") {
+    //   try {
+    //     this.socket = io();
+    //     this.socket.on("nuevo-aviso-global", (aviso) => {
+    //       console.log("📢 Aviso recibido:", aviso);
+    //       this.avisoGlobal = { ...aviso };
+    //     });
+    //     console.log("🔌 Socket conectado correctamente");
+    //   } catch (err) {
+    //     console.error("❌ Error al conectar socket:", err);
+    //   }
+    // } else {
+    //   console.warn(
+    //     "⚠️ Socket.io no detectado. Revisa que esté el script en el HTML.",
+    //   );
+    // }
+    
   },
   methods: {
     // --- A. SEGMENTOS Y PDFs ---
@@ -436,19 +441,47 @@ createApp({
     },
   },
   async mounted() {
-    // 1. Identificar quién está logueado primero
-    await this.identificarAdmin();
+    // 1. PRIMERO: Identificar al usuario (Lo más importante)
+    try {
+      await this.identificarAdmin();
+      console.log("👤 Usuario cargado:", this.usuarioSys?.nombre);
 
-    // 2. Si hay usuario, cargar sus permisos específicos
-    if (this.usuarioSys && this.usuarioSys.id) {
-      await this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
+      // Solo si el usuario cargó bien, traemos su lista
+      if (this.usuarioSys) {
+        this.obtenerListaUsuarios();
+      }
+    } catch (e) {
+      console.error("❌ Error al identificar usuario:", e);
     }
 
-    // 3. Cargar datos generales
-    this.obtenerListaUsuarios();
-    this.cargarPlantillas(); // Viene del Mixin
-    this.cargarSegmentos(); // Viene del Mixin
-    await this.chequearAvisoMantenimiento();
+    // 2. SEGUNDO: Cargar datos de la interfaz
+    this.cargarPlantillas();
+    this.cargarSegmentos();
+    this.chequearAvisoMantenimiento();
+    this.socket = io();
+    // 3. TERCERO: Conectar Socket (Con protección total)
+    if (typeof io !== "undefined") {
+      try {
+        // Importante: No llamar a io() fuera del try/catch
+        this.socket = io();
+
+        this.socket.on("nuevo-aviso-global", (aviso) => {
+          console.log("📢 Aviso recibido por Socket:", aviso);
+          this.avisoGlobal = { ...aviso };
+        });
+
+        this.socket.on("connect_error", (err) => {
+          console.warn(
+            "⚠️ Error de conexión de socket (Servidor posiblemente caído):",
+            err.message,
+          );
+        });
+      } catch (err) {
+        console.error("❌ Error crítico al inicializar socket:", err);
+      }
+    } else {
+      console.warn("⚠️ Librería Socket.io no encontrada en el HTML.");
+    }
   },
   methods: {
     seleccionarFiltro(estado) {
