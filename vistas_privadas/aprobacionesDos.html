@@ -15,7 +15,7 @@
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="js/actualizacion-check.js"></script>
 
 
@@ -38,7 +38,7 @@
             <span class="banner-date">
               <i class="bi bi-calendar3 me-1"></i> {{ avisoGlobal.fecha }}
             </span>
-            <button class="btn-close-banner" @click="avisoGlobal.activo = false">&times;</button>
+            <button class="btn-close-banner" @click="cerrarBannerPorAhora">&times;</button>
           </div>
         </div>
       </div>

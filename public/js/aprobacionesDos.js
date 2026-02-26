@@ -22,11 +22,9 @@ const SegmentosMixin = {
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       usuarioLogueadoId: null,
       usuarioSys: null,
-      avisoGlobal: {
-        activo: false,
-        mensaje: "",
-        fecha: "",
-      },
+      avisoGlobal: { activo: false, mensaje: "", fecha: "" },
+      bannerCerradoManualmente: false,
+      busqueda: "",
       socket: null,
     };
   },
@@ -52,7 +50,6 @@ const SegmentosMixin = {
     //     "⚠️ Socket.io no detectado. Revisa que esté el script en el HTML.",
     //   );
     // }
-    
   },
   methods: {
     // --- A. SEGMENTOS Y PDFs ---
@@ -458,6 +455,10 @@ createApp({
     this.cargarPlantillas();
     this.cargarSegmentos();
     this.chequearAvisoMantenimiento();
+    setInterval(() => {
+      this.chequearAvisoMantenimiento();
+    }, 30000);
+
     this.socket = io();
     // 3. TERCERO: Conectar Socket (Con protección total)
     if (typeof io !== "undefined") {
@@ -493,13 +494,29 @@ createApp({
         this.$refs.dropdownBoton.click();
       }
     },
+    cerrarBannerPorAhora() {
+      this.bannerCerradoManualmente = true;
+      this.avisoGlobal.activo = false; // Lo ocultamos de inmediato
+    },
     async chequearAvisoMantenimiento() {
+      // Si el usuario ya lo cerró, no perdamos tiempo procesando la respuesta
+      if (this.bannerCerradoManualmente) return;
+
       try {
-        const response = await fetch("/api/check-mantenimiento");
+        const response = await fetch(
+          "/api/check-mantenimiento?t=" + new Date().getTime(),
+        );
         const data = await response.json();
+
         if (data) {
-          // Reemplazo total para asegurar que v-if lo detecte
-          this.avisoGlobal = Object.assign({}, data);
+          // Solo actualizamos si el servidor dice que está activo
+          // Si el servidor dijera 'false' de repente, reiniciamos la bandera
+          // por si en el futuro vuelven a activar otro mantenimiento distinto.
+          if (data.activo === false) {
+            this.bannerCerradoManualmente = false;
+          }
+
+          this.avisoGlobal = { ...data };
         }
       } catch (error) {
         console.error("❌ Error al obtener mantenimiento:", error);
