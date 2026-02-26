@@ -466,9 +466,16 @@ createApp({
         // Importante: No llamar a io() fuera del try/catch
         this.socket = io();
 
+        // Dentro de tu mounted, donde inicializas el socket
         this.socket.on("nuevo-aviso-global", (aviso) => {
-          console.log("📢 Aviso recibido por Socket:", aviso);
-          this.avisoGlobal = { ...aviso };
+          console.log("📢 Socket Recibido:", aviso);
+
+          if (!this.bannerCerradoManualmente) {
+            this.avisoGlobal = {
+              ...aviso,
+              activo: aviso.activo == true || aviso.activo == 1,
+            };
+          }
         });
 
         this.socket.on("connect_error", (err) => {
@@ -499,7 +506,6 @@ createApp({
       this.avisoGlobal.activo = false; // Lo ocultamos de inmediato
     },
     async chequearAvisoMantenimiento() {
-      // Si el usuario ya lo cerró, no perdamos tiempo procesando la respuesta
       if (this.bannerCerradoManualmente) return;
 
       try {
@@ -508,15 +514,23 @@ createApp({
         );
         const data = await response.json();
 
+        console.log("🔍 Datos crudos del servidor:", data);
+
         if (data) {
-          // Solo actualizamos si el servidor dice que está activo
-          // Si el servidor dijera 'false' de repente, reiniciamos la bandera
-          // por si en el futuro vuelven a activar otro mantenimiento distinto.
-          if (data.activo === false) {
+          // CONVERSIÓN EXPLÍCITA: Si viene 1, 0, "1" o "true", esto lo vuelve booleano real
+          const estadoActivo = data.activo == true || data.activo == 1;
+
+          if (!estadoActivo) {
             this.bannerCerradoManualmente = false;
           }
 
-          this.avisoGlobal = { ...data };
+          // Creamos el objeto limpio para Vue
+          this.avisoGlobal = {
+            ...data,
+            activo: estadoActivo,
+          };
+
+          console.log("✅ avisoGlobal actualizado:", this.avisoGlobal);
         }
       } catch (error) {
         console.error("❌ Error al obtener mantenimiento:", error);

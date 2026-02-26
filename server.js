@@ -175,21 +175,60 @@ let avisoMantenimientoApp = {
 };
 
 // RUTA 1: Para que cualquier usuario consulte si hay mantenimiento
+// RUTA 1 CORREGIDA: Consulta a la base de datos, no a la variable vacía
 app.get("/api/check-mantenimiento", (req, res) => {
-  res.json(avisoMantenimientoApp);
-});
+  const query =
+    "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1";
 
-// RUTA 2: Para que el Super Admin guarde/actualice el aviso
-// RUTA POST: Cuando el Admin guarda, el servidor "Grita" el aviso a todos
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("❌ Error al consultar mantenimiento:", err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    // Si la tabla tiene datos, devolvemos la fila 1
+    if (result.length > 0) {
+      res.json(result[0]);
+    } else {
+      // Si por alguna razón la tabla está vacía, devolvemos un estado por defecto
+      res.json({ activo: false, mensaje: "", fecha: "" });
+    }
+  });
+});
 app.post("/api/update-mantenimiento", (req, res) => {
   const { activo, mensaje, fecha } = req.body;
-  avisoMantenimientoApp = { activo, mensaje, fecha };
 
-  // 📢 ESTA ES LA MAGIA: Envía el objeto a TODOS los clientes conectados
-  io.emit("nuevo-aviso-global", avisoMantenimientoApp);
+  // 1. Guardamos en la Base de Datos (Persistencia)
+  const query =
+    "UPDATE mantenimiento SET activo = ?, mensaje = ?, fecha = ? WHERE id = 1";
 
-  console.log("📢 Aviso emitido por Socket a todos los usuarios");
-  res.json({ status: "ok" });
+  db.query(query, [activo, mensaje, fecha], (err, result) => {
+    if (err) {
+      console.error("❌ Error en DB:", err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    // 2. Preparamos el objeto para el grito (Socket)
+    const datosAviso = { activo, mensaje, fecha };
+
+    // 3. ¡LA MAGIA! Emitimos a todos los clientes (Tiempo Real)
+    // Usamos io o global.io según como lo tengas definido
+    const socketInstance = global.io || io;
+
+    if (socketInstance) {
+      socketInstance.emit("nuevo-aviso-global", datosAviso);
+      console.log(
+        "📢 Aviso emitido por Socket a todos los usuarios conectados",
+      );
+    } else {
+      console.warn("⚠️ Socket.io no está inicializado correctamente");
+    }
+
+    res.json({
+      status: "ok",
+      mensaje: "Aviso guardado en DB y notificado por Socket",
+    });
+  });
 });
 // En tu archivo de rutas de Express (ej. routes/auth.js o app.js)
 app.post("/api/logout", (req, res) => {

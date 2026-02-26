@@ -29,6 +29,7 @@ createApp({
         mensaje: "",
         fecha: "",
       },
+      tab: "mantenimiento",
       modulosSistema: [
         { id: "admin", nombre: "Panel Administrativo", checkVersion: true },
         { id: "aprobador", nombre: "Panel Aprobadores", checkVersion: true },
@@ -41,6 +42,7 @@ createApp({
     this.isDarkMode = savedTheme === "dark";
     document.documentElement.setAttribute("data-bs-theme", savedTheme);
     this.cargarDatos();
+    this.cargarEstadoMantenimiento();
     this.socket = io();
     this.socket.on("nuevo-aviso-global", (aviso) => {
       this.avisoGlobal = aviso;
@@ -91,6 +93,28 @@ createApp({
 
       const resNom = await fetch("/api/admin/emails-nomina");
       this.emailsNomina = await resNom.json();
+    },
+    async cargarEstadoMantenimiento() {
+      try {
+        const res = await fetch("/api/check-mantenimiento?t=" + Date.now());
+        const data = await res.json();
+
+        console.log("📦 Datos recibidos para el panel:", data);
+
+        if (data) {
+          // Usamos Object.assign o el spread operator para asegurar la reactividad
+          this.avisoMantenimiento = {
+            mensaje: data.mensaje || "",
+            fecha: data.fecha || "",
+            // IMPORTANTE: data.activo == 1 convierte el número de la DB en true/false
+            activo: data.activo == 1 || data.activo == true,
+          };
+
+          console.log("✅ Formulario sincronizado:", this.avisoMantenimiento);
+        }
+      } catch (e) {
+        console.error("❌ Error al cargar configuración inicial", e);
+      }
     },
 
     // --- LÓGICA USUARIOS ---
@@ -201,13 +225,16 @@ createApp({
         });
 
         if (res.ok) {
-          // Actualizamos la vista local
+          this.bannerCerradoManualmente = false;
           this.avisoGlobal = { ...this.avisoMantenimiento };
-          Swal.fire(
-            "¡Publicado!",
-            "El aviso ha sido enviado al servidor y será visible para todos.",
-            "success",
-          );
+
+          Swal.fire({
+            icon: "success",
+            title: "¡Publicado!",
+            text: "Sincronizado con Base de Datos y Sockets.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
         }
       } catch (error) {
         Swal.fire("Error", "No se pudo conectar con el servidor", "error");
