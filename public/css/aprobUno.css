@@ -666,3 +666,95 @@ button:disabled {
   background-color: #f8f9fa;
   color: #3498db;
 }
+/* --- Banner Estilo Corporativo Slim --- */
+.official-banner {
+  background: #f8f9fa; /* Fondo claro para que no canse la vista */
+  border-bottom: 1px solid #dee2e6;
+  padding: 4px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.banner-inner {
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.banner-left, .banner-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Badge pequeño azul */
+.badge-official {
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: #0d6efd;
+  color: white;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+
+.banner-message {
+  font-size: 0.85rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.banner-timestamp {
+  font-size: 0.75rem;
+  color: #adb5bd;
+  margin-right: 15px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #ced4da;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover { color: #dc3545; }
+
+/* --- Punto de Pulso Verde (Indica "En Vivo") --- */
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: #198754;
+  border-radius: 50%;
+  margin-right: 8px;
+  position: relative;
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  width: 100%; height: 100%;
+  background: #198754;
+  border-radius: 50%;
+  animation: ripple 2s infinite;
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* --- Animación de Despliegue (Empuja el contenido) --- */
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: all 0.3s ease-in-out;
+  max-height: 50px; /* Ajusta según el tamaño de tu banner */
+  overflow: hidden;
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}

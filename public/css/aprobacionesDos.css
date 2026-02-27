@@ -1038,106 +1038,95 @@ textarea.form-control-mini {
 .bg-todos {
   background-color: #94a3b8;
 }
-
-/* --- Contenedor Flotante Compacto --- */
-.maintenance-banner {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10000;
-  min-width: 300px;
-  max-width: 400px;
-  background: #ffffff;
-  padding: 12px 16px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-left: 4px solid #0d6efd; /* Color azul profesional o usa #f39c12 para alerta */
+/* --- Banner Estilo Corporativo Slim --- */
+.official-banner {
+  background: #f8f9fa; /* Fondo claro para que no canse la vista */
+  border-bottom: 1px solid #dee2e6;
+  padding: 4px 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* --- Títulos y Textos Pequeños --- */
-.banner-title {
-  display: block;
-  font-size: 0.65rem;
+.banner-inner {
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.banner-left, .banner-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Badge pequeño azul */
+.badge-official {
+  font-size: 0.6rem;
   font-weight: 800;
-  color: #6c757d;
-  letter-spacing: 0.8px;
-  margin-bottom: 1px;
+  background: #0d6efd;
+  color: white;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-right: 10px;
 }
 
-.banner-text {
-  display: block;
+.banner-message {
   font-size: 0.85rem;
-  color: #212529;
-  line-height: 1.2;
+  color: #495057;
+  font-weight: 500;
 }
 
-.banner-date {
+.banner-timestamp {
   font-size: 0.75rem;
   color: #adb5bd;
-  white-space: nowrap;
+  margin-right: 15px;
 }
 
-/* --- El Punto de Pulso (Más discreto) --- */
-.pulse-icon {
-  width: 8px;
-  height: 8px;
-  background-color: #0d6efd;
-  border-radius: 50%;
-  position: relative;
-}
-
-.pulse-icon::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #0d6efd;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-
-/* --- Botón de Cierre --- */
-.btn-close-banner {
+.close-btn {
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #dee2e6;
-  cursor: pointer;
-  padding: 0;
+  color: #ced4da;
   line-height: 1;
-  transition: color 0.2s;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.btn-close-banner:hover {
-  color: #6c757d;
+.close-btn:hover { color: #dc3545; }
+
+/* --- Punto de Pulso Verde (Indica "En Vivo") --- */
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: #198754;
+  border-radius: 50%;
+  margin-right: 8px;
+  position: relative;
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  width: 100%; height: 100%;
+  background: #198754;
+  border-radius: 50%;
+  animation: ripple 2s infinite;
 }
 
-/* --- Animación de Entrada (Desliza desde la derecha) --- */
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.4s ease-out;
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3.5); opacity: 0; }
 }
 
-.slide-fade-enter-from {
-  transform: translateX(100px);
+/* --- Animación de Despliegue (Empuja el contenido) --- */
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: all 0.3s ease-in-out;
+  max-height: 50px; /* Ajusta según el tamaño de tu banner */
+  overflow: hidden;
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+  max-height: 0;
   opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }

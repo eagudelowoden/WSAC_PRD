@@ -33,23 +33,6 @@ const SegmentosMixin = {
     this.cargarPlantillas();
     this.cargarSegmentos();
     this.chequearAvisoMantenimiento();
-
-    // if (typeof io !== "undefined") {
-    //   try {
-    //     this.socket = io();
-    //     this.socket.on("nuevo-aviso-global", (aviso) => {
-    //       console.log("📢 Aviso recibido:", aviso);
-    //       this.avisoGlobal = { ...aviso };
-    //     });
-    //     console.log("🔌 Socket conectado correctamente");
-    //   } catch (err) {
-    //     console.error("❌ Error al conectar socket:", err);
-    //   }
-    // } else {
-    //   console.warn(
-    //     "⚠️ Socket.io no detectado. Revisa que esté el script en el HTML.",
-    //   );
-    // }
   },
   methods: {
     // --- A. SEGMENTOS Y PDFs ---
