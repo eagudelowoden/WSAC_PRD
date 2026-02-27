@@ -21,27 +21,55 @@ async function dispararNotificaciones(id) {
   }
 }
 
+// 1. Definimos los límites exactos de tu backend
+const limitesConfig = {
+  cedula: 1,
+  estudios: 5,
+  laborales: 5,
+  cesantias: 1,
+  cuenta: 1,
+  epsDocs: 2,
+  referencias: 5,
+  agenteCampo: 5,
+  hv: 1,
+  habeas: 1,
+  consentimiento: 1,
+  historialLaboral: 5,
+};
+
 // Inicializar los campos que tienen la clase 'input-acumulador'
 document.querySelectorAll(".input-acumulador").forEach((input) => {
   const fieldName = input.name;
   storageArchivos[fieldName] = [];
 
   input.addEventListener("change", function (e) {
-    // Convertimos la lista de archivos actual en un Array
     const filesSelected = Array.from(e.target.files);
     const container = document.getElementById(`list-${fieldName}`);
+    
+    // Obtenemos el máximo permitido para este campo específico
+    const maxPermitido = limitesConfig[fieldName] || 1;
 
     if (!container) {
-      console.error(
-        `Error: No existe un div con id "list-${fieldName}" para mostrar los archivos.`,
-      );
+      console.error(`Error: No existe un div con id "list-${fieldName}"`);
       return;
     }
 
     filesSelected.forEach((file) => {
+      // --- VALIDACIÓN DE LÍMITE ---
+      if (storageArchivos[fieldName].length >= maxPermitido) {
+        // Usamos SweetAlert para avisar al usuario
+        Swal.fire({
+          icon: "warning",
+          title: "Límite superado",
+          text: `Solo puedes subir un máximo de ${maxPermitido} archivo(s) para "${fieldName}".`,
+          confirmButtonColor: "#3085d6",
+        });
+        return; // Detiene la ejecución para este archivo
+      }
+
       // Evitar duplicados por nombre y tamaño
       const yaExiste = storageArchivos[fieldName].some(
-        (f) => f.name === file.name && f.size === file.size,
+        (f) => f.name === file.name && f.size === file.size
       );
 
       if (!yaExiste) {
@@ -50,23 +78,17 @@ document.querySelectorAll(".input-acumulador").forEach((input) => {
         // Crear visualización
         const item = document.createElement("div");
         item.className = "file-item";
-        item.style.display = "flex";
-        item.style.justifyContent = "space-between";
-        item.style.marginBottom = "5px";
-        item.style.padding = "8px";
-        item.style.background = "#f0f2f5";
-        item.style.borderRadius = "5px";
+        item.style = "display: flex; justify-content: space-between; margin-bottom: 5px; padding: 8px; background: #f0f2f5; border-radius: 5px;";
 
         item.innerHTML = `
-                    <span><i class="bi bi-file-earmark-check"></i> ${file.name}</span>
-                    <i class="bi bi-x-circle-fill text-danger" style="cursor:pointer" onclick="quitarArchivo('${fieldName}', '${file.name}', this)"></i>
-                `;
+            <span><i class="bi bi-file-earmark-check"></i> ${file.name}</span>
+            <i class="bi bi-x-circle-fill text-danger" style="cursor:pointer" onclick="quitarArchivo('${fieldName}', '${file.name}', this)"></i>
+        `;
         container.appendChild(item);
       }
     });
 
-    // IMPORTANTE: Esto limpia el input visualmente para que
-    // NO se reemplacen en la siguiente selección.
+    // Limpia el input para permitir seleccionar el mismo archivo si se borró
     input.value = "";
   });
 });
