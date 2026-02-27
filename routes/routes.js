@@ -44,11 +44,14 @@ const upload = multer({ storage });
 
 // 3. CONFIGURACIÓN CORREO
 const correoOutlook = nodemailer.createTransport({
-  host: "smtp.office365.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: { user: process.env.OUTLOOK_USER, pass: process.env.OUTLOOK_PASS },
+  host: process.env.OUTLOOK_HOST,             // smtp.office365.com
+  port: parseInt(process.env.OUTLOOK_PORT),    // 587
+  secure: process.env.OUTLOOK_SECURE === "true", // false
+  requireTLS: process.env.OUTLOOK_REQUIRE_TLS === "true", // true
+  auth: { 
+    user: process.env.OUTLOOK_USER, 
+    pass: process.env.OUTLOOK_PASS 
+  },
 });
 
 // ==========================================
@@ -295,7 +298,7 @@ router.post("/enviar", upload.any(), (req, res) => {
 
     try {
       await correoOutlook.sendMail({
-        from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+        from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
         to: safeData.correo,
         subject: "Registro exitoso",
         html: `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente en el sistema.</p>`,
@@ -342,7 +345,7 @@ router.post("/solicitar-subsanar", (req, res) => {
 
         try {
           await correoOutlook.sendMail({
-            from: "alertasynotificaciones@woden.com.co",
+            from: `<${process.env.OUTLOOK_USER}>`,
             to: usuario.correo,
             subject: "⚠️ Acción Requerida: Corregir Documentos",
             html: `
@@ -458,7 +461,7 @@ router.post("/subir-correccion", upload.any(), (req, res) => {
 
           if (transporter) {
             const mailOptions = {
-              from: '"Sistema de Documentos" <alertasynotificaciones@woden.com.co>',
+              from: `"Sistema de Documentos" <${process.env.OUTLOOK_USER}>`,
               to: listaCorreos,
               subject: `📢 Subsanación Recibida: ${usuario.nombre} ${usuario.apellidos}`,
               html: `

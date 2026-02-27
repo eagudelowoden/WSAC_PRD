@@ -116,14 +116,17 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // D. CONFIGURACIÓN CORREO
+// D. CONFIGURACIÓN CORREO
 const correoOutlook = nodemailer.createTransport({
-  host: "smtp.office365.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: { user: process.env.OUTLOOK_USER, pass: process.env.OUTLOOK_PASS },
+  host: process.env.OUTLOOK_HOST,      // "smtp.office365.com"
+  port: parseInt(process.env.OUTLOOK_PORT), // 587 (el parseInt es importante porque .env devuelve texto)
+  secure: process.env.OUTLOOK_SECURE === "true", // false
+  requireTLS: process.env.OUTLOOK_REQUIRE_TLS === "true", // true
+  auth: { 
+    user: process.env.OUTLOOK_USER, 
+    pass: process.env.OUTLOOK_PASS 
+  },
 });
-
 // ==========================================
 // 2. RUTAS DE INFORMACIÓN (GET)
 // ==========================================
@@ -288,7 +291,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 
     // 3. Diseño de correo corporativo WSAC
     const mailOptions = {
-      from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
+      from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
       to: usuario.correo,
       subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
       html: `
@@ -327,16 +330,138 @@ router.post("/enviar-historial-contratos", async (req, res) => {
 
 // ==========================================
 // 4. RUTA PRINCIPAL DE REGISTRO (/enviar)
-// ==========================================
+
+// router.post(
+//   "/enviar",
+//   (req, res, next) => {
+//     uploadMiddleware(req, res, (err) => {
+//       if (err instanceof multer.MulterError) {
+//         return res.status(400).json({ status: "error", message: `Error Multer: ${err.message}` });
+//       } else if (err) {
+//         return res.status(400).json({ status: "error", message: err.message });
+//       }
+//       next();
+//     });
+//   },
+//   async (req, res) => {
+//     try {
+//       const data = req.body;
+
+//       // 1. Aplanar archivos
+//       let filesArray = [];
+//       if (req.files) {
+//         Object.values(req.files).forEach((files) => {
+//           filesArray = filesArray.concat(files);
+//         });
+//       }
+
+//       if (filesArray.length === 0) {
+//         return res.status(400).json({ status: "error", message: "Debes adjuntar al menos un documento." });
+//       }
+
+//       // Sanitización de datos
+//       const safeData = {
+//         ...data,
+//         afiliacionesFamiliares: data.afiliacionesFamiliares || "",
+//         observaciones: data.observaciones || "",
+//         otroSi: data.otroSi || "",
+//       };
+
+//       const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, "_");
+//       const fullName = folderName;
+
+//       // 2. SUBIR A S3 (Esperamos a que todos terminen)
+//       const uploadPromises = filesArray.map((file) => {
+//         const cleanOriginalName = file.originalname.replace(/\s+/g, "_");
+//         const lastDotIndex = cleanOriginalName.lastIndexOf(".");
+//         const nombreBase = cleanOriginalName.substring(0, lastDotIndex);
+//         const extension = cleanOriginalName.substring(lastDotIndex);
+//         const fileName = `${nombreBase}_${Date.now()}${extension}`;
+//         const key = `${folderName}/${fileName}`;
+
+//         const command = new PutObjectCommand({
+//           Bucket: BUCKET_NAME,
+//           Key: key,
+//           Body: file.buffer,
+//           ContentType: file.mimetype,
+//         });
+
+//         return s3Client.send(command);
+//       });
+
+//       await Promise.all(uploadPromises);
+
+//       // 3. GUARDAR EN BASE DE DATOS (Promisificado)
+//       const sql = `
+//             INSERT INTO usuarios (
+//                 nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
+//                 afiliaciones_familiares, eps, arl, afp, ccf, carpeta
+//             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//         `;
+
+//       const valores = [
+//         safeData.nombres,
+//         safeData.apellidos,
+//         safeData.documento,
+//         safeData.telefono,
+//         safeData.direccion,
+//         safeData.correo,
+//         safeData.fechaNacimiento,
+//         safeData.afiliacionesFamiliares,
+//         safeData.epsNombre,
+//         safeData.arlNombre,
+//         safeData.afpNombre,
+//         safeData.ccfNombre,
+//         fullName,
+//       ];
+
+//       // Convertimos el callback de la DB en una promesa para manejar errores de red/timeout
+//       const result = await new Promise((resolve, reject) => {
+//         db.query(sql, valores, (err, rows) => {
+//           if (err) return reject(err);
+//           resolve(rows);
+//         });
+//       });
+
+//       const nuevoId = result.insertId;
+
+//       // 4. CORREO DE CONFIRMACIÓN (Sin 'await' para no retrasar la respuesta al cliente)
+//       correoOutlook.sendMail({
+//         from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+//         to: safeData.correo,
+//         subject: "Registro exitoso - Woden Colombia",
+//         html: `<h2>Hola ${safeData.nombres},</h2><p>Tus documentos han sido recibidos.</p>`,
+//       }).catch(mailErr => console.error("Error envío correo:", mailErr));
+
+//       // 5. RESPUESTA FINAL
+//       return res.status(200).json({
+//         status: "ok",
+//         message: "Registro exitoso.",
+//         id: nuevoId,
+//       });
+
+//     } catch (error) {
+//       console.error("Error en el proceso:", error);
+      
+//       // Verificamos si ya se envió una respuesta antes de intentar enviar otra
+//       if (!res.headersSent) {
+//         return res.status(500).json({ 
+//           status: "error", 
+//           message: "Error procesando solicitud: " + error.message 
+//         });
+//       }
+//     }
+//   }
+// );
 router.post(
   "/enviar",
   (req, res, next) => {
-    // Middleware wrapper para capturar errores de Multer limpiamente
+    // Middleware de Multer con manejo de errores limpio
     uploadMiddleware(req, res, (err) => {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({
-          status: "error",
-          message: `Error subiendo archivos: ${err.message}`,
+        return res.status(400).json({ 
+          status: "error", 
+          message: "Ups! Hubo un problema con los archivos. Verifica que no sean demasiado pesados." 
         });
       } else if (err) {
         return res.status(400).json({ status: "error", message: err.message });
@@ -348,7 +473,7 @@ router.post(
     try {
       const data = req.body;
 
-      // 1. Aplanar archivos (upload.fields -> Array simple)
+      // 1. APLANAR ARCHIVOS
       let filesArray = [];
       if (req.files) {
         Object.values(req.files).forEach((files) => {
@@ -360,10 +485,11 @@ router.post(
       if (filesArray.length === 0) {
         return res.status(400).json({
           status: "error",
-          message: "Debes adjuntar al menos un documento.",
+          message: "Debes adjuntar al menos un documento para continuar.",
         });
       }
 
+      // Sanitización y valores por defecto
       const safeData = {
         ...data,
         afiliacionesFamiliares: data.afiliacionesFamiliares || "",
@@ -371,10 +497,7 @@ router.post(
         otroSi: data.otroSi || "",
       };
 
-      // Sanitizar nombre de carpeta
-      const folderName = `${safeData.nombres}_${safeData.apellidos}`
-        .trim()
-        .replace(/\s+/g, "_");
+      const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, "_");
       const fullName = folderName;
 
       // 2. SUBIR A S3
@@ -397,9 +520,10 @@ router.post(
         return s3Client.send(command);
       });
 
+      // Esperamos que suban todos a S3. Si la red falla aquí, saltará al catch.
       await Promise.all(uploadPromises);
 
-      // 3. GUARDAR EN BASE DE DATOS
+      // 3. GUARDAR EN BASE DE DATOS (Todos los campos incluidos)
       const sql = `
             INSERT INTO usuarios (
                 nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
@@ -423,54 +547,53 @@ router.post(
         fullName,
       ];
 
-      // USAMOS 'result' para capturar el ID generado
-      db.query(sql, valores, async (err, result) => {
-        if (err) {
-          console.error("Error SQL:", err);
-          return res.status(500).json({
-            status: "error",
-            message: "Error guardando en BD: " + err.message,
-          });
-        }
+      // Promisificamos la consulta para que el flujo sea estable
+      const result = await new Promise((resolve, reject) => {
+        db.query(sql, valores, (err, resDB) => {
+          if (err) return reject(err);
+          resolve(resDB);
+        });
+      });
 
-        // ✅ CAPTURAMOS EL ID PARA EL FRONTEND
-        const nuevoId = result.insertId;
+      const nuevoId = result.insertId;
 
-        // 4. CORREO DE CONFIRMACIÓN AL COLABORADOR
-        try {
-          await correoOutlook.sendMail({
-            from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
-            to: safeData.correo,
-            subject: "Registro exitoso - Woden Colombia",
-            html: `
+      // 4. CORREO DE CONFIRMACIÓN (Usando variables de entorno)
+      correoOutlook.sendMail({
+        from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+        to: safeData.correo,
+        subject: "Registro exitoso - Woden Colombia",
+        html: `
               <div style="font-family: Arial, sans-serif; color: #333;">
                 <h2>Hola ${safeData.nombres},</h2>
-                <p>Tus documentos han sido recibidos por el área de selección y almacenados correctamente.</p>
+                <p>Tus documentos han sido recibidos correctamente en nuestro sistema.</p>
                 <p>Pronto nos pondremos en contacto contigo.</p>
                 <br>
                 <p><i>Este es un mensaje automático, por favor no responder.</i></p>
               </div>
             `,
-          });
-        } catch (e) {
-          console.error("Error enviando correo de confirmación:", e);
-        }
+      }).catch(e => console.error("Error envío correo (no crítico):", e.message));
 
-        // ✅ RESPUESTA FINAL CON EL ID INCLUIDO
-        res.status(200).json({
-          status: "ok",
-          message: "Registro exitoso.",
-          id: nuevoId,
-        });
+      // 5. RESPUESTA FINAL EXITOSA
+      return res.status(200).json({
+        status: "ok",
+        message: "Registro exitoso.",
+        id: nuevoId,
       });
-    } catch (generalError) {
-      console.error("Error en ruta /enviar:", generalError);
-      res
-        .status(500)
-        .json({ status: "error", message: "Error procesando solicitud" });
+
+    } catch (error) {
+      console.error("ERROR CRÍTICO EN /ENVIAR:", error);
+      
+      if (!res.headersSent) {
+        // Mensaje amigable solicitado
+        return res.status(500).json({ 
+          status: "error", 
+          message: "Ups! No hemos podido registrarte. Por favor intenta de nuevo y verifica que tu conexión a internet sea estable." 
+        });
+      }
     }
-  },
+  }
 );
+
 router.delete("/docs/eliminar-archivo", async (req, res) => {
   const { key } = req.body;
 
@@ -761,7 +884,7 @@ router.post("/solicitar-subsanar", (req, res) => {
               `;
 
             await correoOutlook.sendMail({
-              from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
+              from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
               to: usuario.correo,
               subject: "Acción Requerida: Corregir Documentos - WSAC",
               html: htmlEmail,
@@ -841,7 +964,7 @@ router.post("/notificar-aprobacion", async (req, res) => {
 
         // 3. Envío del correo
         await correoOutlook.sendMail({
-          from: '"WSAC Notificaciones" <alertasynotificaciones@woden.com.co>',
+          from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
           to: usuario.correo,
           subject: "Documentos Aprobados - WSAC INFO",
           html: htmlEmail,
@@ -926,7 +1049,7 @@ router.post("/notificar-nomina", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-              from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+              from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notificación WSAC: Contrato Aprobado - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1008,7 +1131,7 @@ router.post("/notificarRegistro", async (req, res) => {
 
             // 4. Envío de correo a la lista de nómina
             await correoOutlook.sendMail({
-              from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+              from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
               to: listaCorreos, // Envía a todos los de la tabla
               subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
               html: htmlNomina,
@@ -1262,7 +1385,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
     `;
 
           await correoOutlook.sendMail({
-            from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+            from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
             to: listaCorreos,
             subject: `📢 Subsanación Recibida: ${usuario.nombres} ${usuario.apellidos}`,
             html: htmlAdmin,
@@ -1480,7 +1603,7 @@ router.post("/subir-firmados", upload.any(), async (req, res) => {
               </div>`;
 
               await correoOutlook.sendMail({
-                from: '"WSAC Sistema" <alertasynotificaciones@woden.com.co>',
+                from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
                 to: listaCorreos,
                 subject: `✅ Firma Completada: ${usuario.nombres} ${usuario.apellidos}`,
                 html: htmlAdmin,
@@ -1598,7 +1721,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
 
       try {
         await correoOutlook.sendMail({
-          from: '"WSAC Contratación" <alertasynotificaciones@woden.com.co>',
+          from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
           to: correo,
           subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
           html: htmlEmail,
