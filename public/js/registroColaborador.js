@@ -127,9 +127,8 @@ async function dispararNotificaciones(id) {
 document.getElementById("formularioRegistro").addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    // 1. Preparar el FormData con los archivos del storage global
     const formData = new FormData(this);
-
-    // Acumular archivos del storage global
     for (const fieldName in storageArchivos) {
         formData.delete(fieldName);
         storageArchivos[fieldName].forEach((file) => {
@@ -137,7 +136,11 @@ document.getElementById("formularioRegistro").addEventListener("submit", async f
         });
     }
 
-    // 1. Mostrar SweetAlert con barra de progreso vacía
+    // 2. Llamar a la función de envío (la separamos para poder reintentar)
+    ejecutarEnvio(formData);
+});
+
+function ejecutarEnvio(formData) {
     Swal.fire({
         title: "Subiendo documentos...",
         html: `
@@ -151,15 +154,16 @@ document.getElementById("formularioRegistro").addEventListener("submit", async f
         allowOutsideClick: false,
         showConfirmButton: false,
         didOpen: () => {
-            // 2. Configurar XMLHttpRequest
             const xhr = new XMLHttpRequest();
 
-            // Rastrear el progreso de la subida
+            // ROBUSTEZ: Definimos un tiempo límite (ej: 50 segundos)
+            // Si en este tiempo no termina, se dispara 'ontimeout'
+            xhr.timeout = 50000; 
+
+            // Rastrear el progreso
             xhr.upload.addEventListener("progress", (event) => {
                 if (event.lengthComputable) {
                     const porcentaje = Math.round((event.loaded * 100) / event.total);
-                    
-                    // Actualizar la interfaz de SweetAlert
                     const progressBar = document.getElementById("progress-bar");
                     const progressText = document.getElementById("progress-text");
                     
@@ -173,42 +177,59 @@ document.getElementById("formularioRegistro").addEventListener("submit", async f
                 }
             });
 
-            // Manejar la respuesta del servidor
+            // Manejar respuesta exitosa o error de servidor
             xhr.onload = function () {
-                const response = JSON.parse(xhr.responseText);
-
-                if (xhr.status >= 200 && xhr.status < 300 && response.status === "ok") {
-                    // ÉXITO
-                    if (response.id) dispararNotificaciones(response.id);
-
-                    Swal.fire({
-                        icon: "success",
-                        title: "¡Registro Exitoso!",
-                        text: "Tus datos y documentos se han guardado correctamente.",
-                    }).then(() => window.location.reload());
-                } else {
-                    // ERROR DEL SERVIDOR (Mensaje amigable)
-                    Swal.fire({
-                        icon: "error",
-                        title: "Ups! Algo salió mal",
-                        text: response.message || "Error inesperado en el servidor.",
-                    });
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status >= 200 && xhr.status < 300 && response.status === "ok") {
+                        if (response.id) dispararNotificaciones(response.id);
+                        Swal.fire({
+                            icon: "success",
+                            title: "¡Registro Exitoso!",
+                            text: "Tus datos y documentos se han guardado correctamente.",
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Ups! Algo salió mal",
+                            text: response.message || "Error inesperado en el servidor.",
+                        });
+                    }
+                } catch (e) {
+                    Swal.fire("Error", "El servidor respondió de forma inesperada.", "error");
                 }
             };
 
-            // Manejar errores de red/conexión
+            // MANEJO DE TIEMPO AGOTADO (Lo que pediste)
+            xhr.ontimeout = function () {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Está tardando demasiado",
+                    text: "Tu conexión parece inestable. ¿Deseas intentar el envío nuevamente?",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, reintentar",
+                    cancelButtonText: "No, cancelar",
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        ejecutarEnvio(formData); // Reintento manual
+                    }
+                });
+            };
+
+            // Manejar errores de red
             xhr.onerror = function () {
                 Swal.fire({
                     icon: "error",
                     title: "Error de red",
-                    text: "Ups! No hemos podido registrarte. Por favor intenta de nuevo y verifica que tu conexión a internet sea estable.",
+                    text: "No hemos podido registrarte. Verifica tu conexión a internet.",
                     footer: "<b>Sugerencia:</b> Los archivos grandes en redes lentas pueden causar esto."
                 });
             };
 
-            // Enviar la petición
             xhr.open("POST", "/api/enviar");
             xhr.send(formData);
         }
     });
-});
+}
