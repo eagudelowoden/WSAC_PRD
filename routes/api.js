@@ -118,13 +118,13 @@ const upload = multer({ storage });
 // D. CONFIGURACIÓN CORREO
 // D. CONFIGURACIÓN CORREO
 const correoOutlook = nodemailer.createTransport({
-  host: process.env.OUTLOOK_HOST,      // "smtp.office365.com"
+  host: process.env.OUTLOOK_HOST, // "smtp.office365.com"
   port: parseInt(process.env.OUTLOOK_PORT), // 587 (el parseInt es importante porque .env devuelve texto)
   secure: process.env.OUTLOOK_SECURE === "true", // false
   requireTLS: process.env.OUTLOOK_REQUIRE_TLS === "true", // true
-  auth: { 
-    user: process.env.OUTLOOK_USER, 
-    pass: process.env.OUTLOOK_PASS 
+  auth: {
+    user: process.env.OUTLOOK_USER,
+    pass: process.env.OUTLOOK_PASS,
   },
 });
 // ==========================================
@@ -328,140 +328,14 @@ router.post("/enviar-historial-contratos", async (req, res) => {
   }
 });
 
-// ==========================================
-// 4. RUTA PRINCIPAL DE REGISTRO (/enviar)
-
-// router.post(
-//   "/enviar",
-//   (req, res, next) => {
-//     uploadMiddleware(req, res, (err) => {
-//       if (err instanceof multer.MulterError) {
-//         return res.status(400).json({ status: "error", message: `Error Multer: ${err.message}` });
-//       } else if (err) {
-//         return res.status(400).json({ status: "error", message: err.message });
-//       }
-//       next();
-//     });
-//   },
-//   async (req, res) => {
-//     try {
-//       const data = req.body;
-
-//       // 1. Aplanar archivos
-//       let filesArray = [];
-//       if (req.files) {
-//         Object.values(req.files).forEach((files) => {
-//           filesArray = filesArray.concat(files);
-//         });
-//       }
-
-//       if (filesArray.length === 0) {
-//         return res.status(400).json({ status: "error", message: "Debes adjuntar al menos un documento." });
-//       }
-
-//       // Sanitización de datos
-//       const safeData = {
-//         ...data,
-//         afiliacionesFamiliares: data.afiliacionesFamiliares || "",
-//         observaciones: data.observaciones || "",
-//         otroSi: data.otroSi || "",
-//       };
-
-//       const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, "_");
-//       const fullName = folderName;
-
-//       // 2. SUBIR A S3 (Esperamos a que todos terminen)
-//       const uploadPromises = filesArray.map((file) => {
-//         const cleanOriginalName = file.originalname.replace(/\s+/g, "_");
-//         const lastDotIndex = cleanOriginalName.lastIndexOf(".");
-//         const nombreBase = cleanOriginalName.substring(0, lastDotIndex);
-//         const extension = cleanOriginalName.substring(lastDotIndex);
-//         const fileName = `${nombreBase}_${Date.now()}${extension}`;
-//         const key = `${folderName}/${fileName}`;
-
-//         const command = new PutObjectCommand({
-//           Bucket: BUCKET_NAME,
-//           Key: key,
-//           Body: file.buffer,
-//           ContentType: file.mimetype,
-//         });
-
-//         return s3Client.send(command);
-//       });
-
-//       await Promise.all(uploadPromises);
-
-//       // 3. GUARDAR EN BASE DE DATOS (Promisificado)
-//       const sql = `
-//             INSERT INTO usuarios (
-//                 nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
-//                 afiliaciones_familiares, eps, arl, afp, ccf, carpeta
-//             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//         `;
-
-//       const valores = [
-//         safeData.nombres,
-//         safeData.apellidos,
-//         safeData.documento,
-//         safeData.telefono,
-//         safeData.direccion,
-//         safeData.correo,
-//         safeData.fechaNacimiento,
-//         safeData.afiliacionesFamiliares,
-//         safeData.epsNombre,
-//         safeData.arlNombre,
-//         safeData.afpNombre,
-//         safeData.ccfNombre,
-//         fullName,
-//       ];
-
-//       // Convertimos el callback de la DB en una promesa para manejar errores de red/timeout
-//       const result = await new Promise((resolve, reject) => {
-//         db.query(sql, valores, (err, rows) => {
-//           if (err) return reject(err);
-//           resolve(rows);
-//         });
-//       });
-
-//       const nuevoId = result.insertId;
-
-//       // 4. CORREO DE CONFIRMACIÓN (Sin 'await' para no retrasar la respuesta al cliente)
-//       correoOutlook.sendMail({
-//         from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
-//         to: safeData.correo,
-//         subject: "Registro exitoso - Woden Colombia",
-//         html: `<h2>Hola ${safeData.nombres},</h2><p>Tus documentos han sido recibidos.</p>`,
-//       }).catch(mailErr => console.error("Error envío correo:", mailErr));
-
-//       // 5. RESPUESTA FINAL
-//       return res.status(200).json({
-//         status: "ok",
-//         message: "Registro exitoso.",
-//         id: nuevoId,
-//       });
-
-//     } catch (error) {
-//       console.error("Error en el proceso:", error);
-      
-//       // Verificamos si ya se envió una respuesta antes de intentar enviar otra
-//       if (!res.headersSent) {
-//         return res.status(500).json({ 
-//           status: "error", 
-//           message: "Error procesando solicitud: " + error.message 
-//         });
-//       }
-//     }
-//   }
-// );
-router.post(
-  "/enviar",
-  (req, res, next) => {
+router.post("/enviar",(req, res, next) => {
     // Middleware de Multer con manejo de errores limpio
     uploadMiddleware(req, res, (err) => {
       if (err instanceof multer.MulterError) {
-        return res.status(400).json({ 
-          status: "error", 
-          message: "Ups! Hubo un problema con los archivos. Verifica que no sean demasiado pesados." 
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Ups! Hubo un problema con los archivos. Verifica que no sean demasiado pesados.",
         });
       } else if (err) {
         return res.status(400).json({ status: "error", message: err.message });
@@ -497,7 +371,9 @@ router.post(
         otroSi: data.otroSi || "",
       };
 
-      const folderName = `${safeData.nombres}_${safeData.apellidos}`.trim().replace(/\s+/g, "_");
+      const folderName = `${safeData.nombres}_${safeData.apellidos}`
+        .trim()
+        .replace(/\s+/g, "_");
       const fullName = folderName;
 
       // 2. SUBIR A S3
@@ -558,11 +434,12 @@ router.post(
       const nuevoId = result.insertId;
 
       // 4. CORREO DE CONFIRMACIÓN (Usando variables de entorno)
-      correoOutlook.sendMail({
-        from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
-        to: safeData.correo,
-        subject: "Registro exitoso - Woden Colombia",
-        html: `
+      correoOutlook
+        .sendMail({
+          from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+          to: safeData.correo,
+          subject: "Registro exitoso - Woden Colombia",
+          html: `
               <div style="font-family: Arial, sans-serif; color: #333;">
                 <h2>Hola ${safeData.nombres},</h2>
                 <p>Tus documentos han sido recibidos correctamente en nuestro sistema.</p>
@@ -571,7 +448,10 @@ router.post(
                 <p><i>Este es un mensaje automático, por favor no responder.</i></p>
               </div>
             `,
-      }).catch(e => console.error("Error envío correo (no crítico):", e.message));
+        })
+        .catch((e) =>
+          console.error("Error envío correo (no crítico):", e.message),
+        );
 
       // 5. RESPUESTA FINAL EXITOSA
       return res.status(200).json({
@@ -579,19 +459,19 @@ router.post(
         message: "Registro exitoso.",
         id: nuevoId,
       });
-
     } catch (error) {
       console.error("ERROR CRÍTICO EN /ENVIAR:", error);
-      
+
       if (!res.headersSent) {
         // Mensaje amigable solicitado
-        return res.status(500).json({ 
-          status: "error", 
-          message: "Ups! No hemos podido registrarte. Por favor intenta de nuevo y verifica que tu conexión a internet sea estable." 
+        return res.status(500).json({
+          status: "error",
+          message:
+            "Ups! No hemos podido registrarte. Por favor intenta de nuevo y verifica que tu conexión a internet sea estable.",
         });
       }
     }
-  }
+  },
 );
 
 router.delete("/docs/eliminar-archivo", async (req, res) => {
@@ -1348,15 +1228,17 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
                         <tr>
                             <td style="padding-bottom: 10px;">
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Colaborador</span><br>
-                                <strong style="color: #2c3e50; font-size: 16px;">${usuario.nombres
-            }</strong>
+                                <strong style="color: #2c3e50; font-size: 16px;">${
+                                  usuario.nombres
+                                }</strong>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Archivos Recibidos</span><br>
-                                <strong style="color: #e2712a; font-size: 16px;">${listaArchivos.length
-            } documento(s) cargado(s)</strong>
+                                <strong style="color: #e2712a; font-size: 16px;">${
+                                  listaArchivos.length
+                                } documento(s) cargado(s)</strong>
                             </td>
                         </tr>
                     </table>
