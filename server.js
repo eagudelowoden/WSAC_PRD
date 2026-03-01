@@ -261,6 +261,29 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+// Función para registrar actividad
+const registrarActividad = (accion) => {
+  return (req, res, next) => {
+    if (req.session && req.session.usuario) {
+      const { id, nombre, rol } = req.session.usuario;
+      const sql = `
+        INSERT INTO logs_sistema (usuario_id, nombre_usuario, rol, accion, metodo_http, ruta_api, detalles)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      // Guardamos el cuerpo de la petición (sin passwords por seguridad)
+      const bodyCopy = { ...req.body };
+      if (bodyCopy.password) bodyCopy.password = "********"; 
+      
+      const detalles = JSON.stringify(bodyCopy);
+
+      db.query(sql, [id, nombre, rol, accion, req.method, req.originalUrl, detalles], (err) => {
+        if (err) console.error("⚠️ Error en log de auditoría:", err.message);
+      });
+    }
+    next();
+  };
+};
+
 // ==========================================
 // 5. RUTAS DE VISTAS Y SEGURIDAD
 // ==========================================
@@ -319,7 +342,7 @@ app.get("/api/admin/users", verificarSuperAdmin, (req, res) => {
   );
 });
 
-app.post("/api/admin/users", verificarSuperAdmin, (req, res) => {
+app.post("/api/admin/users", verificarSuperAdmin, registrarActividad("Crear usuario"), (req, res) => {
   const { nombre, usuario, password, rol } = req.body;
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) return res.status(500).json({ error: "Error encriptando" });
@@ -356,7 +379,7 @@ app.get("/api/admin/permisos/:id", verificarAuth, (req, res) => {
 });
 
 // Guardar o actualizar permisos
-app.post("/api/admin/permisos", verificarSuperAdmin, (req, res) => {
+app.post("/api/admin/permisos", verificarSuperAdmin, registrarActividad("Actualizar permisos"), (req, res) => {
   const { usuario_id, permisos } = req.body;
 
   if (!usuario_id) return res.status(400).json({ error: "Falta id" });
@@ -381,7 +404,7 @@ app.post("/api/admin/permisos", verificarSuperAdmin, (req, res) => {
     .catch((err) => res.status(500).json({ error: err.message }));
 });
 
-app.delete("/api/admin/users/:id", verificarSuperAdmin, (req, res) => {
+app.delete("/api/admin/users/:id", verificarSuperAdmin, registrarActividad("Eliminar usuario"), (req, res) => {
   db.query("DELETE FROM usuariosSys WHERE id = ?", [req.params.id], (err) =>
     res.json({ status: err ? "error" : "ok" }),
   );
@@ -394,14 +417,14 @@ app.get("/api/admin/emails", verificarSuperAdmin, (req, res) => {
     res.json(results.map((r) => r.email));
   });
 });
-app.post("/api/admin/emails", verificarSuperAdmin, (req, res) => {
+app.post("/api/admin/emails", verificarSuperAdmin, registrarActividad("Agregar correo notificaciones"), (req, res) => {
   db.query(
     "INSERT INTO notificaciones (email) VALUES (?)",
     [req.body.email],
     (err) => res.json({ status: err ? "error" : "ok" }),
   );
 });
-app.delete("/api/admin/emails", verificarSuperAdmin, (req, res) => {
+app.delete("/api/admin/emails", verificarSuperAdmin, registrarActividad("Eliminar correo notificaciones"), (req, res) => {
   db.query(
     "DELETE FROM notificaciones WHERE email = ?",
     [req.body.email],
@@ -418,7 +441,7 @@ app.get("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
 });
 
 // Agregar correo de nómina
-app.post("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
+app.post("/api/admin/emails-nomina", verificarSuperAdmin, registrarActividad("Agregar correo nómina"), (req, res) => {
   const { email } = req.body;
   db.query(
     "INSERT INTO notificaciones_nomina (email) VALUES (?)",
@@ -436,7 +459,7 @@ app.post("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
 
 // Eliminar correo de nómina
 // Agrega esto en tu archivo de rutas de Node.js
-app.delete("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
+app.delete("/api/admin/emails-nomina", verificarSuperAdmin, registrarActividad("Eliminar correo nómina"), (req, res) => {
   const { email } = req.body; // Extraemos el email del cuerpo de la petición
 
   if (!email) {

@@ -2,29 +2,30 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const path = require("path");
+const RUTA_PLANTILLAS = process.env.RUTA_PLANTILLAS;
+
 
 // 1. IMPORTAMOS LOS SERVICIOS
 const wordService = require("../services/generador");
 // 👇 IMPORTANTE: Traemos la función de borrar desde el servicio S3
 const { eliminarArchivo } = require("../services/s3Service");
 
-// RUTA REAL DE TUS PLANTILLAS
-//const RUTA_PLANTILLAS = "C:\\Users\\Daniel\\Documents\\MigracionCapitalHumano\\WSAC_PRD\\PlantillasActualizadas";
-//const RUTA_PLANTILLAS = "C:\\Users\\e.agudelo\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PlantillasActualizadas";
-//const RUTA_PLANTILLAS ="C:\\Users\\e.agudelo\\Documents\\WSAC_PROD\\PlantillasActualizadas";
-  const RUTA_PLANTILLAS ="C:\\Users\\Administrator\\Documents\\WSAC_PROD\\PlantillasActualizadas";
+
 
 // ============================================================
 // 1. OBTENER LISTA DE PLANTILLAS DISPONIBLES
 // ============================================================
 router.get("/templates", (req, res) => {
-  // Forzar al navegador a no cachear la lista de archivos
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate",
-  );
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+
+  // VALIDACIÓN DE SEGURIDAD
+  if (!RUTA_PLANTILLAS || !fs.existsSync(RUTA_PLANTILLAS)) {
+    console.error("❌ LA RUTA NO EXISTE O NO ESTÁ DEFINIDA:", RUTA_PLANTILLAS);
+    return res.status(404).json({ 
+      error: "Carpeta de plantillas no encontrada", 
+      rutaBuscada: RUTA_PLANTILLAS 
+    });
+  }
 
   try {
     fs.readdir(RUTA_PLANTILLAS, (err, files) => {
@@ -33,6 +34,7 @@ router.get("/templates", (req, res) => {
         return res.status(500).json({ error: "No se pudo leer la carpeta" });
       }
 
+      // Filtrar .docx y omitir archivos temporales de Word (~$)
       const plantillas = files.filter((file) => {
         return file.toLowerCase().endsWith(".docx") && !file.startsWith("~$");
       });

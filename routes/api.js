@@ -8,6 +8,7 @@ const db = require("../databases/db");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const axios = require("axios"); // Necesitarás instalar axios para descargar los archivos de S3 temporalmente
+const s3 = require("../services/s3Service");
 // IMPORTAMOS LIBRERÍAS DE AWS
 const {
   S3Client,
@@ -16,6 +17,7 @@ const {
   GetObjectCommand,
   DeleteObjectsCommand,
 } = require("@aws-sdk/client-s3");
+
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const PORT = process.env.PORT;
 const RUTA_SEGMENTOS = process.env.SEGMENTOS;
@@ -29,17 +31,17 @@ const ALLOWED_MIME_TYPES = [
   "image/png",
   "image/jpg",
 ];
-const AWS = require("aws-sdk");
+
 const {
   CopyObjectCommand,
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
 // Configurar las credenciales (si no las tienes globales)
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
+// const s3 = new AWS.S3({
+//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//   region: process.env.AWS_REGION,
+// });
 
 const uploadSeguro = multer({
   storage: multer.memoryStorage(),
@@ -127,6 +129,30 @@ const correoOutlook = nodemailer.createTransport({
     pass: process.env.OUTLOOK_PASS,
   },
 });
+
+
+const registrarActividad = (accion) => {
+  return (req, res, next) => {
+    if (req.session && req.session.usuario) {
+      const { id, nombre, rol } = req.session.usuario;
+      const sql = `
+        INSERT INTO logs_sistema (usuario_id, nombre_usuario, rol, accion, metodo_http, ruta_api, detalles)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+      // Guardamos el cuerpo de la petición (sin passwords por seguridad)
+      const bodyCopy = { ...req.body };
+      if (bodyCopy.password) bodyCopy.password = "********"; 
+      
+      const detalles = JSON.stringify(bodyCopy);
+
+      db.query(sql, [id, nombre, rol, accion, req.method, req.originalUrl, detalles], (err) => {
+        if (err) console.error("⚠️ Error en log de auditoría:", err.message);
+      });
+    }
+    next();
+  };
+};
+
 // ==========================================
 // 2. RUTAS DE INFORMACIÓN (GET)
 // ==========================================
@@ -266,9 +292,9 @@ router.get("/archivos/:carpeta", async (req, res) => {
     res.json([]);
   }
 });
-router.post("/enviar-historial-contratos", async (req, res) => {
+router.post("/enviar-historial-contratos", registrarActividad("Enviar historial contratos"), async (req, res) => {
   const { usuario, archivos } = req.body;
-
+  
   if (!archivos || archivos.length === 0) {
     return res
       .status(400)
@@ -328,7 +354,7 @@ router.post("/enviar-historial-contratos", async (req, res) => {
   }
 });
 
-router.post("/enviar",(req, res, next) => {
+router.post("/enviar", registrarActividad("Enviar documentos"), (req, res, next) => {
     // Middleware de Multer con manejo de errores limpio
     uploadMiddleware(req, res, (err) => {
       if (err instanceof multer.MulterError) {
@@ -474,7 +500,7 @@ router.post("/enviar",(req, res, next) => {
   },
 );
 
-router.delete("/docs/eliminar-archivo", async (req, res) => {
+router.delete("/docs/eliminar-archivo", registrarActividad("Eliminar archivo"), async (req, res) => {
   const { key } = req.body;
 
   if (!key) {
@@ -504,7 +530,7 @@ router.delete("/docs/eliminar-archivo", async (req, res) => {
   }
 });
 
-router.put("/usuario/:id", async (req, res) => {
+router.put("/usuario/:id", registrarActividad("Actualizar usuario"), async (req, res) => {
   // OJO: Ahora es async
   const id = req.params.id;
   const data = req.body;
@@ -552,6 +578,7 @@ router.put("/usuario/:id", async (req, res) => {
             Body: fileContent,
             ContentType: "application/pdf",
           });
+          
 
           // E. Subimos a S3
           await s3Client.send(command);
@@ -638,7 +665,7 @@ router.put("/usuario/:id", async (req, res) => {
   }
 });
 // Eliminar usuario y sus archivos de S3
-router.delete("/usuario/:id", (req, res) => {
+router.delete("/usuario/:id", registrarActividad("Eliminar usuario"), (req, res) => {
   const id = req.params.id;
 
   // 1. Buscamos nombre de carpeta
@@ -692,7 +719,7 @@ router.delete("/usuario/:id", (req, res) => {
 // ==========================================
 
 // A. ADMIN SOLICITA SUBSANACIÓN
-router.post("/solicitar-subsanar", (req, res) => {
+router.post("/solicitar-subsanar", registrarActividad("Solicitar subsanación"), (req, res) => {
   const { id, motivo } = req.body;
   const token = crypto.randomBytes(20).toString("hex");
 
@@ -783,7 +810,7 @@ router.post("/solicitar-subsanar", (req, res) => {
   );
 });
 
-router.post("/notificar-aprobacion", async (req, res) => {
+router.post("/notificar-aprobacion", registrarActividad("Notificar aprobación"), async (req, res) => {
   const { id, correo, nombres } = req.body;
 
   // 1. Buscamos los datos del usuario para asegurar que existe
@@ -863,7 +890,7 @@ router.post("/notificar-aprobacion", async (req, res) => {
     },
   );
 });
-router.post("/notificar-nomina", async (req, res) => {
+router.post("/notificar-nomina", registrarActividad("Notificar nómina"), async (req, res) => {
   const { id } = req.body;
 
   // 1. Buscamos los datos detallados del usuario/contrato
@@ -950,7 +977,7 @@ router.post("/notificar-nomina", async (req, res) => {
     },
   );
 });
-router.post("/notificarRegistro", async (req, res) => {
+router.post("/notificarRegistro", registrarActividad("Notificar nuevo registro"), async (req, res) => {
   const { id } = req.body;
 
   // 1. Buscamos los datos detallados del usuario/contrato
@@ -1290,7 +1317,7 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
   }
 });
 
-router.post("/vincular-cargo-pdf", async (req, res) => {
+router.post("/vincular-cargo-pdf", registrarActividad("Vincular cargo PDF"), async (req, res) => {
   const { idColaborador, archivoPdf, segmento } = req.body;
   try {
     const resultado = await vincularDescripcionCargo(
@@ -1308,6 +1335,7 @@ router.post("/vincular-cargo-pdf", async (req, res) => {
 // Esta es la ruta corregida y validada
 router.post(
   "/upload-documento-colaborador",
+  registrarActividad("Subir documento colaborador"),
   upload.single("file"), // Usamos el 'upload' básico que declaraste arriba
   async (req, res) => {
     try {
@@ -1350,7 +1378,7 @@ router.post(
   },
 );
 const mime = require("mime-types");
-router.post("/renombrar-archivo-s3", async (req, res) => {
+router.post("/renombrar-archivo-s3", registrarActividad("Renombrar archivo S3"), async (req, res) => {
   const { carpeta, nombreActual, nuevoNombre } = req.body;
 
   try {
@@ -1392,7 +1420,7 @@ router.post("/renombrar-archivo-s3", async (req, res) => {
   }
 });
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
-router.post("/subir-firmados", upload.any(), async (req, res) => {
+router.post("/subir-firmados",  upload.any(), async (req, res) => {
   const { token } = req.body;
 
   try {
@@ -1539,7 +1567,7 @@ router.get("/validar-token-firma/:token", (req, res) => {
   );
 });
 // --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
-router.post("/solicitar-firma-contratos", async (req, res) => {
+router.post("/solicitar-firma-contratos", registrarActividad("Solicitar firma de contratos"), async (req, res) => {
   // Agregamos async aquí
   const { id, correo, nombres, archivosAFirmar } = req.body;
   const token = crypto.randomBytes(20).toString("hex");
@@ -1622,6 +1650,7 @@ router.post("/solicitar-firma-contratos", async (req, res) => {
 // Esta es la ruta corregida y validada
 router.post(
   "/upload-documento-colaborador",
+  registrarActividad("Subir documento colaborador"),
   upload.single("file"), // Usamos el 'upload' básico que declaraste arriba
   async (req, res) => {
     try {
@@ -1664,7 +1693,7 @@ router.post(
   },
 );
 
-router.post("/renombrar-archivo-s3", async (req, res) => {
+router.post("/renombrar-archivo-s3", registrarActividad("Renombrar archivo S3"), async (req, res) => {
   const { carpeta, nombreActual, nuevoNombre } = req.body;
 
   try {
