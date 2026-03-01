@@ -1,3 +1,6 @@
+const URL_BASEDEV = process.env.URL_BASEDEV;
+const PORT = process.env.PORT || 3000;
+
 (function () {
   let versionServidor = null;
   let chequeoActivo = true;
@@ -7,7 +10,7 @@
 
   async function obtenerVersion() {
     try {
-      const res = await fetch("http://localhost:8081/api/check-version");
+      const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-version`);
       const data = await res.json();
       return data.version;
     } catch (e) {
@@ -17,7 +20,7 @@
 
   async function obtenerMantenimiento() {
     try {
-      const res = await fetch("http://localhost:8081/api/check-mantenimiento");
+      const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-mantenimiento`);
       return await res.json();
     } catch (e) {
       return null;

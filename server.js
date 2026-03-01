@@ -47,8 +47,6 @@ transporter.verify((error) => {
   else console.log("✅ Servidor de correo listo.");
 });
 
-
-
 // ==========================================
 // 3. MIDDLEWARES PRINCIPALES (IMPORTANTE: EL ORDEN IMPORTA)
 // ==========================================
@@ -169,23 +167,18 @@ app.post("/api/login", (req, res) => {
 // LÓGICA DE SOCKETS (TIEMPO REAL)
 // ==========================================
 io.on("connection", (socket) => {
-    // ✅ Usamos la constante serverID que se generó una sola vez al arrancar
-    console.log(`🔌 Cliente conectado [ID: ${socket.id}] - Versión: ${serverID}`);
+  socket.emit("version-actual", serverID);
 
-    // 1. Enviamos la versión FIJA del arranque
-    socket.emit("version-actual", serverID);
+  // 2. Enviamos el estado de mantenimiento inicial
+  const queryMaint =
+    "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1";
+  db.query(queryMaint, (err, result) => {
+    if (!err && result.length > 0) {
+      socket.emit("mantenimiento", result[0]);
+    }
+  });
 
-    // 2. Enviamos el estado de mantenimiento inicial
-    const queryMaint = "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1";
-    db.query(queryMaint, (err, result) => {
-        if (!err && result.length > 0) {
-            socket.emit("mantenimiento", result[0]);
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log(`👋 Cliente desconectado: ${socket.id}`);
-    });
+  socket.on("disconnect", () => {});
 });
 
 // Endpoint para el Polling (Usa la misma constante serverID)
@@ -298,13 +291,17 @@ const registrarActividad = (accion) => {
       `;
       // Guardamos el cuerpo de la petición (sin passwords por seguridad)
       const bodyCopy = { ...req.body };
-      if (bodyCopy.password) bodyCopy.password = "********"; 
-      
+      if (bodyCopy.password) bodyCopy.password = "********";
+
       const detalles = JSON.stringify(bodyCopy);
 
-      db.query(sql, [id, nombre, rol, accion, req.method, req.originalUrl, detalles], (err) => {
-        if (err) console.error("⚠️ Error en log de auditoría:", err.message);
-      });
+      db.query(
+        sql,
+        [id, nombre, rol, accion, req.method, req.originalUrl, detalles],
+        (err) => {
+          if (err) console.error("⚠️ Error en log de auditoría:", err.message);
+        },
+      );
     }
     next();
   };
@@ -368,24 +365,32 @@ app.get("/api/admin/users", verificarSuperAdmin, (req, res) => {
   );
 });
 
-app.post("/api/admin/users", verificarSuperAdmin, registrarActividad("Crear usuario"), (req, res) => {
-  const { nombre, usuario, password, rol } = req.body;
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) return res.status(500).json({ error: "Error encriptando" });
-    db.query(
-      "INSERT INTO usuariosSys (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)",
-      [nombre, usuario, hash, rol],
-      (err, result) => {
-        if (err) {
-          if (err.code === "ER_DUP_ENTRY")
-            return res.json({ status: "error", message: "Usuario ya existe" });
-          return res.json({ status: "error", message: "Error BD" });
-        }
-        res.json({ status: "ok", id: result.insertId });
-      },
-    );
-  });
-});
+app.post(
+  "/api/admin/users",
+  verificarSuperAdmin,
+  registrarActividad("Crear usuario"),
+  (req, res) => {
+    const { nombre, usuario, password, rol } = req.body;
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) return res.status(500).json({ error: "Error encriptando" });
+      db.query(
+        "INSERT INTO usuariosSys (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)",
+        [nombre, usuario, hash, rol],
+        (err, result) => {
+          if (err) {
+            if (err.code === "ER_DUP_ENTRY")
+              return res.json({
+                status: "error",
+                message: "Usuario ya existe",
+              });
+            return res.json({ status: "error", message: "Error BD" });
+          }
+          res.json({ status: "ok", id: result.insertId });
+        },
+      );
+    });
+  },
+);
 
 // --- LÓGICA DE PERMISOS (NUEVO) ---
 
@@ -405,36 +410,46 @@ app.get("/api/admin/permisos/:id", verificarAuth, (req, res) => {
 });
 
 // Guardar o actualizar permisos
-app.post("/api/admin/permisos", verificarSuperAdmin, registrarActividad("Actualizar permisos"), (req, res) => {
-  const { usuario_id, permisos } = req.body;
+app.post(
+  "/api/admin/permisos",
+  verificarSuperAdmin,
+  registrarActividad("Actualizar permisos"),
+  (req, res) => {
+    const { usuario_id, permisos } = req.body;
 
-  if (!usuario_id) return res.status(400).json({ error: "Falta id" });
+    if (!usuario_id) return res.status(400).json({ error: "Falta id" });
 
-  // Preparamos las promesas para insertar/actualizar cada permiso
-  const promesas = Object.entries(permisos).map(([seccion, permitido]) => {
-    return new Promise((resolve, reject) => {
-      const sql = `
+    // Preparamos las promesas para insertar/actualizar cada permiso
+    const promesas = Object.entries(permisos).map(([seccion, permitido]) => {
+      return new Promise((resolve, reject) => {
+        const sql = `
                 INSERT INTO permisos_edicion (usuario_id, seccion, puede_editar) 
                 VALUES (?, ?, ?) 
                 ON DUPLICATE KEY UPDATE puede_editar = VALUES(puede_editar)
             `;
-      db.query(sql, [usuario_id, seccion, permitido ? 1 : 0], (err) => {
-        if (err) reject(err);
-        else resolve();
+        db.query(sql, [usuario_id, seccion, permitido ? 1 : 0], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
       });
     });
-  });
 
-  Promise.all(promesas)
-    .then(() => res.json({ status: "ok", message: "Permisos actualizados" }))
-    .catch((err) => res.status(500).json({ error: err.message }));
-});
+    Promise.all(promesas)
+      .then(() => res.json({ status: "ok", message: "Permisos actualizados" }))
+      .catch((err) => res.status(500).json({ error: err.message }));
+  },
+);
 
-app.delete("/api/admin/users/:id", verificarSuperAdmin, registrarActividad("Eliminar usuario"), (req, res) => {
-  db.query("DELETE FROM usuariosSys WHERE id = ?", [req.params.id], (err) =>
-    res.json({ status: err ? "error" : "ok" }),
-  );
-});
+app.delete(
+  "/api/admin/users/:id",
+  verificarSuperAdmin,
+  registrarActividad("Eliminar usuario"),
+  (req, res) => {
+    db.query("DELETE FROM usuariosSys WHERE id = ?", [req.params.id], (err) =>
+      res.json({ status: err ? "error" : "ok" }),
+    );
+  },
+);
 
 // Emails Admin
 app.get("/api/admin/emails", verificarSuperAdmin, (req, res) => {
@@ -443,20 +458,30 @@ app.get("/api/admin/emails", verificarSuperAdmin, (req, res) => {
     res.json(results.map((r) => r.email));
   });
 });
-app.post("/api/admin/emails", verificarSuperAdmin, registrarActividad("Agregar correo notificaciones"), (req, res) => {
-  db.query(
-    "INSERT INTO notificaciones (email) VALUES (?)",
-    [req.body.email],
-    (err) => res.json({ status: err ? "error" : "ok" }),
-  );
-});
-app.delete("/api/admin/emails", verificarSuperAdmin, registrarActividad("Eliminar correo notificaciones"), (req, res) => {
-  db.query(
-    "DELETE FROM notificaciones WHERE email = ?",
-    [req.body.email],
-    (err) => res.json({ status: "ok" }),
-  );
-});
+app.post(
+  "/api/admin/emails",
+  verificarSuperAdmin,
+  registrarActividad("Agregar correo notificaciones"),
+  (req, res) => {
+    db.query(
+      "INSERT INTO notificaciones (email) VALUES (?)",
+      [req.body.email],
+      (err) => res.json({ status: err ? "error" : "ok" }),
+    );
+  },
+);
+app.delete(
+  "/api/admin/emails",
+  verificarSuperAdmin,
+  registrarActividad("Eliminar correo notificaciones"),
+  (req, res) => {
+    db.query(
+      "DELETE FROM notificaciones WHERE email = ?",
+      [req.body.email],
+      (err) => res.json({ status: "ok" }),
+    );
+  },
+);
 
 // Listar correos de nómina
 app.get("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
@@ -467,48 +492,58 @@ app.get("/api/admin/emails-nomina", verificarSuperAdmin, (req, res) => {
 });
 
 // Agregar correo de nómina
-app.post("/api/admin/emails-nomina", verificarSuperAdmin, registrarActividad("Agregar correo nómina"), (req, res) => {
-  const { email } = req.body;
-  db.query(
-    "INSERT INTO notificaciones_nomina (email) VALUES (?)",
-    [email],
-    (err) => {
-      if (err)
-        return res.status(500).json({
-          status: "error",
-          message: "El correo ya existe o hubo un error.",
-        });
-      res.json({ status: "ok" });
-    },
-  );
-});
+app.post(
+  "/api/admin/emails-nomina",
+  verificarSuperAdmin,
+  registrarActividad("Agregar correo nómina"),
+  (req, res) => {
+    const { email } = req.body;
+    db.query(
+      "INSERT INTO notificaciones_nomina (email) VALUES (?)",
+      [email],
+      (err) => {
+        if (err)
+          return res.status(500).json({
+            status: "error",
+            message: "El correo ya existe o hubo un error.",
+          });
+        res.json({ status: "ok" });
+      },
+    );
+  },
+);
 
 // Eliminar correo de nómina
 // Agrega esto en tu archivo de rutas de Node.js
-app.delete("/api/admin/emails-nomina", verificarSuperAdmin, registrarActividad("Eliminar correo nómina"), (req, res) => {
-  const { email } = req.body; // Extraemos el email del cuerpo de la petición
+app.delete(
+  "/api/admin/emails-nomina",
+  verificarSuperAdmin,
+  registrarActividad("Eliminar correo nómina"),
+  (req, res) => {
+    const { email } = req.body; // Extraemos el email del cuerpo de la petición
 
-  if (!email) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "Email requerido" });
-  }
+    if (!email) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Email requerido" });
+    }
 
-  db.query(
-    "DELETE FROM notificaciones_nomina WHERE email = ?",
-    [email],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res
-          .status(500)
-          .json({ status: "error", message: "Error al eliminar" });
-      }
+    db.query(
+      "DELETE FROM notificaciones_nomina WHERE email = ?",
+      [email],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res
+            .status(500)
+            .json({ status: "error", message: "Error al eliminar" });
+        }
 
-      res.json({ status: "ok", message: "Correo eliminado correctamente" });
-    },
-  );
-});
+        res.json({ status: "ok", message: "Correo eliminado correctamente" });
+      },
+    );
+  },
+);
 
 const cors = require("cors");
 
@@ -552,8 +587,10 @@ app.get("/time-colombia", (req, res) => {
 // 7. INICIAR SERVIDOR
 // ==========================================
 server.listen(PORT, () => {
-    console.log(`--- DEBUG ---`);
-    console.log(`🚀 Servidor y WebSockets: http://localhost:${PORT}`);
-    console.log(`🆔 Version ID actual: ${serverID}`);
-    console.log(`-------------`);
+  console.log(`\n--- WSAC SYSTEM DEBUG ---`);
+  // Usamos la URL del .env para el log
+  console.log(`🚀 Servidor y WebSockets activos en: ${URL_BASEDEV}`);
+  console.log(`🆔 Version ID actual: ${serverID}`);
+  console.log(`📦 Puerto: ${PORT}`);
+  console.log(`--------------------------\n`);
 });
