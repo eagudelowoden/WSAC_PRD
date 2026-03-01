@@ -55,7 +55,7 @@
         
         Swal.fire({
             title: "¡ACTUALIZACIÓN DISPONIBLE!",
-            text: "El sistema de Woden se ha actualizado para mejorar tu experiencia.",
+            text: "El sistema de WSAC se ha actualizado para mejorar tu experiencia.",
             icon: "info",
             confirmButtonText: "Sincronizar Ahora",
             confirmButtonColor: "rgb(116, 51, 221)",
