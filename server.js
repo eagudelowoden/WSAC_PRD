@@ -95,6 +95,7 @@ app.use("/api", apiRoutes);
 // C. LOGIN
 // C. LOGIN (Modificado para soportar Session y JWT al mismo tiempo)
 app.post("/api/login", (req, res) => {
+  const ticketAcceso = require("crypto").randomBytes(16).toString("hex");
   const { usuario, password } = req.body;
 
   db.query(
@@ -123,13 +124,12 @@ app.post("/api/login", (req, res) => {
           // --- ESTO ES LO QUE FALTA ---
           // Guardamos en la sesión para que 'verificarAuth' no te rebote
           req.session.usuario = tokenPayload;
-
+          req.session.tokenSeguridad = "WSAC_SECURE_" + Date.now(); // Generamos el carnet de entrada
+          req.session.lastActivity = Date.now(); // Iniciamos el reloj de actividad
           const token = jwt.sign(
             tokenPayload,
             process.env.JWT_SECRET || "Secret_WAS_Key_123",
-            {
-              expiresIn: "8h",
-            },
+            { expiresIn: "8h" },
           );
 
           let redirectUrl = "/panel-administrativo";
@@ -149,7 +149,7 @@ app.post("/api/login", (req, res) => {
               message: "Bienvenido",
               token: token,
               usuario: tokenPayload,
-              redirect: redirectUrl,
+              redirect: `${redirectUrl}?s=${ticketAcceso}`
             });
           });
         } else {
@@ -312,10 +312,31 @@ const registrarActividad = (accion) => {
 // ==========================================
 
 function verificarAuth(req, res, next) {
-  if (req.session.usuario) next();
-  else res.redirect("/login.html");
-}
+  // 1. Evitar que el navegador guarde la página en caché (Seguridad Post-Logout)
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
 
+  // 2. Validar que exista la sesión y el token de seguridad generado en el login
+  if (req.session && req.session.usuario && req.session.tokenSeguridad) {
+    // Opcional: Validar inactividad (Ejemplo: 30 minutos)
+    const ahora = Date.now();
+    const ultimaActividad = req.session.lastActivity || ahora;
+    const diferencia = ahora - ultimaActividad;
+
+    if (diferencia > 30 * 60 * 1000) {
+      // 30 minutos
+      return req.session.destroy(() => {
+        res.redirect("/login.html?error=sesion_expirada");
+      });
+    }
+
+    req.session.lastActivity = ahora; // Actualizamos tiempo de actividad
+    return next();
+  }
+
+  // 3. Si no hay sesión válida, redirigir al login
+  console.log(`🚫 Acceso denegado a ruta: ${req.originalUrl}`);
+  res.redirect("/login.html?error=auth_required");
+}
 function verificarSuperAdmin(req, res, next) {
   if (req.session.usuario && req.session.usuario.rol === "superadmin") next();
   else res.redirect("/panel-administrativo");
