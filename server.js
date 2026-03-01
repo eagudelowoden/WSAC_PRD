@@ -23,7 +23,9 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const server = http.createServer(app);
+const serverID = Date.now().toString();
 const io = new Server(server);
+global.io = io;
 app.use(express.json());
 
 // ==========================================
@@ -44,6 +46,8 @@ transporter.verify((error) => {
   if (error) console.log("❌ Error conectando al correo:", error);
   else console.log("✅ Servidor de correo listo.");
 });
+
+
 
 // ==========================================
 // 3. MIDDLEWARES PRINCIPALES (IMPORTANTE: EL ORDEN IMPORTA)
@@ -161,7 +165,38 @@ app.post("/api/login", (req, res) => {
 });
 
 // AGREGA ESTO AQUÍ (Justo después de 'const app = express()')
-const serverID = Date.now().toString();
+// ==========================================
+// LÓGICA DE SOCKETS (TIEMPO REAL)
+// ==========================================
+io.on("connection", (socket) => {
+    // Log detallado para ver en tu terminal de VS Code quién se conecta
+    console.log(`🔌 Cliente conectado [ID: ${socket.id}] - Sincronizando con Versión: ${serverID}`);
+
+    // 1. Enviamos la versión actual inmediatamente al conectar/reconectar
+    // Usamos el serverID generado en el arranque actual
+    socket.emit("version-actual", serverID);
+
+    // 2. Enviamos el estado de mantenimiento inicial desde la BD
+    const queryMaint = "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1";
+    
+    db.query(queryMaint, (err, result) => {
+        if (err) {
+            console.error("❌ Error al consultar mantenimiento para socket:", err.message);
+            return;
+        }
+
+        if (result.length > 0) {
+            // Enviamos el estado actual para que el banner de Vue se actualice al entrar
+            socket.emit("mantenimiento", result[0]);
+            console.log(`🚧 Estado de mantenimiento enviado a ${socket.id}: ${result[0].activo ? 'Activo' : 'Inactivo'}`);
+        }
+    });
+
+    // Opcional: Log cuando el cliente se va
+    socket.on("disconnect", () => {
+        console.log(`👋 Cliente desconectado: ${socket.id}`);
+    });
+});
 
 app.get("/api/check-version", (req, res) => {
   console.log("🔍 Petición de chequeo de versión recibida"); // Esto te servirá para ver en consola si llega
@@ -517,9 +552,17 @@ app.get("/time-colombia", (req, res) => {
   }
 });
 
+// Justo después de que el servidor arranca:
+io.on("connection", (socket) => {
+  // Cuando alguien se conecta, le enviamos la versión actual una sola vez
+  socket.emit("version-actual", Date.now().toString());
+});
 // ==========================================
 // 7. INICIAR SERVIDOR
 // ==========================================
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en ${URL_BASEDEV}`);
+server.listen(PORT, () => {
+    console.log(`--- DEBUG ---`);
+    console.log(`🚀 Servidor y WebSockets: http://localhost:${PORT}`);
+    console.log(`🆔 Version ID actual: ${serverID}`);
+    console.log(`-------------`);
 });
