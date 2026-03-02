@@ -255,38 +255,53 @@ router.get("/cargos-por-segmento/:segmento", async (req, res) => {
 
 // Listar y Generar URLs firmadas para ver archivos
 router.get("/archivos/:carpeta", async (req, res) => {
-  const carpetaUsuario = req.params.carpeta;
+  const carpetaPrincipal = req.params.carpeta;
+  const sub = req.query.sub; 
+
+  // 1. IMPORTANTE: El prefijo debe terminar en "/" para ser estricto
+  const prefijoFinal = sub 
+    ? `${carpetaPrincipal}/${sub}/` 
+    : `${carpetaPrincipal}/`;
 
   try {
-    // 1. Listamos los archivos
     const command = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
-      Prefix: carpetaUsuario + "/",
+      Prefix: prefijoFinal, 
     });
 
     const response = await s3Client.send(command);
 
-    // 2. Generamos URLs firmadas
-    const filesPromises = (response.Contents || []).map(async (item) => {
-      const fileName = item.Key.split("/").pop();
+    // 2. FILTRADO DINÁMICO
+    const filesPromises = (response.Contents || [])
+      .filter(item => {
+          // A. Filtramos para que NO sea una carpeta (las que terminan en /)
+          const esCarpeta = item.Key.endsWith('/');
+          // B. Nos aseguramos de que el archivo tenga nombre (no sea un objeto vacío)
+          const tieneNombre = item.Key.split("/").pop() !== "";
+          
+          return !esCarpeta && tieneNombre;
+      })
+      .map(async (item) => {
+        const fileName = item.Key.split("/").pop();
 
-      const getCommand = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: item.Key,
+        const getCommand = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: item.Key,
+        });
+
+        const signedUrl = await getSignedUrl(s3Client, getCommand, {
+          expiresIn: 3600,
+        });
+
+        return {
+          name: fileName,
+          url: signedUrl,
+        };
       });
-
-      const signedUrl = await getSignedUrl(s3Client, getCommand, {
-        expiresIn: 3600,
-      });
-
-      return {
-        name: fileName,
-        url: signedUrl,
-      };
-    });
 
     const files = await Promise.all(filesPromises);
     res.json(files);
+
   } catch (err) {
     console.error("Error listando archivos S3:", err);
     res.json([]);
