@@ -19,9 +19,9 @@
 
 
   <script>
-  document.write('<script src="/js/actualizacion-check.js?v=' + Date.now() + '"><\/script>');
-</script>
-  
+    document.write('<script src="/js/actualizacion-check.js?v=' + Date.now() + '"><\/script>');
+  </script>
+
 
 
 </head>
@@ -29,23 +29,23 @@
 <body>
 
   <div id="app">
-<transition name="slide-down">
-    <div v-if="avisoGlobal && avisoGlobal.activo" class="official-banner">
-      <div class="banner-inner">
-        <div class="banner-left">
-          <div class="pulse-dot"></div>
-          <span class="badge-official">COMUNICADO</span>
-          <span class="banner-message">{{ avisoGlobal.mensaje }}</span>
-        </div>
-        <div class="banner-right">
-          <span class="banner-timestamp">
-            <i class="bi bi-calendar3"></i> {{ avisoGlobal.fecha }}
-          </span>
-          <button class="close-btn" @click="cerrarBannerPorAhora">&times;</button>
+    <transition name="slide-down">
+      <div v-if="avisoGlobal && avisoGlobal.activo" class="official-banner">
+        <div class="banner-inner">
+          <div class="banner-left">
+            <div class="pulse-dot"></div>
+            <span class="badge-official">COMUNICADO</span>
+            <span class="banner-message">{{ avisoGlobal.mensaje }}</span>
+          </div>
+          <div class="banner-right">
+            <span class="banner-timestamp">
+              <i class="bi bi-calendar3"></i> {{ avisoGlobal.fecha }}
+            </span>
+            <button class="close-btn" @click="cerrarBannerPorAhora">&times;</button>
+          </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
     <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
       style="flex-shrink: 0; min-height: 40px;">
       <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
@@ -156,11 +156,18 @@
                 <div class="spinner-border spinner-border-sm text-primary"></div>
               </div>
 
-              <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini animate-fade-in"
+              <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini"
                 :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)">
-                <div class="user-avatar-mini">{{ u.nombres?.charAt(0) }}{{ u.apellidos?.charAt(0) }}</div>
+
+                <div class="user-avatar-mini">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+
                 <div class="user-info-mini">
-                  <div class="user-name-mini text-truncate">{{ u.nombres }} {{ u.apellidos }}</div>
+                  {{ u.nombres }} {{ u.apellidos }}
                 </div>
               </div>
             </div>
