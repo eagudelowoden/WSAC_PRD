@@ -291,23 +291,13 @@ router.get("/archivos/:carpeta", async (req, res) => {
           Bucket: BUCKET_NAME,
           Key: item.Key,
         });
-        const getCommand = new GetObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: item.Key,
-        });
-
-        const signedUrl = await getSignedUrl(s3Client, getCommand, {
-          expiresIn: 3600,
-        });
+       
+       
         const signedUrl = await getSignedUrl(s3Client, getCommand, {
           expiresIn: 3600,
         });
 
-        return {
-          name: fileName,
-          url: signedUrl,
-        };
-      });
+
         return {
           name: fileName,
           url: signedUrl,
