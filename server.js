@@ -155,7 +155,7 @@ app.post("/api/login", (req, res) => {
               message: "Bienvenido",
               token: token,
               usuario: tokenPayload,
-              redirect: `${redirectUrl}?s=${ticketAcceso}`
+              redirect: `${redirectUrl}?s=${ticketAcceso}`,
             });
           });
         } else {
@@ -374,7 +374,14 @@ app.get("/panel-aprobacionesDos", verificarAuth, (req, res) =>
 app.get("/superadmin", verificarSuperAdmin, (req, res) =>
   res.sendFile(path.join(__dirname, "vistas_privadas", "superadmin.html")),
 );
-
+// Usa 'app' en lugar de 'router' y añade 'verificarAuth'
+app.get("/postulaciones", verificarAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "vistas_privadas", "postulaciones.html"));
+});
+// Ruta para el módulo de Agendamiento
+app.get("/agendamiento", verificarAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "vistas_privadas", "agendamientos.html"));
+});
 // ==========================================
 // 6. API ADMIN (Usuarios y Emails)
 // ==========================================

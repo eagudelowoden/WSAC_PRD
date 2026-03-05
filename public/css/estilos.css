@@ -525,3 +525,6 @@ body {
 .dropdown-item {
   padding: 5px 12px;
 }
+[v-cloak] {
+  display: none !important;
+}

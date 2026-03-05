@@ -130,7 +130,6 @@ const correoOutlook = nodemailer.createTransport({
   },
 });
 
-
 const registrarActividad = (accion) => {
   return (req, res, next) => {
     if (req.session && req.session.usuario) {
@@ -141,13 +140,17 @@ const registrarActividad = (accion) => {
       `;
       // Guardamos el cuerpo de la petición (sin passwords por seguridad)
       const bodyCopy = { ...req.body };
-      if (bodyCopy.password) bodyCopy.password = "********"; 
-      
+      if (bodyCopy.password) bodyCopy.password = "********";
+
       const detalles = JSON.stringify(bodyCopy);
 
-      db.query(sql, [id, nombre, rol, accion, req.method, req.originalUrl, detalles], (err) => {
-        if (err) console.error("⚠️ Error en log de auditoría:", err.message);
-      });
+      db.query(
+        sql,
+        [id, nombre, rol, accion, req.method, req.originalUrl, detalles],
+        (err) => {
+          if (err) console.error("⚠️ Error en log de auditoría:", err.message);
+        },
+      );
     }
     next();
   };
@@ -288,11 +291,23 @@ router.get("/archivos/:carpeta", async (req, res) => {
           Bucket: BUCKET_NAME,
           Key: item.Key,
         });
+        const getCommand = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: item.Key,
+        });
 
         const signedUrl = await getSignedUrl(s3Client, getCommand, {
           expiresIn: 3600,
         });
+        const signedUrl = await getSignedUrl(s3Client, getCommand, {
+          expiresIn: 3600,
+        });
 
+        return {
+          name: fileName,
+          url: signedUrl,
+        };
+      });
         return {
           name: fileName,
           url: signedUrl,
@@ -307,35 +322,38 @@ router.get("/archivos/:carpeta", async (req, res) => {
     res.json([]);
   }
 });
-router.post("/enviar-historial-contratos", registrarActividad("Enviar historial contratos"), async (req, res) => {
-  const { usuario, archivos } = req.body;
-  
-  if (!archivos || archivos.length === 0) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "No hay archivos seleccionados." });
-  }
+router.post(
+  "/enviar-historial-contratos",
+  registrarActividad("Enviar historial contratos"),
+  async (req, res) => {
+    const { usuario, archivos } = req.body;
 
-  try {
-    // 2. Descargamos de S3 usando la Signed URL que ya viene en el objeto 'archivos'
-    const attachments = await Promise.all(
-      archivos.map(async (file) => {
-        const response = await axios.get(file.url, {
-          responseType: "arraybuffer",
-        });
-        return {
-          filename: file.name,
-          content: Buffer.from(response.data),
-        };
-      }),
-    );
+    if (!archivos || archivos.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "No hay archivos seleccionados." });
+    }
 
-    // 3. Diseño de correo corporativo WSAC
-    const mailOptions = {
-      from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
-      to: usuario.correo,
-      subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
-      html: `
+    try {
+      // 2. Descargamos de S3 usando la Signed URL que ya viene en el objeto 'archivos'
+      const attachments = await Promise.all(
+        archivos.map(async (file) => {
+          const response = await axios.get(file.url, {
+            responseType: "arraybuffer",
+          });
+          return {
+            filename: file.name,
+            content: Buffer.from(response.data),
+          };
+        }),
+      );
+
+      // 3. Diseño de correo corporativo WSAC
+      const mailOptions = {
+        from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
+        to: usuario.correo,
+        subject: `📝 Documentos Disponibles: ${usuario.nombres}`,
+        html: `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e4e8; border-radius: 15px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; padding: 20px; text-align: center; color: white;">
                         <h2 style="margin: 0;">WSAC Info</h2>
@@ -355,21 +373,25 @@ router.post("/enviar-historial-contratos", registrarActividad("Enviar historial 
                     </div>
                 </div>
             `,
-      attachments: attachments,
-    };
+        attachments: attachments,
+      };
 
-    await correoOutlook.sendMail(mailOptions);
-    res.json({ status: "ok", message: "Enviado con éxito" });
-  } catch (error) {
-    console.error("Error enviando historial S3:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Error al procesar los documentos de S3",
-    });
-  }
-});
+      await correoOutlook.sendMail(mailOptions);
+      res.json({ status: "ok", message: "Enviado con éxito" });
+    } catch (error) {
+      console.error("Error enviando historial S3:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Error al procesar los documentos de S3",
+      });
+    }
+  },
+);
 
-router.post("/enviar", registrarActividad("Enviar documentos"), (req, res, next) => {
+router.post(
+  "/enviar",
+  registrarActividad("Enviar documentos"),
+  (req, res, next) => {
     // Middleware de Multer con manejo de errores limpio
     uploadMiddleware(req, res, (err) => {
       if (err instanceof multer.MulterError) {
@@ -515,98 +537,108 @@ router.post("/enviar", registrarActividad("Enviar documentos"), (req, res, next)
   },
 );
 
-router.delete("/docs/eliminar-archivo", registrarActividad("Eliminar archivo"), async (req, res) => {
-  const { key } = req.body;
+router.delete(
+  "/docs/eliminar-archivo",
+  registrarActividad("Eliminar archivo"),
+  async (req, res) => {
+    const { key } = req.body;
 
-  if (!key) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "Falta la ruta (key) del archivo" });
-  }
+    if (!key) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Falta la ruta (key) del archivo" });
+    }
 
-  try {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: key,
-    };
+    try {
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: key,
+      };
 
-    // Comando real para borrar en S3
-    await s3Client.send(new DeleteObjectCommand(params));
+      // Comando real para borrar en S3
+      await s3Client.send(new DeleteObjectCommand(params));
 
-    console.log(`🗑️ Archivo eliminado de S3: ${key}`);
+      console.log(`🗑️ Archivo eliminado de S3: ${key}`);
 
-    res.json({ status: "ok", message: "Archivo eliminado físicamente de S3" });
-  } catch (error) {
-    console.error("Error eliminando de S3:", error);
-    res.status(500).json({
-      status: "error",
-      message: "No se pudo eliminar el archivo de la nube",
-    });
-  }
-});
+      res.json({
+        status: "ok",
+        message: "Archivo eliminado físicamente de S3",
+      });
+    } catch (error) {
+      console.error("Error eliminando de S3:", error);
+      res.status(500).json({
+        status: "error",
+        message: "No se pudo eliminar el archivo de la nube",
+      });
+    }
+  },
+);
 
-router.put("/usuario/:id", registrarActividad("Actualizar usuario"), async (req, res) => {
-  // OJO: Ahora es async
-  const id = req.params.id;
-  const data = req.body;
+router.put(
+  "/usuario/:id",
+  registrarActividad("Actualizar usuario"),
+  async (req, res) => {
+    // OJO: Ahora es async
+    const id = req.params.id;
+    const data = req.body;
 
-  try {
-    // ============================================================
-    // 1. LÓGICA DE SUBIDA DE "DESCRIPCIÓN DE CARGO" A S3
-    // ============================================================
-    // Si nos envían un segmento y un PDF de cargo, lo subimos a la carpeta del usuario en S3
-    if (data.segmento_contrato && data.descripcion_cargo) {
-      // A. Primero necesitamos saber la carpeta del usuario en S3
-      // Hacemos una consulta rápida para obtenerla
-      const [userRows] = await db
-        .promise()
-        .query(
-          "SELECT carpeta, nombres, apellidos FROM usuarios WHERE id = ?",
-          [id],
-        );
+    try {
+      // ============================================================
+      // 1. LÓGICA DE SUBIDA DE "DESCRIPCIÓN DE CARGO" A S3
+      // ============================================================
+      // Si nos envían un segmento y un PDF de cargo, lo subimos a la carpeta del usuario en S3
+      if (data.segmento_contrato && data.descripcion_cargo) {
+        // A. Primero necesitamos saber la carpeta del usuario en S3
+        // Hacemos una consulta rápida para obtenerla
+        const [userRows] = await db
+          .promise()
+          .query(
+            "SELECT carpeta, nombres, apellidos FROM usuarios WHERE id = ?",
+            [id],
+          );
 
-      if (userRows.length > 0) {
-        let userFolder = userRows[0].carpeta;
-        // Si por alguna razón no tiene carpeta, usamos Nombres + Apellidos
-        if (!userFolder) {
-          userFolder = `${userRows[0].nombres} ${userRows[0].apellidos}`.trim();
-        }
+        if (userRows.length > 0) {
+          let userFolder = userRows[0].carpeta;
+          // Si por alguna razón no tiene carpeta, usamos Nombres + Apellidos
+          if (!userFolder) {
+            userFolder =
+              `${userRows[0].nombres} ${userRows[0].apellidos}`.trim();
+          }
 
-        // B. Buscamos el archivo en tu disco local
-        const rutaLocalPDF = path.join(
-          RUTA_SEGMENTOS,
-          data.segmento_contrato,
-          data.descripcion_cargo,
-        );
+          // B. Buscamos el archivo en tu disco local
+          const rutaLocalPDF = path.join(
+            RUTA_SEGMENTOS,
+            data.segmento_contrato,
+            data.descripcion_cargo,
+          );
 
-        if (fs.existsSync(rutaLocalPDF)) {
-          // C. Leemos el archivo
-          const fileContent = fs.readFileSync(rutaLocalPDF);
+          if (fs.existsSync(rutaLocalPDF)) {
+            // C. Leemos el archivo
+            const fileContent = fs.readFileSync(rutaLocalPDF);
 
-          // D. Preparamos la subida a S3
-          // Lo guardamos con un prefijo para identificarlo fácil, ej: "CARGO_Analista.pdf"
-          const s3Key = `${userFolder}/CARGO_${data.descripcion_cargo}`;
+            // D. Preparamos la subida a S3
+            // Lo guardamos con un prefijo para identificarlo fácil, ej: "CARGO_Analista.pdf"
+            const s3Key = `${userFolder}/CARGO_${data.descripcion_cargo}`;
 
-          const command = new PutObjectCommand({
-            Bucket: BUCKET_NAME,
-            Key: s3Key,
-            Body: fileContent,
-            ContentType: "application/pdf",
-          });
-          
+            const command = new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: s3Key,
+              Body: fileContent,
+              ContentType: "application/pdf",
+            });
 
-          // E. Subimos a S3
-          await s3Client.send(command);
-          console.log(`✅ Descripción de cargo subida a S3: ${s3Key}`);
-        } else {
-          console.warn(`⚠️ El archivo local no existe: ${rutaLocalPDF}`);
+            // E. Subimos a S3
+            await s3Client.send(command);
+            console.log(`✅ Descripción de cargo subida a S3: ${s3Key}`);
+          } else {
+            console.warn(`⚠️ El archivo local no existe: ${rutaLocalPDF}`);
+          }
         }
       }
-    }
-    // ============================================================
+      // ============================================================
 
-    // 2. ACTUALIZACIÓN EN BASE DE DATOS (Igual que antes)
-    const sql = `
+      // 2. ACTUALIZACIÓN EN BASE DE DATOS (Igual que antes)
+      const sql = `
             UPDATE usuarios SET 
                 nombres = ?, apellidos = ?, documento = ?, telefono = ?, direccion = ?, 
                 correo = ?, fechaNacimiento = ?, eps = ?, arl = ?, afp = ?, ccf = ?, 
@@ -627,138 +659,150 @@ router.put("/usuario/:id", registrarActividad("Actualizar usuario"), async (req,
             WHERE id = ?
         `;
 
-    const valores = [
-      data.nombres,
-      data.apellidos,
-      data.documento,
-      data.telefono,
-      data.direccion,
-      data.correo,
-      data.fechaNacimiento,
-      data.epsNombre || data.eps,
-      data.arlNombre || data.arl,
-      data.afpNombre || data.afp,
-      data.ccfNombre || data.ccf,
-      data.ciudad,
-      data.salario,
-      data.cargo,
-      data.afiliaciones_familiares,
-      data.observaciones,
-      data.segmento_contrato,
-      data.descripcion_cargo,
-      data.aprobacion,
-      data.otroSi,
-      data.tipo_contrato,
-      data.curso,
-      data.correoAprendizaje,
-      data.institucion,
-      data.nitinstitucion,
-      data.centroSena,
-      data.fechaterminacion || null,
-      data.fechaSuscripcion || null,
-      id,
-    ];
+      const valores = [
+        data.nombres,
+        data.apellidos,
+        data.documento,
+        data.telefono,
+        data.direccion,
+        data.correo,
+        data.fechaNacimiento,
+        data.epsNombre || data.eps,
+        data.arlNombre || data.arl,
+        data.afpNombre || data.afp,
+        data.ccfNombre || data.ccf,
+        data.ciudad,
+        data.salario,
+        data.cargo,
+        data.afiliaciones_familiares,
+        data.observaciones,
+        data.segmento_contrato,
+        data.descripcion_cargo,
+        data.aprobacion,
+        data.otroSi,
+        data.tipo_contrato,
+        data.curso,
+        data.correoAprendizaje,
+        data.institucion,
+        data.nitinstitucion,
+        data.centroSena,
+        data.fechaterminacion || null,
+        data.fechaSuscripcion || null,
+        id,
+      ];
 
-    // Usamos await con la versión promesa de mysql2 o callback tradicional envuelto
-    // Nota: Si tu 'db' no soporta .promise(), usa callback tradicional así:
-    db.query(sql, valores, (err, result) => {
-      if (err) {
-        console.error("Error SQL:", err);
-        return res.status(500).json({ status: "error", message: err.message });
-      }
-      res.json({
-        status: "ok",
-        message: "Datos actualizados y cargo subido a la nube",
-      });
-    });
-  } catch (error) {
-    console.error("Error en PUT /usuario:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Error interno procesando la solicitud",
-    });
-  }
-});
-// Eliminar usuario y sus archivos de S3
-router.delete("/usuario/:id", registrarActividad("Eliminar usuario"), (req, res) => {
-  const id = req.params.id;
-
-  // 1. Buscamos nombre de carpeta
-  db.query(
-    "SELECT carpeta FROM usuarios WHERE id = ?",
-    [id],
-    async (err, results) => {
-      if (err || results.length === 0)
-        return res
-          .status(404)
-          .json({ status: "error", message: "Usuario no encontrado" });
-
-      const folderName = results[0].carpeta;
-
-      // 2. Borrar de S3
-      if (folderName) {
-        try {
-          const listCommand = new ListObjectsV2Command({
-            Bucket: BUCKET_NAME,
-            Prefix: folderName + "/",
-          });
-          const listResponse = await s3Client.send(listCommand);
-
-          if (listResponse.Contents && listResponse.Contents.length > 0) {
-            const objectsToDelete = listResponse.Contents.map((item) => ({
-              Key: item.Key,
-            }));
-            await s3Client.send(
-              new DeleteObjectsCommand({
-                Bucket: BUCKET_NAME,
-                Delete: { Objects: objectsToDelete },
-              }),
-            );
-          }
-        } catch (s3Error) {
-          console.error("Error borrando S3:", s3Error);
+      // Usamos await con la versión promesa de mysql2 o callback tradicional envuelto
+      // Nota: Si tu 'db' no soporta .promise(), usa callback tradicional así:
+      db.query(sql, valores, (err, result) => {
+        if (err) {
+          console.error("Error SQL:", err);
+          return res
+            .status(500)
+            .json({ status: "error", message: err.message });
         }
-      }
-
-      // 3. Borrar de BD
-      db.query("DELETE FROM usuarios WHERE id = ?", [id], (errDelete) => {
-        if (errDelete) return res.status(500).json({ status: "error" });
-        res.json({ status: "ok", message: "Usuario y archivos eliminados" });
+        res.json({
+          status: "ok",
+          message: "Datos actualizados y cargo subido a la nube",
+        });
       });
-    },
-  );
-});
+    } catch (error) {
+      console.error("Error en PUT /usuario:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Error interno procesando la solicitud",
+      });
+    }
+  },
+);
+// Eliminar usuario y sus archivos de S3
+router.delete(
+  "/usuario/:id",
+  registrarActividad("Eliminar usuario"),
+  (req, res) => {
+    const id = req.params.id;
+
+    // 1. Buscamos nombre de carpeta
+    db.query(
+      "SELECT carpeta FROM usuarios WHERE id = ?",
+      [id],
+      async (err, results) => {
+        if (err || results.length === 0)
+          return res
+            .status(404)
+            .json({ status: "error", message: "Usuario no encontrado" });
+
+        const folderName = results[0].carpeta;
+
+        // 2. Borrar de S3
+        if (folderName) {
+          try {
+            const listCommand = new ListObjectsV2Command({
+              Bucket: BUCKET_NAME,
+              Prefix: folderName + "/",
+            });
+            const listResponse = await s3Client.send(listCommand);
+
+            if (listResponse.Contents && listResponse.Contents.length > 0) {
+              const objectsToDelete = listResponse.Contents.map((item) => ({
+                Key: item.Key,
+              }));
+              await s3Client.send(
+                new DeleteObjectsCommand({
+                  Bucket: BUCKET_NAME,
+                  Delete: { Objects: objectsToDelete },
+                }),
+              );
+            }
+          } catch (s3Error) {
+            console.error("Error borrando S3:", s3Error);
+          }
+        }
+
+        // 3. Borrar de BD
+        db.query("DELETE FROM usuarios WHERE id = ?", [id], (errDelete) => {
+          if (errDelete) return res.status(500).json({ status: "error" });
+          res.json({ status: "ok", message: "Usuario y archivos eliminados" });
+        });
+      },
+    );
+  },
+);
 
 // ==========================================
 // 6. RUTAS DE SUBSANACIÓN (CON SUBIDA A S3)
 // ==========================================
 
 // A. ADMIN SOLICITA SUBSANACIÓN
-router.post("/solicitar-subsanar", registrarActividad("Solicitar subsanación"), (req, res) => {
-  const { id, motivo } = req.body;
-  const token = crypto.randomBytes(20).toString("hex");
+router.post(
+  "/solicitar-subsanar",
+  registrarActividad("Solicitar subsanación"),
+  (req, res) => {
+    const { id, motivo } = req.body;
+    const token = crypto.randomBytes(20).toString("hex");
 
-  db.query(
-    "UPDATE usuarios SET token_subsanar = ?, fecha_solicitud_subsanar = NOW() WHERE id = ?",
-    [token, id],
-    (err) => {
-      if (err)
-        return res.status(500).json({ status: "error", message: err.message });
+    db.query(
+      "UPDATE usuarios SET token_subsanar = ?, fecha_solicitud_subsanar = NOW() WHERE id = ?",
+      [token, id],
+      (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ status: "error", message: err.message });
 
-      db.query(
-        "SELECT nombres, correo FROM usuarios WHERE id = ?",
-        [id],
-        async (err, users) => {
-          if (!users || users.length === 0)
-            return res
-              .status(404)
-              .json({ status: "error", message: "Usuario no encontrado" });
+        db.query(
+          "SELECT nombres, correo FROM usuarios WHERE id = ?",
+          [id],
+          async (err, users) => {
+            if (!users || users.length === 0)
+              return res
+                .status(404)
+                .json({ status: "error", message: "Usuario no encontrado" });
 
-          const usuario = users[0];
-          const link = `${URL_BASE}/subsanar.html?token=${token}`;
+            const usuario = users[0];
+            const link = `${URL_BASE}/subsanar.html?token=${token}`;
 
-          try {
-            const htmlEmail = `
+            try {
+              const htmlEmail = `
               <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                       <tr>
@@ -805,48 +849,57 @@ router.post("/solicitar-subsanar", registrarActividad("Solicitar subsanación"),
               </div>
               `;
 
-            await correoOutlook.sendMail({
-              from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
-              to: usuario.correo,
-              subject: "Acción Requerida: Corregir Documentos - WSAC",
-              html: htmlEmail,
-            });
+              await correoOutlook.sendMail({
+                from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
+                to: usuario.correo,
+                subject: "Acción Requerida: Corregir Documentos - WSAC",
+                html: htmlEmail,
+              });
 
-            res.json({ status: "ok", message: "Solicitud enviada al usuario" });
-          } catch (e) {
-            console.error(e);
-            res
-              .status(500)
-              .json({ status: "error", message: "Error enviando correo" });
-          }
-        },
-      );
-    },
-  );
-});
+              res.json({
+                status: "ok",
+                message: "Solicitud enviada al usuario",
+              });
+            } catch (e) {
+              console.error(e);
+              res
+                .status(500)
+                .json({ status: "error", message: "Error enviando correo" });
+            }
+          },
+        );
+      },
+    );
+  },
+);
 
-router.post("/notificar-aprobacion", registrarActividad("Notificar aprobación"), async (req, res) => {
-  const { id, correo, nombres } = req.body;
+router.post(
+  "/notificar-aprobacion",
+  registrarActividad("Notificar aprobación"),
+  async (req, res) => {
+    const { id, correo, nombres } = req.body;
 
-  // 1. Buscamos los datos del usuario para asegurar que existe
-  db.query(
-    "SELECT nombres, correo, cargo, salario FROM usuarios WHERE id = ?",
-    [id],
-    async (err, users) => {
-      if (err)
-        return res.status(500).json({ status: "error", message: err.message });
+    // 1. Buscamos los datos del usuario para asegurar que existe
+    db.query(
+      "SELECT nombres, correo, cargo, salario FROM usuarios WHERE id = ?",
+      [id],
+      async (err, users) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ status: "error", message: err.message });
 
-      if (!users || users.length === 0) {
-        return res
-          .status(404)
-          .json({ status: "error", message: "Usuario no encontrado" });
-      }
+        if (!users || users.length === 0) {
+          return res
+            .status(404)
+            .json({ status: "error", message: "Usuario no encontrado" });
+        }
 
-      const usuario = users[0];
+        const usuario = users[0];
 
-      try {
-        // 2. Diseño del HTML para el correo de éxito
-        const htmlEmail = `
+        try {
+          // 2. Diseño del HTML para el correo de éxito
+          const htmlEmail = `
         <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                 <tr>
@@ -884,59 +937,63 @@ router.post("/notificar-aprobacion", registrarActividad("Notificar aprobación")
         </div>
         `;
 
-        // 3. Envío del correo
-        await correoOutlook.sendMail({
-          from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
-          to: usuario.correo,
-          subject: "Documentos Aprobados - WSAC INFO",
-          html: htmlEmail,
-        });
+          // 3. Envío del correo
+          await correoOutlook.sendMail({
+            from: `"WSAC Notificaciones" <${process.env.OUTLOOK_USER}>`,
+            to: usuario.correo,
+            subject: "Documentos Aprobados - WSAC INFO",
+            html: htmlEmail,
+          });
 
-        res.json({
-          status: "ok",
-          message: "Notificación de aprobación enviada",
-        });
-      } catch (e) {
-        console.error("Error al enviar correo de aprobación:", e);
-        res
-          .status(500)
-          .json({ status: "error", message: "Error enviando correo" });
-      }
-    },
-  );
-});
-router.post("/notificar-nomina", registrarActividad("Notificar nómina"), async (req, res) => {
-  const { id } = req.body;
+          res.json({
+            status: "ok",
+            message: "Notificación de aprobación enviada",
+          });
+        } catch (e) {
+          console.error("Error al enviar correo de aprobación:", e);
+          res
+            .status(500)
+            .json({ status: "error", message: "Error enviando correo" });
+        }
+      },
+    );
+  },
+);
+router.post(
+  "/notificar-nomina",
+  registrarActividad("Notificar nómina"),
+  async (req, res) => {
+    const { id } = req.body;
 
-  // 1. Buscamos los datos detallados del usuario/contrato
-  db.query(
-    "SELECT nombres, cargo, salario, segmento_contrato, ciudad FROM usuarios WHERE id = ?",
-    [id],
-    async (err, users) => {
-      if (err || !users || users.length === 0) {
-        return res
-          .status(500)
-          .json({ status: "error", message: "Usuario no encontrado" });
-      }
+    // 1. Buscamos los datos detallados del usuario/contrato
+    db.query(
+      "SELECT nombres, cargo, salario, segmento_contrato, ciudad FROM usuarios WHERE id = ?",
+      [id],
+      async (err, users) => {
+        if (err || !users || users.length === 0) {
+          return res
+            .status(500)
+            .json({ status: "error", message: "Usuario no encontrado" });
+        }
 
-      const usuario = users[0];
+        const usuario = users[0];
 
-      // 2. Buscamos los correos de la tabla de nómina
-      db.query(
-        "SELECT email FROM notificaciones_nomina",
-        async (errNotif, resNotif) => {
-          if (errNotif || resNotif.length === 0) {
-            return res.status(404).json({
-              status: "error",
-              message: "No hay correos configurados en nómina",
-            });
-          }
+        // 2. Buscamos los correos de la tabla de nómina
+        db.query(
+          "SELECT email FROM notificaciones_nomina",
+          async (errNotif, resNotif) => {
+            if (errNotif || resNotif.length === 0) {
+              return res.status(404).json({
+                status: "error",
+                message: "No hay correos configurados en nómina",
+              });
+            }
 
-          const listaCorreos = resNotif.map((r) => r.email);
+            const listaCorreos = resNotif.map((r) => r.email);
 
-          try {
-            // 3. Diseño del HTML para Nómina
-            const htmlNomina = `
+            try {
+              // 3. Diseño del HTML para Nómina
+              const htmlNomina = `
           <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif;">
               <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e1e4e8;">
                   <tr>
@@ -969,61 +1026,65 @@ router.post("/notificar-nomina", registrarActividad("Notificar nómina"), async 
           </div>
           `;
 
-            // 4. Envío de correo a la lista de nómina
-            await correoOutlook.sendMail({
-              from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
-              to: listaCorreos, // Envía a todos los de la tabla
-              subject: `Notificación WSAC: Contrato Aprobado - ${usuario.nombres}`,
-              html: htmlNomina,
-            });
+              // 4. Envío de correo a la lista de nómina
+              await correoOutlook.sendMail({
+                from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+                to: listaCorreos, // Envía a todos los de la tabla
+                subject: `Notificación WSAC: Contrato Aprobado - ${usuario.nombres}`,
+                html: htmlNomina,
+              });
 
-            res.json({
-              status: "ok",
-              message: "Notificación enviada a nómina",
-            });
-          } catch (e) {
-            console.error("Error al enviar correo a nómina:", e);
-            res
-              .status(500)
-              .json({ status: "error", message: "Error enviando correo" });
-          }
-        },
-      );
-    },
-  );
-});
-router.post("/notificarRegistro", registrarActividad("Notificar nuevo registro"), async (req, res) => {
-  const { id } = req.body;
+              res.json({
+                status: "ok",
+                message: "Notificación enviada a nómina",
+              });
+            } catch (e) {
+              console.error("Error al enviar correo a nómina:", e);
+              res
+                .status(500)
+                .json({ status: "error", message: "Error enviando correo" });
+            }
+          },
+        );
+      },
+    );
+  },
+);
+router.post(
+  "/notificarRegistro",
+  registrarActividad("Notificar nuevo registro"),
+  async (req, res) => {
+    const { id } = req.body;
 
-  // 1. Buscamos los datos detallados del usuario/contrato
-  db.query(
-    "SELECT nombres, apellidos FROM usuarios WHERE id = ?",
-    [id],
-    async (err, users) => {
-      if (err || !users || users.length === 0) {
-        return res
-          .status(500)
-          .json({ status: "error", message: "Usuario no encontrado" });
-      }
+    // 1. Buscamos los datos detallados del usuario/contrato
+    db.query(
+      "SELECT nombres, apellidos FROM usuarios WHERE id = ?",
+      [id],
+      async (err, users) => {
+        if (err || !users || users.length === 0) {
+          return res
+            .status(500)
+            .json({ status: "error", message: "Usuario no encontrado" });
+        }
 
-      const usuario = users[0];
+        const usuario = users[0];
 
-      // 2. Buscamos los correos de la tabla de nómina
-      db.query(
-        "SELECT email FROM notificaciones",
-        async (errNotif, resNotif) => {
-          if (errNotif || resNotif.length === 0) {
-            return res.status(404).json({
-              status: "error",
-              message: "No hay correos configurados en nómina",
-            });
-          }
+        // 2. Buscamos los correos de la tabla de nómina
+        db.query(
+          "SELECT email FROM notificaciones",
+          async (errNotif, resNotif) => {
+            if (errNotif || resNotif.length === 0) {
+              return res.status(404).json({
+                status: "error",
+                message: "No hay correos configurados en nómina",
+              });
+            }
 
-          const listaCorreos = resNotif.map((r) => r.email);
+            const listaCorreos = resNotif.map((r) => r.email);
 
-          try {
-            // 3. Diseño del HTML para Nómina
-            const htmlNomina = `
+            try {
+              // 3. Diseño del HTML para Nómina
+              const htmlNomina = `
           <div style="background-color: #f4f6f8; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif;">
               <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e1e4e8;">
                   <tr>
@@ -1051,29 +1112,30 @@ router.post("/notificarRegistro", registrarActividad("Notificar nuevo registro")
           </div>
           `;
 
-            // 4. Envío de correo a la lista de nómina
-            await correoOutlook.sendMail({
-              from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
-              to: listaCorreos, // Envía a todos los de la tabla
-              subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
-              html: htmlNomina,
-            });
+              // 4. Envío de correo a la lista de nómina
+              await correoOutlook.sendMail({
+                from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+                to: listaCorreos, // Envía a todos los de la tabla
+                subject: `Notificacion: Nuevo Registro - ${usuario.nombres}`,
+                html: htmlNomina,
+              });
 
-            res.json({
-              status: "ok",
-              message: "Notificación enviada",
-            });
-          } catch (e) {
-            console.error("Error al enviar correo:", e);
-            res
-              .status(500)
-              .json({ status: "error", message: "Error enviando correo" });
-          }
-        },
-      );
-    },
-  );
-});
+              res.json({
+                status: "ok",
+                message: "Notificación enviada",
+              });
+            } catch (e) {
+              console.error("Error al enviar correo:", e);
+              res
+                .status(500)
+                .json({ status: "error", message: "Error enviando correo" });
+            }
+          },
+        );
+      },
+    );
+  },
+);
 
 // B. VALIDAR TOKEN
 router.get("/validar-token/:token", (req, res) => {
@@ -1270,17 +1332,15 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
                         <tr>
                             <td style="padding-bottom: 10px;">
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Colaborador</span><br>
-                                <strong style="color: #2c3e50; font-size: 16px;">${
-                                  usuario.nombres
-                                }</strong>
+                                <strong style="color: #2c3e50; font-size: 16px;">${usuario.nombres
+            }</strong>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <span style="color: #999; font-size: 12px; text-transform: uppercase;">Archivos Recibidos</span><br>
-                                <strong style="color: #e2712a; font-size: 16px;">${
-                                  listaArchivos.length
-                                } documento(s) cargado(s)</strong>
+                                <strong style="color: #e2712a; font-size: 16px;">${listaArchivos.length
+            } documento(s) cargado(s)</strong>
                             </td>
                         </tr>
                     </table>
@@ -1332,22 +1392,25 @@ router.post("/subir-correccion", upload.any(), async (req, res) => {
   }
 });
 
-router.post("/vincular-cargo-pdf", registrarActividad("Vincular cargo PDF"), async (req, res) => {
-  const { idColaborador, archivoPdf, segmento } = req.body;
-  try {
-    const resultado = await vincularDescripcionCargo(
-      idColaborador,
-      archivoPdf,
-      segmento,
-    );
-    res.json(resultado);
-  } catch (error) {
-    console.error("Error en servicio PDF:", error);
-    res.status(500).json({ status: "error", message: error.toString() });
-  }
-});
-// Ejemplo rápido de lo que debería recibir tu API
-// Esta es la ruta corregida y validada
+router.post(
+  "/vincular-cargo-pdf",
+  registrarActividad("Vincular cargo PDF"),
+  async (req, res) => {
+    const { idColaborador, archivoPdf, segmento } = req.body;
+    try {
+      const resultado = await vincularDescripcionCargo(
+        idColaborador,
+        archivoPdf,
+        segmento,
+      );
+      res.json(resultado);
+    } catch (error) {
+      console.error("Error en servicio PDF:", error);
+      res.status(500).json({ status: "error", message: error.toString() });
+    }
+  },
+);
+
 router.post(
   "/upload-documento-colaborador",
   registrarActividad("Subir documento colaborador"),
@@ -1393,49 +1456,53 @@ router.post(
   },
 );
 const mime = require("mime-types");
-router.post("/renombrar-archivo-s3", registrarActividad("Renombrar archivo S3"), async (req, res) => {
-  const { carpeta, nombreActual, nuevoNombre } = req.body;
+router.post(
+  "/renombrar-archivo-s3",
+  registrarActividad("Renombrar archivo S3"),
+  async (req, res) => {
+    const { carpeta, nombreActual, nuevoNombre } = req.body;
 
-  try {
-    const ext = path.extname(nombreActual);
-    let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
-    if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
-      nombreFinal += ext;
+    try {
+      const ext = path.extname(nombreActual);
+      let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
+      if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
+        nombreFinal += ext;
+      }
+
+      const oldKey = `${carpeta}/${nombreActual}`;
+      const newKey = `${carpeta}/${nombreFinal}`;
+
+      // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
+      const contentType = mime.lookup(nombreFinal) || "application/pdf";
+
+      // 1. Copiar objeto con METADATOS NUEVOS
+      await s3Client.send(
+        new CopyObjectCommand({
+          Bucket: BUCKET_NAME,
+          CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
+          Key: newKey,
+          ContentType: contentType, // Forzamos el tipo de contenido
+          MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
+        }),
+      );
+
+      // 2. Eliminar original
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: oldKey,
+        }),
+      );
+
+      res.json({ status: "success", nuevoNombre: nombreFinal });
+    } catch (error) {
+      console.error("Error al renombrar:", error);
+      res.status(500).json({ status: "error", message: error.message });
     }
-
-    const oldKey = `${carpeta}/${nombreActual}`;
-    const newKey = `${carpeta}/${nombreFinal}`;
-
-    // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
-    const contentType = mime.lookup(nombreFinal) || "application/pdf";
-
-    // 1. Copiar objeto con METADATOS NUEVOS
-    await s3Client.send(
-      new CopyObjectCommand({
-        Bucket: BUCKET_NAME,
-        CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
-        Key: newKey,
-        ContentType: contentType, // Forzamos el tipo de contenido
-        MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
-      }),
-    );
-
-    // 2. Eliminar original
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: oldKey,
-      }),
-    );
-
-    res.json({ status: "success", nuevoNombre: nombreFinal });
-  } catch (error) {
-    console.error("Error al renombrar:", error);
-    res.status(500).json({ status: "error", message: error.message });
-  }
-});
+  },
+);
 // C. SUBIR DOCUMENTOS FIRMADOS (Acción del Colaborador)
-router.post("/subir-firmados",  upload.any(), async (req, res) => {
+router.post("/subir-firmados", upload.any(), async (req, res) => {
   const { token } = req.body;
 
   try {
@@ -1582,44 +1649,49 @@ router.get("/validar-token-firma/:token", (req, res) => {
   );
 });
 // --- ENDPOINT PARA GENERAR TOKEN Y ENVIAR EMAIL DE FIRMA ---
-router.post("/solicitar-firma-contratos", registrarActividad("Solicitar firma de contratos"), async (req, res) => {
-  // Agregamos async aquí
-  const { id, correo, nombres, archivosAFirmar } = req.body;
-  const token = crypto.randomBytes(20).toString("hex");
+router.post(
+  "/solicitar-firma-contratos",
+  registrarActividad("Solicitar firma de contratos"),
+  async (req, res) => {
+    // Agregamos async aquí
+    const { id, correo, nombres, archivosAFirmar } = req.body;
+    const token = crypto.randomBytes(20).toString("hex");
 
-  db.query(
-    "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
-    [token, id],
-    async (err) => {
-      if (err)
-        return res.status(500).json({ status: "error", message: err.message });
+    db.query(
+      "UPDATE usuarios SET token_firma = ?, fecha_solicitud_firma = NOW() WHERE id = ?",
+      [token, id],
+      async (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ status: "error", message: err.message });
 
-      const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
+        const link = `${URL_BASEDEV}/firmar.html?token=${token}`;
 
-      // 1. GENERAR ADJUNTOS (Esto es lo que te faltaba)
-      let attachments = [];
-      try {
-        attachments = await Promise.all(
-          archivosAFirmar.map(async (file) => {
-            const response = await axios.get(file.url, {
-              responseType: "arraybuffer",
-            });
-            return {
-              filename: file.name,
-              content: Buffer.from(response.data),
-            };
-          }),
-        );
-      } catch (e) {
-        console.error("Error descargando adjuntos:", e);
-        // Puedes decidir si fallar o enviar el correo sin adjuntos
-      }
+        // 1. GENERAR ADJUNTOS (Esto es lo que te faltaba)
+        let attachments = [];
+        try {
+          attachments = await Promise.all(
+            archivosAFirmar.map(async (file) => {
+              const response = await axios.get(file.url, {
+                responseType: "arraybuffer",
+              });
+              return {
+                filename: file.name,
+                content: Buffer.from(response.data),
+              };
+            }),
+          );
+        } catch (e) {
+          console.error("Error descargando adjuntos:", e);
+          // Puedes decidir si fallar o enviar el correo sin adjuntos
+        }
 
-      const listaHtml = archivosAFirmar
-        .map((a) => `<li>📄 ${a.name}</li>`)
-        .join("");
+        const listaHtml = archivosAFirmar
+          .map((a) => `<li>📄 ${a.name}</li>`)
+          .join("");
 
-      const htmlEmail = `
+        const htmlEmail = `
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #1e3a8a; color: white; padding: 20px; text-align: center;">
                         <h2 style="margin: 0;">WSAC FIRMA</h2>
@@ -1644,29 +1716,31 @@ router.post("/solicitar-firma-contratos", registrarActividad("Solicitar firma de
                 </div>
             `;
 
-      try {
-        await correoOutlook.sendMail({
-          from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
-          to: correo,
-          subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
-          html: htmlEmail,
-          attachments: attachments, // <--- INDISPENSABLE: Aquí se anexan los archivos
-        });
-        res.json({ status: "ok", message: "Solicitud enviada con archivos" });
-      } catch (e) {
-        console.error("Error enviando correo:", e);
-        res
-          .status(500)
-          .json({ status: "error", message: "No se pudo enviar el correo" });
-      }
-    },
-  );
-});
+        try {
+          await correoOutlook.sendMail({
+            from: `"WSAC Contratación" <${process.env.OUTLOOK_USER}>`,
+            to: correo,
+            subject: "📝 Acción Requerida: Firma de Contratos - WSAC",
+            html: htmlEmail,
+            attachments: attachments, // <--- INDISPENSABLE: Aquí se anexan los archivos
+          });
+          res.json({ status: "ok", message: "Solicitud enviada con archivos" });
+        } catch (e) {
+          console.error("Error enviando correo:", e);
+          res
+            .status(500)
+            .json({ status: "error", message: "No se pudo enviar el correo" });
+        }
+      },
+    );
+  },
+);
 // Esta es la ruta corregida y validada
 router.post(
   "/upload-documento-colaborador",
+  upload.single("file"),
   registrarActividad("Subir documento colaborador"),
-  upload.single("file"), // Usamos el 'upload' básico que declaraste arriba
+  // Usamos el 'upload' básico que declaraste arriba
   async (req, res) => {
     try {
       const file = req.file;
@@ -1708,47 +1782,51 @@ router.post(
   },
 );
 
-router.post("/renombrar-archivo-s3", registrarActividad("Renombrar archivo S3"), async (req, res) => {
-  const { carpeta, nombreActual, nuevoNombre } = req.body;
+router.post(
+  "/renombrar-archivo-s3",
+  registrarActividad("Renombrar archivo S3"),
+  async (req, res) => {
+    const { carpeta, nombreActual, nuevoNombre } = req.body;
 
-  try {
-    const ext = path.extname(nombreActual);
-    let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
-    if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
-      nombreFinal += ext;
+    try {
+      const ext = path.extname(nombreActual);
+      let nombreFinal = nuevoNombre.replace(/\s+/g, "_");
+      if (!nombreFinal.toLowerCase().endsWith(ext.toLowerCase())) {
+        nombreFinal += ext;
+      }
+
+      const oldKey = `${carpeta}/${nombreActual}`;
+      const newKey = `${carpeta}/${nombreFinal}`;
+
+      // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
+      const contentType = mime.lookup(nombreFinal) || "application/pdf";
+
+      // 1. Copiar objeto con METADATOS NUEVOS
+      await s3Client.send(
+        new CopyObjectCommand({
+          Bucket: BUCKET_NAME,
+          CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
+          Key: newKey,
+          ContentType: contentType, // Forzamos el tipo de contenido
+          MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
+        }),
+      );
+
+      // 2. Eliminar original
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: oldKey,
+        }),
+      );
+
+      res.json({ status: "success", nuevoNombre: nombreFinal });
+    } catch (error) {
+      console.error("Error al renombrar:", error);
+      res.status(500).json({ status: "error", message: error.message });
     }
-
-    const oldKey = `${carpeta}/${nombreActual}`;
-    const newKey = `${carpeta}/${nombreFinal}`;
-
-    // DETECTAR EL TIPO DE ARCHIVO (Importante para que no se descargue)
-    const contentType = mime.lookup(nombreFinal) || "application/pdf";
-
-    // 1. Copiar objeto con METADATOS NUEVOS
-    await s3Client.send(
-      new CopyObjectCommand({
-        Bucket: BUCKET_NAME,
-        CopySource: encodeURIComponent(`${BUCKET_NAME}/${oldKey}`), // S3 requiere encode en CopySource
-        Key: newKey,
-        ContentType: contentType, // Forzamos el tipo de contenido
-        MetadataDirective: "REPLACE", // Obligamos a S3 a usar el nuevo ContentType
-      }),
-    );
-
-    // 2. Eliminar original
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: oldKey,
-      }),
-    );
-
-    res.json({ status: "success", nuevoNombre: nombreFinal });
-  } catch (error) {
-    console.error("Error al renombrar:", error);
-    res.status(500).json({ status: "error", message: error.message });
-  }
-});
+  },
+);
 
 // GET /api/listar-firmados/:carpeta
 router.get("/listar-firmados/:carpeta", async (req, res) => {
