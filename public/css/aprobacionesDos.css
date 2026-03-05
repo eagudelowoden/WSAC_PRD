@@ -1130,3 +1130,45 @@ textarea.form-control-mini {
   padding-top: 0;
   padding-bottom: 0;
 }
+.user-card-mini {
+  display: flex;
+  align-items: center; /* Centra el icono con la primera línea de texto */
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  width: 100%; /* Asegura que use todo el ancho del sidebar */
+}
+
+.user-info-mini {
+  font-size: 13px;
+  line-height: 1.2;
+  color: #334155;
+  /* Estas 3 líneas permiten que el nombre se vea completo */
+  white-space: normal;    /* Permite saltos de línea si es necesario */
+  word-break: break-word; /* Rompe palabras largas si no caben */
+  overflow: visible;      /* No oculta nada */
+}
+
+/* Si prefieres que el nombre NO salte de línea y se estire el contenedor */
+.user-list-container {
+  min-width: 250px; /* Ajusta este valor según el ancho de tu sidebar */
+}
+
+.user-avatar-mini {
+  flex-shrink: 0; /* Vital: evita que el icono se aplaste cuando el nombre es largo */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  background-color: #eef2ff;
+  border-radius: 50%;
+  color: #6366f1;
+}
+
+.user-card-mini.active {
+  background-color: #f0f7ff;
+  box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2); /* Borde interno sutil */
+}

@@ -745,16 +745,94 @@ button:disabled {
   100% { transform: scale(3.5); opacity: 0; }
 }
 
-/* --- Animación de Despliegue (Empuja el contenido) --- */
+/* --- Animación de Despliegue Corregida --- */
 .slide-down-enter-active, .slide-down-leave-active {
   transition: all 0.3s ease-in-out;
-  max-height: 50px; /* Ajusta según el tamaño de tu banner */
+  /* Usamos un max-height alto para que la lista quepa completa */
+  max-height: 700px; 
   overflow: hidden;
 }
 
 .slide-down-enter-from, .slide-down-leave-to {
   max-height: 0;
   opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+}
+
+/* --- Contenedor de Scroll (El secreto de la estabilidad) --- */
+.user-scroll-area {
+  max-height: 600px;
+  overflow-y: auto;
+  /* Evita que el contenido se mueva a la izquierda al aparecer el scroll */
+  scrollbar-gutter: stable; 
+  padding-right: 4px;
+  scroll-behavior: smooth;
+}
+
+/* --- Tarjeta de Usuario --- */
+.user-card-mini {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.user-card-mini:hover {
+  background-color: #f8fafc;
+}
+
+.user-avatar-mini {
+  flex-shrink: 0; /* Evita que el círculo se aplaste */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  background-color: #eef2ff;
+  border-radius: 50%;
+  color: #6366f1;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.user-info-mini {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Toma todo el espacio restante */
+  min-width: 0; /* Permite que el texto se rompa si es muy largo */
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.user-name-mini {
+  font-weight: 600;
+  color: #1e293b;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.user-doc-mini {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* --- Scrollbar Estilizado (Chrome/Edge/Safari) --- */
+.user-scroll-area::-webkit-scrollbar {
+  width: 5px;
+}
+
+.user-scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(203, 213, 225, 0.8);
+  border-radius: 10px;
+}
+
+/* --- Estado Activo --- */
+.user-card-mini.active {
+  background-color: #f0f7ff;
+  border-color: rgba(99, 102, 241, 0.2);
 }

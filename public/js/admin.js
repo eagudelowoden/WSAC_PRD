@@ -107,28 +107,26 @@ const SegmentosMixin = {
     },
 
     // Busca si ya existen contratos generados en S3 para este usuario
-    async buscarContratoExistente(carpetaUsuario) {
-      this.listaContratos = []; // Limpiar lista
+async buscarContratoExistente(carpetaUsuario) {
+  this.listaContratos = []; 
+  if (!carpetaUsuario) return;
 
-      if (!carpetaUsuario) return;
+  try {
+    // 💡 TRUCO: Enviamos solo el nombre del usuario en la ruta
+    // y la subcarpeta como un "parámetro de consulta" (?sub=...)
+    const usuario = encodeURIComponent(carpetaUsuario);
+    const url = `/api/archivos/${usuario}?sub=contratos_generados`;
 
-      try {
-        const subcarpeta = encodeURIComponent(
-          `${carpetaUsuario}/contratos_generados`,
-        );
+    console.log("Pidiendo contratos a:", url);
 
-        // Llamamos a tu endpoint que lista archivos
-        const response = await fetch(`/api/archivos/${subcarpeta}`);
-        const archivos = await response.json();
+    const response = await fetch(url);
+    const archivos = await response.json();
 
-        if (archivos && archivos.length > 0) {
-          // Guardamos TODOS los archivos
-          this.listaContratos = archivos;
-        }
-      } catch (error) {
-        console.error("Error buscando contratos:", error);
-      }
-    },
+    this.listaContratos = archivos || [];
+  } catch (error) {
+    console.error("Error buscando contratos:", error);
+  }
+},
     handleFileUpload(event) {
       this.archivoSeleccionado = event.target.files[0];
     },

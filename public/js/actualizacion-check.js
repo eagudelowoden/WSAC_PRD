@@ -1,5 +1,5 @@
-const URL_BASEDEV = process.env.URL_BASEDEV;
-const PORT = process.env.PORT || 3000;
+const URL_BASEDEV = window.location.origin;
+const PORT = ""; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
 
 (function () {
   let versionServidor = null;

@@ -1,0 +1,73 @@
+/* Estructura Base */
+.main-container {
+  display: flex;
+  height: calc(100vh - 40px); /* Ajustado a tu navbar de 40px */
+  background-color: #f8f9fa;
+}
+
+/* Sidebar específica de este módulo */
+.sidebar-postulaciones {
+  width: 260px;
+  background: white;
+  border-right: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.content-postulaciones {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Buscador */
+.search-bar-postulaciones .form-control:focus {
+  box-shadow: none;
+}
+
+/* Tarjeta del Postulado */
+.card-postulado {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.card-postulado:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator {
+  height: 4px;
+  width: 100%;
+}
+
+.avatar-mini {
+  width: 40px;
+  height: 40px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #4a5568;
+}
+
+.badge-cargo {
+  font-size: 0.7rem;
+  background: #ebf8ff;
+  color: #3182ce;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.info-meta div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}

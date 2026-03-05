@@ -1,0 +1,6 @@
+--- LOG DE DIAGNOSTICO ---  
+C:\Users\Administrator\Documents\WSAC_PROD
+From github.com:eagudelowoden/WSAC_PRD
+   64cf703..1faedd4  main       -> origin/main
+HEAD is now at 1faedd4 Ajustes generales
+[PM2][ERROR] Process or Namespace woden-app not found

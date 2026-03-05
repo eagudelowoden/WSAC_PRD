@@ -86,6 +86,12 @@ app.use((req, res, next) => {
 // 4. DEFINICIÓN DE RUTAS
 // ==========================================
 
+// Endpoint para el Polling (Usa la misma constante serverID)
+app.get("/api/check-version", (req, res) => {
+  console.log("🔍 Petición de chequeo de versión recibida"); // Esto te servirá para ver en consola si llega
+  res.json({ version: serverID });
+});
+
 // A. RUTAS DE DOCUMENTOS (Word)
 app.use("/api/docs", docRoutes);
 
@@ -181,11 +187,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {});
 });
 
-// Endpoint para el Polling (Usa la misma constante serverID)
-app.get("/api/check-version", (req, res) => {
-  console.log("🔍 Petición de chequeo de versión recibida"); // Esto te servirá para ver en consola si llega
-  res.json({ version: serverID });
-});
+
 // Variable global para guardar el estado del aviso
 let avisoMantenimientoApp = {
   activo: false,
