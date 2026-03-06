@@ -1,5 +1,5 @@
-const URL_BASEDEV = window.location.origin;
-const PORT = ""; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
+const URL_BASEDEV = window.location.origin || "http://localhost:8081";
+const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
 
 (function () {
   let versionServidor = null;
@@ -10,7 +10,8 @@ const PORT = ""; // Si usas HTTPS estándar, el puerto va vacío o integrado en 
 
   async function obtenerVersion() {
     try {
-      const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-version`);
+      // const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-version`);
+      const res = await fetch(`http://localhost:8081/api/check-version`);
       const data = await res.json();
       return data.version;
     } catch (e) {
