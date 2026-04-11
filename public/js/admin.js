@@ -30,6 +30,7 @@ const SegmentosMixin = {
       bannerCerradoManualmente: false,
       busqueda: "",
       socket: null,
+      filtroNombre: "",
     };
   },
   mounted() {
@@ -107,26 +108,26 @@ const SegmentosMixin = {
     },
 
     // Busca si ya existen contratos generados en S3 para este usuario
-async buscarContratoExistente(carpetaUsuario) {
-  this.listaContratos = []; 
-  if (!carpetaUsuario) return;
+    async buscarContratoExistente(carpetaUsuario) {
+      this.listaContratos = [];
+      if (!carpetaUsuario) return;
 
-  try {
-    // 💡 TRUCO: Enviamos solo el nombre del usuario en la ruta
-    // y la subcarpeta como un "parámetro de consulta" (?sub=...)
-    const usuario = encodeURIComponent(carpetaUsuario);
-    const url = `/api/archivos/${usuario}?sub=contratos_generados`;
+      try {
+        // 💡 TRUCO: Enviamos solo el nombre del usuario en la ruta
+        // y la subcarpeta como un "parámetro de consulta" (?sub=...)
+        const usuario = encodeURIComponent(carpetaUsuario);
+        const url = `/api/archivos/${usuario}?sub=contratos_generados`;
 
-    console.log("Pidiendo contratos a:", url);
+        console.log("Pidiendo contratos a:", url);
 
-    const response = await fetch(url);
-    const archivos = await response.json();
+        const response = await fetch(url);
+        const archivos = await response.json();
 
-    this.listaContratos = archivos || [];
-  } catch (error) {
-    console.error("Error buscando contratos:", error);
-  }
-},
+        this.listaContratos = archivos || [];
+      } catch (error) {
+        console.error("Error buscando contratos:", error);
+      }
+    },
     handleFileUpload(event) {
       this.archivoSeleccionado = event.target.files[0];
     },
@@ -491,7 +492,7 @@ createApp({
   computed: {
     archivosFiltrados() {
       if (!this.filtroNombre) {
-        return this.archivos;
+        return this.archivos; // sin filtro, todos
       }
       const busqueda = this.filtroNombre.toLowerCase();
       return this.archivos.filter((archivo) =>
