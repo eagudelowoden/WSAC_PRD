@@ -24,8 +24,8 @@ const SegmentosMixin = {
       usuarioSys: null,
       avisoGlobal: { activo: false, mensaje: "", fecha: "" },
       bannerCerradoManualmente: false,
-      busqueda: "",
       socket: null,
+      filtroNombre: "",
     };
   },
   mounted() {
@@ -359,8 +359,8 @@ createApp({
   },
   computed: {
     archivosFiltrados() {
-      if (!this.busqueda) return this.archivos;
-      const search = this.busqueda.toLowerCase();
+      if (!this.filtroNombre) return this.archivos;
+      const search = this.filtroNombre.toLowerCase();
       return this.archivos.filter((f) => f.name.toLowerCase().includes(search));
     },
     usuariosFiltrados() {
