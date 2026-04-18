@@ -2,6 +2,7 @@ const URL_BASEDEV = window.location.origin || "http://localhost:8081";
 const URL_BASEDEPRD = window.location.origin || "http://3.133.217.145:8081";
 const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
 const isLocal = window.location.hostname === "localhost";
+//FIX PARA ACTULIZACION
 
 const BASE_URL =
   window.location.hostname === "localhost"
