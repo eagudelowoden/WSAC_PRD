@@ -7,7 +7,7 @@ const BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:8081"
     : "https://saw.woden.com.co/api-backend"; // Un alias en tu servidor
-
+//Ajustes
 (function () {
   // --- 1. CONFIGURACIÓN DE RUTAS ---
   // Detectamos si es local o producción
