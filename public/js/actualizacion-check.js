@@ -1,17 +1,21 @@
 const URL_BASEDEV = window.location.origin || "http://localhost:8081";
+const URL_BASEDEPRD = window.location.origin || "http://3.133.217.145:8081";
 const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
+const isLocal = window.location.hostname === "localhost";
+
+const BASE_URL = isLocal
+  ? "http://localhost:8081"
+  : "http://3.133.217.145:8081"; // Forzamos HTTP para evitar el ERR_SSL_PROTOCOL_ERROR
 
 (function () {
   let versionServidor = null;
   let chequeoActivo = true;
   const INTERVALO = 7000;
 
-  // --- Funciones de Consulta ---
-
   async function obtenerVersion() {
     try {
-      // const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-version`);
-      const res = await fetch(`http://3.133.217.145:8081/api/check-version`);
+      // Ya no sumamos PORT porque BASE_URL ya lo trae
+      const res = await fetch(`${BASE_URL}/api/check-version`);
       const data = await res.json();
       return data.version;
     } catch (e) {
@@ -21,13 +25,12 @@ const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado
 
   async function obtenerMantenimiento() {
     try {
-      const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-mantenimiento`);
+      const res = await fetch(`${BASE_URL}/api/check-mantenimiento`);
       return await res.json();
     } catch (e) {
       return null;
     }
   }
-
   // --- Lógica Principal ---
 
   async function iniciarChequeo() {

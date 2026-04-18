@@ -15,8 +15,12 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          # Cambiamos la huella específica por una cadena vacía
-          # Esto hace que la acción acepte la llave del host automáticamente
           fingerprint: ""
           script: |
-            cd /d C:\Users\Administrator\Documents\WSAC_PROD && git fetch --all && git reset --hard origin/main && npm install --production && pm2 restart wsac --update-env
+            cd /d C:\Users\Administrator\Documents\WSAC_PROD && ^
+            git fetch --all && ^
+            git reset --hard origin/main && ^
+            npm install --production && ^
+            pm2 delete wsac || echo "El proceso no existia" && ^
+            pm2 start server.js --name wsac --update-env && ^
+            pm2 save
