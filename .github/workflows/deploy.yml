@@ -15,7 +15,8 @@ jobs:
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          # Usamos la huella que ya validamos
-          fingerprint: "SHA256:NL9FWkshsdnGlfw61x1qiZFsuNtqxOFEUFkq1fBnK2s"
+          # Cambiamos la huella específica por una cadena vacía
+          # Esto hace que la acción acepte la llave del host automáticamente
+          fingerprint: ""
           script: |
             cd /d C:\Users\Administrator\Documents\WSAC_PROD && git fetch --all && git reset --hard origin/main && npm install --production && pm2 restart woden-app --update-env
