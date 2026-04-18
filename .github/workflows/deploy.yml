@@ -17,10 +17,10 @@ jobs:
           port: 22
           fingerprint: ""
           script: |
-            cd /d C:\Users\Administrator\Documents\WSAC_PROD && ^
-            git fetch --all && ^
-            git reset --hard origin/main && ^
-            npm install --production && ^
-            pm2 delete wsac || echo "El proceso no existia" && ^
-            pm2 start server.js --name wsac --update-env && ^
+            cd /d C:\Users\Administrator\Documents\WSAC_PROD
+            git fetch --all
+            git reset --hard origin/main
+            npm install --production
+            pm2 delete wsac 2>nul || echo Proceso no existia
+            pm2 start server.js --name wsac --update-env
             pm2 save
