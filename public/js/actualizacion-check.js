@@ -11,7 +11,7 @@ const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado
   async function obtenerVersion() {
     try {
       // const res = await fetch(`${URL_BASEDEV}:${PORT}/api/check-version`);
-      const res = await fetch(`http://localhost:8081/api/check-version`);
+      const res = await fetch(`http://3.133.217.145:8081/api/check-version`);
       const data = await res.json();
       return data.version;
     } catch (e) {
