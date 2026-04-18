@@ -4,6 +4,7 @@ const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado
 const isLocal = window.location.hostname === "localhost";
 //FIX PARA ACTULIZACION
 //FIX DOS
+//FIX TRES
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:8081"
