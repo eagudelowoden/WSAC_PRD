@@ -17,10 +17,21 @@ jobs:
           port: 22
           fingerprint: ""
           script: |
+            echo "=== PASO 1: Ubicacion actual ==="
             cd /d C:\Users\Administrator\Documents\WSAC_PROD
+            echo %CD%
+            echo "=== PASO 2: Git status antes ==="
+            git status
+            echo "=== PASO 3: Git fetch ==="
             git fetch --all
+            echo "=== PASO 4: Git reset ==="
             git reset --hard origin/main
+            echo "=== PASO 5: Git log ==="
+            git log --oneline -3
+            echo "=== PASO 6: npm install ==="
             npm install --production
+            echo "=== PASO 7: PM2 restart ==="
             pm2 delete wsac 2>nul || echo Proceso no existia
             pm2 start server.js --name wsac --update-env
             pm2 save
+            echo "=== DEPLOY COMPLETADO ==="
