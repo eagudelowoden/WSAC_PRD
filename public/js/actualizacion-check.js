@@ -3,9 +3,10 @@ const URL_BASEDEPRD = window.location.origin || "http://3.133.217.145:8081";
 const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
 const isLocal = window.location.hostname === "localhost";
 
-const BASE_URL = isLocal
-  ? "http://localhost:8081"
-  : "http://3.133.217.145:8081"; // Forzamos HTTP para evitar el ERR_SSL_PROTOCOL_ERROR
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:8081"
+    : "https://saw.woden.com.co/api-backend"; // Un alias en tu servidor
 
 (function () {
   let versionServidor = null;
