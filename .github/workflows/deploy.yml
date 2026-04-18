@@ -2,7 +2,7 @@ name: Deploy WSAC Backend
 
 on:
   push:
-    branches: [ main ] # Se activa cuando haces push a main
+    branches: [main]
 
 jobs:
   deploy:
@@ -14,23 +14,8 @@ jobs:
           host: 3.133.217.145
           username: Administrator
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          # Usamos la huella que ya validamos
+          fingerprint: "SHA256:NL9FWkshsdnGlfw61x1qiZFsuNtqxOFEUFkq1fBnK2s"
           script: |
-            cmd /c "cd /d C:\Users\Administrator\Documents\WSAC_PROD && echo --- LOG DE DIAGNOSTICO --- > success_log.txt && cd >> success_log.txt && git fetch --all >> success_log.txt 2>&1 && git reset --hard origin/main >> success_log.txt 2>&1 && pm2 restart woden-app --update-env >> success_log.txt 2>&1 && echo FINALIZADO EL %DATE% >> success_log.txt"
-            @echo off
-            :: Entrar a la carpeta usando la ruta de Windows
-            cd /d C:\Users\Administrator\Documents\WSAC_PROD
-            
-            echo --- INICIANDO ACTUALIZACION --- > success_log.txt
-            
-            :: 1. Forzar la actualización desde GitHub
-            git fetch --all >> success_log.txt 2>&1
-            git reset --hard origin/main >> success_log.txt 2>&1
-            
-            :: 2. Instalar solo dependencias de producción
-            npm install --production >> success_log.txt 2>&1
-            
-            :: 3. Reiniciar el proceso woden-app y actualizar variables de entorno
-            pm2 restart woden-app --update-env >> success_log.txt 2>&1
-            
-            :: 4. Marcar el éxito final con fecha y hora
-            echo Finalizado con exito el %DATE% a las %TIME% >> success_log.txt
+            cd /d C:\Users\Administrator\Documents\WSAC_PROD && git fetch --all && git reset --hard origin/main && npm install --production && pm2 restart woden-app --update-env

@@ -11,6 +11,7 @@ async function vincularDescripcionCargo(
 ) {
   return new Promise((resolve, reject) => {
     // 1. Consulta de usuario para saber su carpeta de destino
+    // 1. Consulta de usuario para saber su carpeta de destino
     const sql = "SELECT * FROM usuarios WHERE id = ?";
 
     db.query(sql, [idColaborador], async (err, results) => {
@@ -26,9 +27,9 @@ async function vincularDescripcionCargo(
 
       // 3. Ruta de ORIGEN en tu DISCO LOCAL
       // Usamos la ruta que me pasaste
-
+      //PRUEBAS GENERALES
       //const rutaLocalBase = `C:\\Users\\e.agudelo\\Documents\\WSAC_PROD\\PublicaSegmentos`;
-	    // const rutaLocalBase = `C:\\Users\\Administrator\\Documents\\WSAC_PROD\\PublicaSegmentos`;
+      // const rutaLocalBase = `C:\\Users\\Administrator\\Documents\\WSAC_PROD\\PublicaSegmentos`;
       //const rutaLocalBase = `C:\\Users\\e.agudelo\\OneDrive - WODEN COLOMBIA SAS\\MigracionCapitalHumano\\PublicaSegmentos`;
       const rutaArchivoLocal = path.join(
         rutaLocalBase,
