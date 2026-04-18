@@ -9,17 +9,32 @@ const BASE_URL =
     : "https://saw.woden.com.co/api-backend"; // Un alias en tu servidor
 
 (function () {
+  // --- 1. CONFIGURACIÓN DE RUTAS ---
+  // Detectamos si es local o producción
+  const isLocal =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  // IMPORTANTE: Si tu sitio es HTTPS, el API debe ser HTTPS o el navegador lo bloqueará (Mixed Content)
+  // Usamos el alias /api-backend que deberías configurar en tu proxy (IIS/Nginx)
+  const BASE_URL = isLocal
+    ? "http://localhost:8081"
+    : "https://saw.woden.com.co/api-backend";
+
   let versionServidor = null;
   let chequeoActivo = true;
-  const INTERVALO = 7000;
+  const INTERVALO = 10000; // 10 segundos para no saturar el servidor
+
+  // --- 2. FUNCIONES DE CONSULTA ---
 
   async function obtenerVersion() {
     try {
-      // Ya no sumamos PORT porque BASE_URL ya lo trae
       const res = await fetch(`${BASE_URL}/api/check-version`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      return data.version;
+      return data.version || null;
     } catch (e) {
+      console.warn("⚠️ No se pudo obtener la versión del servidor:", e.message);
       return null;
     }
   }
@@ -27,27 +42,32 @@ const BASE_URL =
   async function obtenerMantenimiento() {
     try {
       const res = await fetch(`${BASE_URL}/api/check-mantenimiento`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       return await res.json();
     } catch (e) {
+      console.warn("⚠️ No se pudo obtener estado de mantenimiento.");
       return null;
     }
   }
-  // --- Lógica Principal ---
+
+  // --- 3. LÓGICA PRINCIPAL ---
 
   async function iniciarChequeo() {
-    // Carga inicial
+    // Carga inicial de versión
     versionServidor = await obtenerVersion();
+    console.log("🚀 Versión inicial detectada:", versionServidor);
 
-    // Chequeo inicial de mantenimiento (por si ya hay uno activo al entrar)
+    // Chequeo inicial de mantenimiento
     const avisoInicial = await obtenerMantenimiento();
-    actualizarBannerVue(avisoInicial);
+    if (avisoInicial) actualizarBannerVue(avisoInicial);
 
-    const timer = setInterval(async () => {
-      // 1. CHEQUEO DE MANTENIMIENTO (Siempre activo)
+    // Timer cíclico
+    setInterval(async () => {
+      // A. Chequeo de mantenimiento (siempre activo)
       const aviso = await obtenerMantenimiento();
       actualizarBannerVue(aviso);
 
-      // 2. CHEQUEO DE VERSIÓN (Se detiene si detecta cambio)
+      // B. Chequeo de versión (solo si no se ha detectado cambio ya)
       if (chequeoActivo) {
         const nuevaVersion = await obtenerVersion();
         if (
@@ -62,25 +82,36 @@ const BASE_URL =
     }, INTERVALO);
   }
 
-  // Función para inyectar el aviso en tu instancia de Vue
+  // --- 4. INTEGRACIÓN CON VUE ---
+
   function actualizarBannerVue(data) {
     if (!data) return;
 
-    // Asumiendo que tu app de Vue está montada en #app y es accesible
-    // Si usas Vue 3 y tienes la instancia accesible:
-    if (window.app && window.app.avisoGlobal) {
-      window.app.avisoGlobal = data;
+    // Buscamos la instancia de Vue en los objetos globales comunes
+    const app = window.app || window.vApp || window.__VUE_ROOT_INSTANCIA__;
+
+    if (app && app.avisoGlobal !== undefined) {
+      app.avisoGlobal = data;
     } else {
-      // Opción B: Si usas una instancia global o el objeto data directamente
-      // Esto depende de cómo hayas declarado 'avisoGlobal' en tu script de Vue
-      if (typeof vApp !== "undefined") {
-        // Ajusta 'vApp' al nombre de tu variable Vue
-        vApp.avisoGlobal = data;
+      // Intento alternativo para Vue 3 si está montado en #app
+      const el = document.getElementById("app");
+      if (el && el.__vue_app__) {
+        el.__vue_app__.config.globalProperties.avisoGlobal = data;
       }
     }
   }
 
+  // --- 5. INTERFAZ DE USUARIO (SWAL) ---
+
   function mostrarAlertaActualizacion() {
+    if (typeof Swal === "undefined") {
+      console.error("SweetAlert2 (Swal) no está cargado.");
+      if (confirm("Hay una nueva versión disponible. ¿Deseas actualizar?")) {
+        location.reload();
+      }
+      return;
+    }
+
     Swal.fire({
       title: "¡ACTUALIZACIÓN DISPONIBLE!",
       text: "El sistema se ha actualizado para mejorar tu experiencia.",
@@ -95,7 +126,7 @@ const BASE_URL =
       if (result.isConfirmed) {
         localStorage.clear();
         sessionStorage.clear();
-        window.location.reload(); // reload() es más limpio para actualizar versión
+        window.location.reload(true);
       }
     });
   }
