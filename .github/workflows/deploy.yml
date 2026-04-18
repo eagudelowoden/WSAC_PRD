@@ -17,16 +17,4 @@ jobs:
           port: 22
           fingerprint: ""
           script: |
-            Set-Location "C:\Users\Administrator\Documents\WSAC_PROD"
-            Write-Host "=== PASO 1: $(Get-Location) ==="
-            Write-Host "=== PASO 2: Git fetch ==="
-            git fetch --all
-            Write-Host "=== PASO 3: Git reset ==="
-            git reset --hard origin/main
-            Write-Host "=== PASO 4: Git log ==="
-            git log --oneline -3
-            Write-Host "=== PASO 5: npm install ==="
-            npm install --production
-            Write-Host "=== PASO 6: PM2 ==="
-            pm2 delete wsac; pm2 start server.js --name wsac --update-env; pm2 save
-            Write-Host "=== DEPLOY COMPLETADO ==="
+            powershell -Command "Set-Location 'C:\Users\Administrator\Documents\WSAC_PROD'; Write-Host '=== PASO 1:' (Get-Location); git fetch --all; Write-Host '=== PASO 2: reset'; git reset --hard origin/main; Write-Host '=== PASO 3: log'; git log --oneline -3; Write-Host '=== PASO 4: npm'; npm install --production; Write-Host '=== PASO 5: pm2'; pm2 delete wsac; pm2 start server.js --name wsac --update-env; pm2 save; Write-Host '=== DEPLOY COMPLETADO ==='"
