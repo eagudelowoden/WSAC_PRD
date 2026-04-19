@@ -16,6 +16,7 @@ const docRoutes = require("./routes/routesDocs");
 const sistemaRoutes = require("./routes/sistema.routes");
 const usuariosRoutes = require("./routes/usuarios.routes");
 const permisosRoutes = require("./routes/permisos.routes");
+const descripcionCargoRoutes = require("./routes/descripcionCargo.routes");
 
 // Middlewares de auth
 const { verificarAuth, verificarSuperAdmin } = require("./middlewares/auth");
@@ -104,6 +105,7 @@ app.use("/api", sistemaRoutes);
 app.use("/api/admin/users", usuariosRoutes);
 app.use("/api/admin/permisos", permisosRoutes);
 app.use("/api", apiRoutes);
+app.use("/api/descripcion-cargo", descripcionCargoRoutes);
 
 // ── VISTAS ──────────────────────────────────────────────────────
 app.get("/", (req, res) => {
