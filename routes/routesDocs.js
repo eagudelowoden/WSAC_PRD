@@ -3,27 +3,28 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const RUTA_PLANTILLAS = process.env.RUTA_PLANTILLAS;
-
+const { registrarActividad } = require("../middlewares/auth");
 
 // 1. IMPORTAMOS LOS SERVICIOS
 const wordService = require("../services/generador");
 // 👇 IMPORTANTE: Traemos la función de borrar desde el servicio S3
 const { eliminarArchivo } = require("../services/s3Service");
 
-
-
 // ============================================================
 // 1. OBTENER LISTA DE PLANTILLAS DISPONIBLES
 // ============================================================
 router.get("/templates", (req, res) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
 
   // VALIDACIÓN DE SEGURIDAD
   if (!RUTA_PLANTILLAS || !fs.existsSync(RUTA_PLANTILLAS)) {
     console.error("❌ LA RUTA NO EXISTE O NO ESTÁ DEFINIDA:", RUTA_PLANTILLAS);
-    return res.status(404).json({ 
-      error: "Carpeta de plantillas no encontrada", 
-      rutaBuscada: RUTA_PLANTILLAS 
+    return res.status(404).json({
+      error: "Carpeta de plantillas no encontrada",
+      rutaBuscada: RUTA_PLANTILLAS,
     });
   }
 
@@ -74,21 +75,25 @@ router.post("/generate", async (req, res) => {
 // ============================================================
 // 3. ELIMINAR ARCHIVO (DELETE)
 // ============================================================
-router.delete("/eliminar-archivo", async (req, res) => {
-  const { key } = req.body;
+router.delete(
+  "/eliminar-archivo",
+  registrarActividad("Eliminar archivo"), // 👈 esto faltaba
+  async (req, res) => {
+    const { key } = req.body;
 
-  if (!key)
-    return res.status(400).json({ message: "Falta la ruta del archivo (Key)" });
+    if (!key)
+      return res
+        .status(400)
+        .json({ message: "Falta la ruta del archivo (Key)" });
 
-  try {
-    // Usamos la función importada de s3Service
-    await eliminarArchivo(key);
-
-    res.json({ status: "ok", message: "Archivo eliminado" });
-  } catch (error) {
-    console.error("Error ruta delete:", error);
-    res.status(500).json({ status: "error", message: error.message });
-  }
-});
+    try {
+      await eliminarArchivo(key);
+      res.json({ status: "ok", message: "Archivo eliminado" });
+    } catch (error) {
+      console.error("Error ruta delete:", error);
+      res.status(500).json({ status: "error", message: error.message });
+    }
+  },
+);
 
 module.exports = router;

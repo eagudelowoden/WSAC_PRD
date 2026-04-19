@@ -56,10 +56,10 @@ function registrarActividad(accion) {
     db.query(
       sql,
       [
-        id,
-        nombre,
-        rol,
-        accion,
+        id || 0, // Si el ID falla, que envíe 0
+        nombre || "Anónimo", // Si el nombre falla
+        rol || "Sin Rol",
+        accion || "Acción",
         req.method,
         req.originalUrl,
         JSON.stringify(bodyCopy),
