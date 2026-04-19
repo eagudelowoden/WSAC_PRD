@@ -300,7 +300,7 @@ const SegmentosMixin = {
       });
 
       try {
-        const response = await fetch("/api/vincular-cargo-pdf", {
+        const response = await fetch("/api/descripcion-cargo/vincular", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
