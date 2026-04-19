@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
-const bodyParser = require("body-parser");
+const helmet = require("helmet");
 const session = require("express-session");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
@@ -23,6 +23,7 @@ const emailsRoutes = require("./routes/emails.routes");
 const { verificarAuth, verificarSuperAdmin } = require("./middlewares/auth");
 
 const app = express();
+app.use(helmet({ contentSecurityPolicy: false }));
 const server = http.createServer(app);
 const io = new Server(server);
 global.io = io;
@@ -62,9 +63,7 @@ app.use(
 
 // ── PARSERS ─────────────────────────────────────────────────────
 app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.urlencoded({ extended: true }));
 // ── ESTÁTICOS ───────────────────────────────────────────────────
 app.use(express.static("public"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
