@@ -45,7 +45,7 @@ document.querySelectorAll(".input-acumulador").forEach((input) => {
   input.addEventListener("change", function (e) {
     const filesSelected = Array.from(e.target.files);
     const container = document.getElementById(`list-${fieldName}`);
-    
+
     // Obtenemos el máximo permitido para este campo específico
     const maxPermitido = limitesConfig[fieldName] || 1;
 
@@ -69,7 +69,7 @@ document.querySelectorAll(".input-acumulador").forEach((input) => {
 
       // Evitar duplicados por nombre y tamaño
       const yaExiste = storageArchivos[fieldName].some(
-        (f) => f.name === file.name && f.size === file.size
+        (f) => f.name === file.name && f.size === file.size,
       );
 
       if (!yaExiste) {
@@ -78,12 +78,20 @@ document.querySelectorAll(".input-acumulador").forEach((input) => {
         // Crear visualización
         const item = document.createElement("div");
         item.className = "file-item";
-        item.style = "display: flex; justify-content: space-between; margin-bottom: 5px; padding: 8px; background: #f0f2f5; border-radius: 5px;";
-
+        item.style =
+          "display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;";
         item.innerHTML = `
-            <span><i class="bi bi-file-earmark-check"></i> ${file.name}</span>
-            <i class="bi bi-x-circle-fill text-danger" style="cursor:pointer" onclick="quitarArchivo('${fieldName}', '${file.name}', this)"></i>
-        `;
+          <span style="color: #0d6efd; font-weight: 500;">
+              <i class="bi bi-file-earmark-check-fill"></i> ${file.name}S
+          </span>
+          <i class="bi bi-trash3 text-secondary" 
+            style="cursor:pointer; font-size: 1.1rem;" 
+            title="Quitar archivo"
+            onmouseover="this.classList.replace('text-secondary', 'text-danger')" 
+            onmouseout="this.classList.replace('text-danger', 'text-secondary')"
+            onclick="quitarArchivo('${fieldName}', '${file.name}', this)">
+          </i>
+`;
         container.appendChild(item);
       }
     });
@@ -124,26 +132,28 @@ async function dispararNotificaciones(id) {
 }
 
 // Manejo del SUBMIT (Modificado)
-document.getElementById("formularioRegistro").addEventListener("submit", async function (e) {
+document
+  .getElementById("formularioRegistro")
+  .addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // 1. Preparar el FormData con los archivos del storage global
     const formData = new FormData(this);
     for (const fieldName in storageArchivos) {
-        formData.delete(fieldName);
-        storageArchivos[fieldName].forEach((file) => {
-            formData.append(fieldName, file);
-        });
+      formData.delete(fieldName);
+      storageArchivos[fieldName].forEach((file) => {
+        formData.append(fieldName, file);
+      });
     }
 
     // 2. Llamar a la función de envío (la separamos para poder reintentar)
     ejecutarEnvio(formData);
-});
+  });
 
 function ejecutarEnvio(formData) {
-    Swal.fire({
-        title: "Subiendo documentos...",
-        html: `
+  Swal.fire({
+    title: "Subiendo documentos...",
+    html: `
             <p id="progress-text">Iniciando subida... 0%</p>
             <div class="progress" style="height: 20px;">
                 <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
@@ -151,85 +161,94 @@ function ejecutarEnvio(formData) {
             </div>
             <p style="margin-top:10px; font-size: 0.8rem; color: #666;">Por favor, no cierres esta ventana.</p>
         `,
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-            const xhr = new XMLHttpRequest();
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      const xhr = new XMLHttpRequest();
 
-            // ROBUSTEZ: Definimos un tiempo límite (ej: 50 segundos)
-            // Si en este tiempo no termina, se dispara 'ontimeout'
-            xhr.timeout = 50000; 
+      // ROBUSTEZ: Definimos un tiempo límite (ej: 50 segundos)
+      // Si en este tiempo no termina, se dispara 'ontimeout'
+      xhr.timeout = 50000;
 
-            // Rastrear el progreso
-            xhr.upload.addEventListener("progress", (event) => {
-                if (event.lengthComputable) {
-                    const porcentaje = Math.round((event.loaded * 100) / event.total);
-                    const progressBar = document.getElementById("progress-bar");
-                    const progressText = document.getElementById("progress-text");
-                    
-                    if (progressBar) {
-                        progressBar.style.width = porcentaje + "%";
-                        progressBar.innerText = porcentaje + "%";
-                    }
-                    if (progressText) {
-                        progressText.innerText = `Enviando documentos... ${porcentaje}%`;
-                    }
-                }
-            });
+      // Rastrear el progreso
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const porcentaje = Math.round((event.loaded * 100) / event.total);
+          const progressBar = document.getElementById("progress-bar");
+          const progressText = document.getElementById("progress-text");
 
-            // Manejar respuesta exitosa o error de servidor
-            xhr.onload = function () {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    if (xhr.status >= 200 && xhr.status < 300 && response.status === "ok") {
-                        if (response.id) dispararNotificaciones(response.id);
-                        Swal.fire({
-                            icon: "success",
-                            title: "¡Registro Exitoso!",
-                            text: "Tus datos y documentos se han guardado correctamente.",
-                        }).then(() => window.location.reload());
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Ups! Algo salió mal",
-                            text: response.message || "Error inesperado en el servidor.",
-                        });
-                    }
-                } catch (e) {
-                    Swal.fire("Error", "El servidor respondió de forma inesperada.", "error");
-                }
-            };
-
-            // MANEJO DE TIEMPO AGOTADO (Lo que pediste)
-            xhr.ontimeout = function () {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Está tardando demasiado",
-                    text: "Tu conexión parece inestable. ¿Deseas intentar el envío nuevamente?",
-                    showCancelButton: true,
-                    confirmButtonText: "Sí, reintentar",
-                    cancelButtonText: "No, cancelar",
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        ejecutarEnvio(formData); // Reintento manual
-                    }
-                });
-            };
-
-            // Manejar errores de red
-            xhr.onerror = function () {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error de red",
-                    text: "No hemos podido registrarte. Verifica tu conexión a internet.",
-                    footer: "<b>Sugerencia:</b> Los archivos grandes en redes lentas pueden causar esto."
-                });
-            };
-
-            xhr.open("POST", "/api/enviar");
-            xhr.send(formData);
+          if (progressBar) {
+            progressBar.style.width = porcentaje + "%";
+            progressBar.innerText = porcentaje + "%";
+          }
+          if (progressText) {
+            progressText.innerText = `Enviando documentos... ${porcentaje}%`;
+          }
         }
-    });
+      });
+
+      // Manejar respuesta exitosa o error de servidor
+      xhr.onload = function () {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          if (
+            xhr.status >= 200 &&
+            xhr.status < 300 &&
+            response.status === "ok"
+          ) {
+            if (response.id) dispararNotificaciones(response.id);
+            Swal.fire({
+              icon: "success",
+              title: "¡Registro Exitoso!",
+              text: "Tus datos y documentos se han guardado correctamente.",
+            }).then(() => window.location.reload());
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Ups! Algo salió mal",
+              text: response.message || "Error inesperado en el servidor.",
+            });
+          }
+        } catch (e) {
+          Swal.fire(
+            "Error",
+            "El servidor respondió de forma inesperada.",
+            "error",
+          );
+        }
+      };
+
+      // MANEJO DE TIEMPO AGOTADO (Lo que pediste)
+      xhr.ontimeout = function () {
+        Swal.fire({
+          icon: "warning",
+          title: "Está tardando demasiado",
+          text: "Tu conexión parece inestable. ¿Deseas intentar el envío nuevamente?",
+          showCancelButton: true,
+          confirmButtonText: "Sí, reintentar",
+          cancelButtonText: "No, cancelar",
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            ejecutarEnvio(formData); // Reintento manual
+          }
+        });
+      };
+
+      // Manejar errores de red
+      xhr.onerror = function () {
+        Swal.fire({
+          icon: "error",
+          title: "Error de red",
+          text: "No hemos podido registrarte. Verifica tu conexión a internet.",
+          footer:
+            "<b>Sugerencia:</b> Los archivos grandes en redes lentas pueden causar esto.",
+        });
+      };
+
+      xhr.open("POST", "/api/enviar");
+      xhr.send(formData);
+    },
+  });
 }
