@@ -199,19 +199,29 @@ router.post(
 
 router.delete(
   "/eliminar-archivo",
-  registrarActividad("Eliminar archivo"),
+  registrarActividad("Eliminar archivo"), // El middleware ahora recibirá el query en lugar del body
   async (req, res) => {
-    const { key } = req.body;
-    if (!key)
-      return res.status(400).json({ status: "error", message: "Falta la key" });
+    // Intentamos obtener la key del body O del query (por si acaso)
+    const key = req.body.key || req.query.key;
+
+    if (!key) {
+      return res.status(400).json({
+        status: "error",
+        message: "Falta la clave (key) del archivo",
+      });
+    }
 
     try {
       await s3Client.send(
         new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }),
       );
+
       res.json({ status: "ok", message: "Archivo eliminado de S3" });
     } catch (error) {
-      res.status(500).json({ status: "error", message: "No se pudo eliminar" });
+      console.error("Error S3:", error);
+      res
+        .status(500)
+        .json({ status: "error", message: "No se pudo eliminar el objeto" });
     }
   },
 );
