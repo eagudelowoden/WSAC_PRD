@@ -137,6 +137,7 @@ const SegmentosMixin = {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key: key }),
+          credentials: "include",
         });
 
         const data = await response.json();
@@ -203,6 +204,7 @@ const SegmentosMixin = {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key: key }),
+          credentials: "include",
         });
 
         const data = await response.json();

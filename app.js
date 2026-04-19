@@ -32,11 +32,10 @@ app.locals.serverID = serverID;
 // ── CORS ────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:8081", "http://127.0.0.1:8081"], // O el puerto donde corra tu FRONTEND
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 86400,
-    credentials: true,
+    credentials: true, // Esto permite que las cookies pasen
   }),
 );
 
@@ -51,7 +50,12 @@ app.use(
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 86400000 },
+    cookie: {
+      maxAge: 86400000,
+      httpOnly: true,
+      secure: false, // Cambiar a true solo si usas HTTPS
+      sameSite: "lax", // Ayuda con la persistencia entre rutas
+    },
   }),
 );
 

@@ -52,38 +52,6 @@ const SegmentosMixin = {
         console.error("Error segmentos:", e);
       }
     },
-    // async chequearAvisoMantenimiento() {
-    //   if (this.bannerCerradoManualmente) return;
-
-    //   try {
-    //     const response = await fetch(
-    //       "/api/check-mantenimiento?t=" + new Date().getTime(),
-    //     );
-    //     const data = await response.json();
-
-    //     console.log("🔍 Datos crudos del servidor:", data);
-
-    //     if (data) {
-    //       // CONVERSIÓN EXPLÍCITA: Si viene 1, 0, "1" o "true", esto lo vuelve booleano real
-    //       const estadoActivo = data.activo == true || data.activo == 1;
-
-    //       if (!estadoActivo) {
-    //         this.bannerCerradoManualmente = false;
-    //       }
-
-    //       // Creamos el objeto limpio para Vue
-    //       this.avisoGlobal = {
-    //         ...data,
-    //         activo: estadoActivo,
-    //       };
-
-    //       console.log("✅ avisoGlobal actualizado:", this.avisoGlobal);
-    //     }
-    //   } catch (error) {
-    //     console.error("❌ Error al obtener mantenimiento:", error);
-    //   }
-    // },
-
     async cargarCargosPorSegmento() {
       const segmento = this.form.segmento_contrato;
       this.listaCargosPDF = []; // Limpiar lista anterior
@@ -274,6 +242,7 @@ const SegmentosMixin = {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key: keyFinal }),
+          credentials: "include",
         });
 
         if (response.ok) {
@@ -1007,60 +976,7 @@ createApp({
         }
       }
     },
-    // async mounted() {
-    //   // 1. PRIMERO: Identificar al usuario (Lo más importante)
-    //   try {
-    //     await this.identificarAdmin();
-    //     console.log("👤 Usuario cargado:", this.usuarioSys?.nombre);
 
-    //     // Solo si el usuario cargó bien, traemos su lista
-    //     if (this.usuarioSys) {
-    //       this.obtenerListaUsuarios();
-    //     }
-    //   } catch (e) {
-    //     console.error("❌ Error al identificar usuario:", e);
-    //   }
-
-    //   // 2. SEGUNDO: Cargar datos de la interfaz
-    //   this.cargarPlantillas();
-    //   this.cargarSegmentos();
-    //   this.chequearAvisoMantenimiento();
-    //   setInterval(() => {
-    //     this.chequearAvisoMantenimiento();
-    //   }, 30000);
-
-    //   this.socket = io();
-    //   // 3. TERCERO: Conectar Socket (Con protección total)
-    //   if (typeof io !== "undefined") {
-    //     try {
-    //       // Importante: No llamar a io() fuera del try/catch
-    //       this.socket = io();
-
-    //       // Dentro de tu mounted, donde inicializas el socket
-    //       this.socket.on("nuevo-aviso-global", (aviso) => {
-    //         console.log("📢 Socket Recibido:", aviso);
-
-    //         if (!this.bannerCerradoManualmente) {
-    //           this.avisoGlobal = {
-    //             ...aviso,
-    //             activo: aviso.activo == true || aviso.activo == 1,
-    //           };
-    //         }
-    //       });
-
-    //       this.socket.on("connect_error", (err) => {
-    //         console.warn(
-    //           "⚠️ Error de conexión de socket (Servidor posiblemente caído):",
-    //           err.message,
-    //         );
-    //       });
-    //     } catch (err) {
-    //       console.error("❌ Error crítico al inicializar socket:", err);
-    //     }
-    //   } else {
-    //     console.warn("⚠️ Librería Socket.io no encontrada en el HTML.");
-    //   }
-    // },
     async aprobar() {
       // 1. Confirmación de seguridad
       const result = await Swal.fire({
