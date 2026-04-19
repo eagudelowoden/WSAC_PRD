@@ -3,6 +3,8 @@ const router = express.Router();
 const path = require("path");
 const multer = require("multer");
 const mime = require("mime-types");
+const fs = require("fs");
+const db = require("../databases/db");
 const {
   ListObjectsV2Command,
   GetObjectCommand,
@@ -225,5 +227,94 @@ router.delete(
     }
   },
 );
+router.post("/enviar", upload.any(), async (req, res) => {
+  const data = req.body;
+  const safeData = {
+    ...data,
+    afiliacionesFamiliares: data.afiliacionesFamiliares || "",
+    observaciones: data.observaciones || "",
+  };
+
+  const fullName = `${safeData.nombres} ${safeData.apellidos}`.trim();
+
+  // ── 1. SUBIR ARCHIVOS A S3 ──────────────────────────────────
+  if (req.files && req.files.length > 0) {
+    const uploads = req.files.map(async (file) => {
+      const s3Key = `${fullName}/${file.fieldname}_${file.originalname}`;
+      try {
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: s3Key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          }),
+        );
+        // Borrar el temporal local después de subir
+        fs.unlinkSync(file.path);
+      } catch (err) {
+        console.error(`❌ Error subiendo ${file.originalname} a S3:`, err);
+      }
+    });
+
+    await Promise.all(uploads);
+  }
+
+  // ── 2. GUARDAR EN BASE DE DATOS ─────────────────────────────
+  const sql = `
+    INSERT INTO usuarios (
+      nombres, apellidos, documento, telefono, direccion, correo, fechaNacimiento,
+      afiliaciones_familiares, eps, arl, afp, ccf, carpeta
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const valores = [
+    safeData.nombres,
+    safeData.apellidos,
+    safeData.documento,
+    safeData.telefono,
+    safeData.direccion,
+    safeData.correo,
+    safeData.fechaNacimiento,
+    safeData.afiliacionesFamiliares,
+    safeData.epsNombre,
+    safeData.arlNombre,
+    safeData.afpNombre,
+    safeData.ccfNombre,
+    fullName,
+  ];
+
+  db.query(sql, valores, async (err, result) => {
+    if (err) {
+      console.error("❌ Error SQL:", err);
+      return res.status(500).json({ status: "error", message: err.message });
+    }
+
+    const nuevoId = result.insertId;
+
+    // ── 3. CORREO DE CONFIRMACIÓN AL COLABORADOR ────────────
+    try {
+      await req.transporter.sendMail({
+        from: `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+        to: safeData.correo,
+        subject: "Registro exitoso",
+        html: `
+          <h3>Hola ${safeData.nombres},</h3>
+          <p>Tus documentos han sido recibidos correctamente en el sistema.</p>
+          <p>Pronto te contactaremos.</p>
+        `,
+      });
+    } catch (e) {
+      console.error("⚠️ Error enviando correo al colaborador:", e);
+    }
+
+    // ── 4. RESPUESTA AL FRONTEND ────────────────────────────
+    res.status(200).json({
+      status: "ok",
+      message: "Registro exitoso.",
+      id: nuevoId,
+    });
+  });
+});
 
 module.exports = router;
