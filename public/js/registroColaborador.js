@@ -1,5 +1,5 @@
 // Objeto global para guardar los archivos
-const storageArchivos = {};
+// const storageArchivos = {};
 
 // Función para disparar las notificaciones en segundo plano
 async function dispararNotificaciones(id) {
@@ -21,7 +21,25 @@ async function dispararNotificaciones(id) {
   }
 }
 
-// 1. Definimos los límites exactos de tu backend
+// // 1. Definimos los límites exactos de tu backend
+// const limitesConfig = {
+//   cedula: 1,
+//   estudios: 5,
+//   laborales: 5,
+//   cesantias: 1,
+//   cuenta: 1,
+//   epsDocs: 2,
+//   referencias: 5,
+//   agenteCampo: 5,
+//   hv: 1,
+//   habeas: 1,
+//   consentimiento: 1,
+//   historialLaboral: 5,
+// };
+
+// Objeto global para guardar los archivos
+const storageArchivos = {};
+
 const limitesConfig = {
   cedula: 1,
   estudios: 5,
@@ -37,71 +55,73 @@ const limitesConfig = {
   historialLaboral: 5,
 };
 
-// Inicializar los campos que tienen la clase 'input-acumulador'
-document.querySelectorAll(".input-acumulador").forEach((input) => {
-  const fieldName = input.name;
-  storageArchivos[fieldName] = [];
+const MAX_SIZE_MB = 5;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
-  input.addEventListener("change", function (e) {
-    const filesSelected = Array.from(e.target.files);
-    const container = document.getElementById(`list-${fieldName}`);
+// USAMOS DOMContentLoaded para asegurar que el HTML ya cargó
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".input-acumulador").forEach((input) => {
+    const fieldName = input.name;
+    if (!storageArchivos[fieldName]) storageArchivos[fieldName] = [];
 
-    // Obtenemos el máximo permitido para este campo específico
-    const maxPermitido = limitesConfig[fieldName] || 1;
+    input.addEventListener("change", function (e) {
+      const filesSelected = Array.from(e.target.files);
+      const container = document.getElementById(`list-${fieldName}`);
+      const maxPermitido = limitesConfig[fieldName] || 1;
 
-    if (!container) {
-      console.error(`Error: No existe un div con id "list-${fieldName}"`);
-      return;
-    }
-
-    filesSelected.forEach((file) => {
-      // --- VALIDACIÓN DE LÍMITE ---
-      if (storageArchivos[fieldName].length >= maxPermitido) {
-        // Usamos SweetAlert para avisar al usuario
-        Swal.fire({
-          icon: "warning",
-          title: "Límite superado",
-          text: `Solo puedes subir un máximo de ${maxPermitido} archivo(s) para "${fieldName}".`,
-          confirmButtonColor: "#3085d6",
-        });
-        return; // Detiene la ejecución para este archivo
+      if (!container) {
+        console.error(`Falta el div con id: list-${fieldName}`);
+        return;
       }
 
-      // Evitar duplicados por nombre y tamaño
-      const yaExiste = storageArchivos[fieldName].some(
-        (f) => f.name === file.name && f.size === file.size,
-      );
+      filesSelected.forEach((file) => {
+        // 1. VALIDACIÓN DE PESO INSTANTÁNEA
+        if (file.size > MAX_SIZE_BYTES) {
+          const pesoEnMB = (file.size / (1024 * 1024)).toFixed(2);
+          Swal.fire({
+            icon: "error",
+            title: "Archivo muy pesado",
+            text: `El archivo "${file.name}" pesa ${pesoEnMB} MB. El máximo es ${MAX_SIZE_MB} MB.`,
+          });
+          return;
+        }
 
-      if (!yaExiste) {
-        storageArchivos[fieldName].push(file);
+        // 2. VALIDACIÓN DE CANTIDAD
+        if (storageArchivos[fieldName].length >= maxPermitido) {
+          Swal.fire({
+            icon: "warning",
+            title: "Límite alcanzado",
+            text: `Solo se permiten ${maxPermitido} archivos para este campo.`,
+          });
+          return;
+        }
 
-        // Crear visualización
-        const item = document.createElement("div");
-        item.className = "file-item";
-        item.style =
-          "display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;";
-        item.innerHTML = `
-          <span style="color: #0d6efd; font-weight: 500;">
-              <i class="bi bi-file-earmark-check-fill"></i> ${file.name}S
-          </span>
-          <i class="bi bi-trash3 text-secondary" 
-            style="cursor:pointer; font-size: 1.1rem;" 
-            title="Quitar archivo"
-            onmouseover="this.classList.replace('text-secondary', 'text-danger')" 
-            onmouseout="this.classList.replace('text-danger', 'text-secondary')"
-            onclick="quitarArchivo('${fieldName}', '${file.name}', this)">
-          </i>
-`;
-        container.appendChild(item);
-      }
+        // 3. EVITAR DUPLICADOS
+        const yaExiste = storageArchivos[fieldName].some(
+          (f) => f.name === file.name,
+        );
+
+        if (!yaExiste) {
+          storageArchivos[fieldName].push(file);
+
+          // Visualización con éxito (Verde)
+          const pesoFinal = (file.size / (1024 * 1024)).toFixed(2);
+          const item = document.createElement("div");
+          item.style =
+            "display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;";
+          item.innerHTML = `
+                        <span><i class="bi bi-check-circle-fill"></i> ${file.name} (${pesoFinal} MB)</span>
+                        <i class="bi bi-trash3 text-danger" style="cursor:pointer" onclick="quitarArchivo('${fieldName}', '${file.name}', this)"></i>
+                    `;
+          container.appendChild(item);
+        }
+      });
+      input.value = ""; // Reset del input
     });
-
-    // Limpia el input para permitir seleccionar el mismo archivo si se borró
-    input.value = "";
   });
 });
 
-// Función para quitar archivos de la lista
+// La función quitarArchivo debe ser global (fuera del DOMContentLoaded)
 window.quitarArchivo = function (fieldName, fileName, element) {
   storageArchivos[fieldName] = storageArchivos[fieldName].filter(
     (f) => f.name !== fileName,
