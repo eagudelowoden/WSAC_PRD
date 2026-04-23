@@ -47,6 +47,7 @@ async function subirArchivo(buffer, carpetaUsuario, nombreArchivo, mimeType) {
         throw error;
     }
 }
+//Ajustes
 async function eliminarArchivo(key) {
     const command = new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
