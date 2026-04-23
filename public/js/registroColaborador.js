@@ -1,7 +1,3 @@
-// Objeto global para guardar los archivos
-// const storageArchivos = {};
-
-// Función para disparar las notificaciones en segundo plano
 async function dispararNotificaciones(id) {
   try {
     console.log(`🔔 Iniciando notificaciones para ID: ${id}`);
@@ -20,22 +16,6 @@ async function dispararNotificaciones(id) {
     console.error("❌ Error enviando correos:", e);
   }
 }
-
-// // 1. Definimos los límites exactos de tu backend
-// const limitesConfig = {
-//   cedula: 1,
-//   estudios: 5,
-//   laborales: 5,
-//   cesantias: 1,
-//   cuenta: 1,
-//   epsDocs: 2,
-//   referencias: 5,
-//   agenteCampo: 5,
-//   hv: 1,
-//   habeas: 1,
-//   consentimiento: 1,
-//   historialLaboral: 5,
-// };
 
 // Objeto global para guardar los archivos
 const storageArchivos = {};
@@ -75,6 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       filesSelected.forEach((file) => {
+        if (file.type !== "application/pdf") {
+          Swal.fire({
+            icon: "error",
+            title: "Formato no permitido",
+            text: `El archivo "${file.name}" no es un PDF. Por favor, sube solo documentos PDF.`,
+          });
+          return; // Salta este archivo
+        }
         // 1. VALIDACIÓN DE PESO INSTANTÁNEA
         if (file.size > MAX_SIZE_BYTES) {
           const pesoEnMB = (file.size / (1024 * 1024)).toFixed(2);
