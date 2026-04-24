@@ -119,14 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     // Validar campos de archivo requeridos manualmente
-    const camposRequeridos = [
-      "cedula",
-      "cuenta",
-      "epsDocs",
-      "hv",
-      "habeas",
-      "consentimiento",
-    ];
+    const camposRequeridos = [];
     for (const campo of camposRequeridos) {
       if (!storageArchivos[campo] || storageArchivos[campo].length === 0) {
         const label =

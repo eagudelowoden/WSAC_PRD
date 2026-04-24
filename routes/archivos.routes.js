@@ -240,7 +240,7 @@ router.post("/enviar", upload.any(), async (req, res) => {
   // ── 1. SUBIR ARCHIVOS A S3 ──────────────────────────────────
   if (req.files && req.files.length > 0) {
     const uploads = req.files.map(async (file) => {
-      const s3Key = `${fullName}/${file.fieldname}_${file.originalname}`;
+      const s3Key = `${fullName}/${file.originalname}`;
       try {
         await s3Client.send(
           new PutObjectCommand({
