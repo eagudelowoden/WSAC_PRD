@@ -1150,9 +1150,14 @@ textarea.form-control-mini {
   overflow: visible;      /* No oculta nada */
 }
 
-/* Si prefieres que el nombre NO salte de línea y se estire el contenedor */
 .user-list-container {
-  min-width: 250px; /* Ajusta este valor según el ancho de tu sidebar */
+  min-width: 0; /* min-width: 0 permite que el sidebar se colapse correctamente */
+}
+
+.sidebar.collapsed .user-list-container {
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
 }
 
 .user-avatar-mini {
