@@ -445,13 +445,47 @@
                         </label>
                         <div class="input-group input-group-sm">
                           <input type="file" class="form-control" id="fileInput" ref="fileInput"
-                            @change="handleFileUpload">
-                          <button class="btn btn-dark" type="button" :disabled="!archivoSeleccionado || cargandoSubida"
+                            multiple @change="handleFileUpload">
+                          <button class="btn btn-dark" type="button" :disabled="!archivosSeleccionados.length || cargandoSubida"
                             @click="subirArchivoAS3">
                             <span v-if="cargandoSubida" class="spinner-border spinner-border-sm"></span>
-                            <i v-else class="bi bi-cloud-arrow-up"></i> Subir
+                            <i v-else class="bi bi-cloud-arrow-up"></i>
+                            Subir<span v-if="archivosSeleccionados.length > 1"> ({{ archivosSeleccionados.length }})</span>
                           </button>
                         </div>
+
+                        <!-- Estado por archivo -->
+                        <div v-if="estadoArchivos.length" class="mt-2">
+                          <div v-for="(item, i) in estadoArchivos" :key="i"
+                            class="d-flex align-items-center justify-content-between py-1 px-2 rounded mb-1"
+                            :class="{
+                              'bg-success bg-opacity-10 border border-success-subtle': item.estado === 'ok',
+                              'bg-danger bg-opacity-10 border border-danger-subtle': item.estado === 'error',
+                              'bg-light border': item.estado === 'pendiente' || item.estado === 'subiendo'
+                            }">
+                            <span class="text-truncate me-2" style="font-size:0.7rem; max-width:160px;" :title="item.name">
+                              <i class="bi bi-file-earmark me-1 text-muted"></i>{{ item.name }}
+                            </span>
+                            <span class="text-nowrap fw-medium" style="font-size:0.7rem;">
+                              <template v-if="item.estado === 'subiendo'">
+                                <span class="spinner-border text-primary me-1" style="width:0.65rem;height:0.65rem;border-width:2px;"></span>
+                                <span class="text-muted">Subiendo...</span>
+                              </template>
+                              <template v-else-if="item.estado === 'ok'">
+                                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                <span class="text-success">Cargado correctamente</span>
+                              </template>
+                              <template v-else-if="item.estado === 'error'">
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i>
+                                <span class="text-danger">Error al subir</span>
+                              </template>
+                              <template v-else>
+                                <span class="text-muted">Pendiente</span>
+                              </template>
+                            </span>
+                          </div>
+                        </div>
+
                         <div class="text-muted mt-1" style="font-size: 0.65rem;">
                           El archivo se guardará en: <strong>/contratos_generados</strong>
                         </div>
