@@ -24,7 +24,8 @@ const SegmentosMixin = {
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       menuAbierto: false, // Controla si se ve el menú
       sidebarContraida: false,
-      archivoSeleccionado: null,
+      archivosSeleccionados: [],
+      estadoArchivos: [],
       cargandoSubida: false,
       avisoGlobal: { activo: false, mensaje: "", fecha: "" },
       bannerCerradoManualmente: false,
@@ -97,42 +98,49 @@ const SegmentosMixin = {
       }
     },
     handleFileUpload(event) {
-      this.archivoSeleccionado = event.target.files[0];
+      this.archivosSeleccionados = Array.from(event.target.files);
+      this.estadoArchivos = [];
     },
     async subirArchivoAS3() {
-      if (!this.archivoSeleccionado || !this.usuarioActual) return;
-      // ... (tu código de Swal)
+      if (!this.archivosSeleccionados.length || !this.usuarioActual) return;
 
-      const formData = new FormData();
-      formData.append("file", this.archivoSeleccionado);
-      formData.append("idColaborador", this.usuarioActual.id);
+      this.cargandoSubida = true;
+      this.estadoArchivos = this.archivosSeleccionados.map((f) => ({
+        name: f.name,
+        estado: "pendiente",
+      }));
 
-      // MANDAMOS SOLO LA CARPETA RAÍZ DEL USUARIO
-      // Esto hace que aparezca en "Archivos Cargados"
-      formData.append("rutaDestino", this.usuarioActual.carpeta);
+      for (let i = 0; i < this.archivosSeleccionados.length; i++) {
+        this.estadoArchivos[i] = { ...this.estadoArchivos[i], estado: "subiendo" };
 
-      try {
-        const response = await fetch("/api/upload-documento-colaborador", {
-          method: "POST",
-          body: formData,
-        });
+        try {
+          const formData = new FormData();
+          formData.append("file", this.archivosSeleccionados[i]);
+          formData.append("idColaborador", this.usuarioActual.id);
+          formData.append("rutaDestino", this.usuarioActual.carpeta);
 
-        if (response.ok) {
-          Swal.fire("¡Éxito!", "Archivo cargado correctamente", "success");
-          this.archivoSeleccionado = null;
-          this.$refs.fileInput.value = "";
+          const response = await fetch("/api/upload-documento-colaborador", {
+            method: "POST",
+            body: formData,
+          });
 
-          // RECARGA EL HISTORIAL DE ARRIBA
-          await this.buscarContratoExistente(this.usuarioActual.carpeta);
-
-          // RECARGA LA CUADRÍCULA DE ABAJO
-          // Llama a la función que hace el GET a /api/archivos/:carpeta
-          // Basándome en tu código, debería ser algo como:
-          await this.obtenerArchivosS3();
+          this.estadoArchivos[i] = {
+            ...this.estadoArchivos[i],
+            estado: response.ok ? "ok" : "error",
+          };
+        } catch {
+          this.estadoArchivos[i] = { ...this.estadoArchivos[i], estado: "error" };
         }
-      } catch (error) {
-        Swal.fire("Error", "No se pudo subir", "error");
       }
+
+      this.cargandoSubida = false;
+      this.archivosSeleccionados = [];
+      this.$refs.fileInput.value = "";
+
+      await this.buscarContratoExistente(this.usuarioActual.carpeta);
+      await this.obtenerArchivosS3();
+
+      setTimeout(() => { this.estadoArchivos = []; }, 4000);
     },
     async obtenerArchivosS3() {
       if (!this.usuarioActual || !this.usuarioActual.carpeta) return;
