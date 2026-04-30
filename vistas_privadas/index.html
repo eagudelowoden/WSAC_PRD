@@ -648,24 +648,25 @@
         </div>
       </div>
     </div>
-  </div>
-  <!-- Modal vista previa de archivo -->
-  <div v-if="previewArchivo" class="preview-overlay" @click.self="previewArchivo = null">
-    <div class="preview-modal">
-      <div class="preview-header">
-        <span class="small fw-bold text-truncate me-3" style="max-width:60%;" :title="previewArchivo.name">
-          <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>{{ previewArchivo.name }}
-        </span>
-        <div class="d-flex gap-2">
-          <a :href="previewArchivo.url" target="_blank" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
-          </a>
-          <button @click="previewArchivo = null" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-x-lg"></i>
-          </button>
+
+    <!-- Modal vista previa de archivo -->
+    <div v-if="previewArchivo" class="preview-overlay" @click.self="previewArchivo = null">
+      <div class="preview-modal">
+        <div class="preview-header">
+          <span class="small fw-bold text-truncate me-3" style="max-width:60%;" :title="previewArchivo.name">
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>{{ previewArchivo.name }}
+          </span>
+          <div class="d-flex gap-2">
+            <a :href="previewArchivo.url" target="_blank" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
+            </a>
+            <button @click="previewArchivo = null" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
         </div>
+        <iframe :src="previewArchivo.url" class="preview-iframe"></iframe>
       </div>
-      <iframe :src="previewArchivo.url" class="preview-iframe"></iframe>
     </div>
   </div>
 
