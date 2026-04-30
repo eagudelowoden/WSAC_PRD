@@ -357,6 +357,7 @@ createApp({
       fechaterminacion: "",
       archivos: [],
       cargandoArchivos: false,
+      previewArchivo: null,
     };
   },
   computed: {

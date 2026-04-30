@@ -19,6 +19,24 @@
   <script>
     document.write('<script src="/js/actualizacion-check.js?v=' + Date.now() + '"><\/script>');
   </script>
+  <style>
+    .preview-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.65);
+      z-index: 9999; display: flex; align-items: center;
+      justify-content: center; padding: 1rem;
+    }
+    .preview-modal {
+      background: #fff; border-radius: 12px;
+      width: 92vw; max-width: 960px; height: 88vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .preview-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .6rem 1rem; border-bottom: 1px solid #dee2e6; flex-shrink: 0;
+    }
+    .preview-iframe { flex: 1; border: none; width: 100%; }
+  </style>
 
 </head>
 
@@ -601,9 +619,15 @@
                               </div>
 
                               <div class="d-flex gap-1 mt-2">
+                                <button @click="previewArchivo = file"
+                                  class="btn btn-sm btn-primary border w-100 py-1"
+                                  title="Vista previa">
+                                  <i class="bi bi-eye-fill me-1"></i> Vista previa
+                                </button>
                                 <a :href="file.url" target="_blank"
-                                  class="btn btn-sm btn-light border w-100 py-1 btn-view-file">
-                                  <i class="bi bi-eye-fill me-1"></i> Ver
+                                  class="btn btn-sm btn-light border py-1"
+                                  title="Abrir en nueva pestaña">
+                                  <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
                                 <button @click="eliminarContrato(file)"
                                   class="btn btn-sm btn-outline-danger border py-1">
@@ -625,6 +649,26 @@
       </div>
     </div>
   </div>
+  <!-- Modal vista previa de archivo -->
+  <div v-if="previewArchivo" class="preview-overlay" @click.self="previewArchivo = null">
+    <div class="preview-modal">
+      <div class="preview-header">
+        <span class="small fw-bold text-truncate me-3" style="max-width:60%;" :title="previewArchivo.name">
+          <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>{{ previewArchivo.name }}
+        </span>
+        <div class="d-flex gap-2">
+          <a :href="previewArchivo.url" target="_blank" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
+          </a>
+          <button @click="previewArchivo = null" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+      <iframe :src="previewArchivo.url" class="preview-iframe"></iframe>
+    </div>
+  </div>
+
   <script src="js/admin.js"></script>
 </body>
 

@@ -27,6 +27,7 @@ const SegmentosMixin = {
       archivosSeleccionados: [],
       estadoArchivos: [],
       cargandoSubida: false,
+      previewArchivo: null,
       avisoGlobal: { activo: false, mensaje: "", fecha: "" },
       bannerCerradoManualmente: false,
       busqueda: "",
@@ -227,7 +228,7 @@ const SegmentosMixin = {
 
       if (!result.isConfirmed) return;
 
-      // 2. CONSTRUIR LA KEY CORRECTA
+      // Construir la key correcta
       let keyFinal = "";
       if (typeof archivo === "object") {
         keyFinal = `${this.usuarioActual.carpeta}/${archivo.name}`;
@@ -235,15 +236,12 @@ const SegmentosMixin = {
         keyFinal = `${this.usuarioActual.carpeta}/contratos_generados/${archivo}`;
       }
 
-      // --- VENTANA DE CARGA (AQUÍ EMPIEZA LO BUENO) ---
-      Swal.fire({
-        title: "Eliminando archivo...",
-        text: "Espere un momento",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+      // Eliminación optimista: quitar del array antes de la llamada
+      if (typeof archivo === "object") {
+        this.archivos = this.archivos.filter((f) => f.name !== archivo.name);
+      } else {
+        this.listaContratos = this.listaContratos.filter((c) => c.name !== archivo);
+      }
 
       try {
         const response = await fetch("/api/docs/eliminar-archivo", {
@@ -254,7 +252,6 @@ const SegmentosMixin = {
         });
 
         if (response.ok) {
-          // Éxito: Notificamos con un Toast para no interrumpir mucho
           Swal.fire({
             icon: "success",
             title: "Archivo eliminado",
@@ -263,30 +260,17 @@ const SegmentosMixin = {
             position: "top-end",
             showConfirmButton: false,
           });
-
-          // 3. REFRESCAR AMBAS LISTAS
-          // Ponemos las variables de carga en true para que los spinners de las listas se vean
-          this.cargandoArchivos = true;
-          this.cargandoCargos = true;
-
-          await this.buscarContratoExistente(this.usuarioActual.carpeta);
-          if (this.obtenerArchivosS3) {
-            await this.obtenerArchivosS3();
-          }
         } else {
-          Swal.fire(
-            "Error",
-            "S3 no pudo encontrar o borrar el archivo físico.",
-            "error",
-          );
+          // Si falla, restaurar lista
+          await this.buscarContratoExistente(this.usuarioActual.carpeta);
+          if (this.obtenerArchivosS3) await this.obtenerArchivosS3();
+          Swal.fire("Error", "No se pudo borrar el archivo.", "error");
         }
       } catch (error) {
         console.error("Error al borrar:", error);
+        await this.buscarContratoExistente(this.usuarioActual.carpeta);
+        if (this.obtenerArchivosS3) await this.obtenerArchivosS3();
         Swal.fire("Error", "Error de red al intentar conectar con S3", "error");
-      } finally {
-        // Cerramos cualquier estado de carga residual
-        this.cargandoArchivos = false;
-        this.cargandoCargos = false;
       }
     },
     async vincularPdfAlExpediente() {
