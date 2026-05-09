@@ -33,12 +33,18 @@ const SegmentosMixin = {
       busqueda: "",
       socket: null,
       filtroNombre: "",
+      modulosPermitidos: {
+        modulo_seleccion: false,
+        modulo_nomina: false,
+        modulo_postulaciones: false,
+      },
     };
   },
-  mounted() {
+  async mounted() {
     this.chequearAvisoMantenimiento();
     this.obtenerListaUsuarios();
-    this.identificarAdmin();
+    await this.identificarAdmin();
+    this.cargarMisModulos();
     this.cargarPlantillas();
     this.cargarSegmentos();
   },
@@ -1082,16 +1088,23 @@ createApp({
     },
     async identificarAdmin() {
       try {
-        // Pide al backend quién soy
         const res = await fetch(`${API_URL}/session/actual`);
         const data = await res.json();
-
         if (data.status === "ok") {
-          // Nota: El backend devuelve 'nombre' (singular) según tu código de server.js
           this.usuarioSys = data.usuario;
         }
       } catch (e) {
         console.error("No se pudo identificar al admin:", e);
+      }
+    },
+    async cargarMisModulos() {
+      try {
+        const res = await fetch(`${API_URL}/mis-modulos`);
+        if (res.ok) {
+          this.modulosPermitidos = await res.json();
+        }
+      } catch (e) {
+        console.error("Error cargando módulos:", e);
       }
     },
     async cerrarSesion() {

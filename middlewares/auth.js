@@ -1,5 +1,11 @@
 const db = require("../databases/db");
 
+// Defaults de módulos por rol cuando no hay permisos explícitos en DB
+const DEFAULTS_MODULOS_POR_ROL = {
+  aprobadorUno: { modulo_seleccion: true, modulo_nomina: false, modulo_postulaciones: true },
+  aprobadorDos: { modulo_seleccion: false, modulo_nomina: true, modulo_postulaciones: false },
+};
+
 function verificarAuth(req, res, next) {
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
 
@@ -77,4 +83,30 @@ function registrarActividad(accion) {
   };
 }
 
-module.exports = { verificarAuth, verificarSuperAdmin, registrarActividad };
+function verificarModulo(modulo) {
+  return (req, res, next) => {
+    if (!req.session?.usuario) return next();
+
+    const { rol, id } = req.session.usuario;
+
+    if (rol === "superadmin") return next();
+
+    db.query(
+      "SELECT puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion = ?",
+      [id, modulo],
+      (err, results) => {
+        if (results && results.length > 0) {
+          if (results[0].puede_editar === 1) return next();
+          return res.redirect("/login.html?error=sin_acceso");
+        }
+
+        // Sin permiso explícito: usar defaults por rol
+        const defaults = DEFAULTS_MODULOS_POR_ROL[rol] || {};
+        if (defaults[modulo]) return next();
+        return res.redirect("/login.html?error=sin_acceso");
+      },
+    );
+  };
+}
+
+module.exports = { verificarAuth, verificarSuperAdmin, verificarModulo, registrarActividad, DEFAULTS_MODULOS_POR_ROL };

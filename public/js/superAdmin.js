@@ -11,8 +11,12 @@ createApp({
       isDarkMode: false,
       userPermisoId: null,
       userPermisoNombre: "",
-      // Mantenemos solo lo que pertenece a permisos aquí
       mapaPermisos: {
+        // Acceso a módulos
+        modulo_seleccion: false,
+        modulo_nomina: false,
+        modulo_postulaciones: false,
+        // Permisos de edición
         tarjeta_contratacion: false,
         editar_salario: false,
         editar_ciudad: false,
@@ -63,6 +67,9 @@ createApp({
       const data = await res.json();
       // Resetear mapa y asignar lo que venga de la BD
       this.mapaPermisos = {
+        modulo_seleccion: data.modulo_seleccion || false,
+        modulo_nomina: data.modulo_nomina || false,
+        modulo_postulaciones: data.modulo_postulaciones || false,
         tarjeta_contratacion: data.tarjeta_contratacion || false,
         editar_salario: data.editar_salario || false,
         editar_ciudad: data.editar_ciudad || false,

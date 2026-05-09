@@ -324,13 +324,18 @@ createApp({
       ],
       usuarioSys: null,
       permisos: {
-        tarjeta_contratacion: false, // Controla si se ve la card lateral
+        tarjeta_contratacion: false,
         editar_salario: false,
         editar_ciudad: false,
       },
+      modulosPermitidos: {
+        modulo_seleccion: false,
+        modulo_nomina: false,
+        modulo_postulaciones: false,
+      },
       aprobacion: "",
       busqueda: "",
-      menuAbierto: false, // Controla si se ve el menú
+      menuAbierto: false,
 
       form: {
         cargo: "",
@@ -428,6 +433,8 @@ createApp({
     try {
       await this.identificarAdmin();
       console.log("👤 Usuario cargado:", this.usuarioSys?.nombre);
+
+      this.cargarMisModulos();
 
       // Solo si el usuario cargó bien, traemos su lista
       if (this.usuarioSys) {
@@ -1183,16 +1190,23 @@ createApp({
     },
     async identificarAdmin() {
       try {
-        // Pide al backend quién soy
         const res = await fetch(`${API_URL}/session/actual`);
         const data = await res.json();
-
         if (data.status === "ok") {
-          // Nota: El backend devuelve 'nombre' (singular) según tu código de server.js
           this.usuarioSys = data.usuario;
         }
       } catch (e) {
         console.error("No se pudo identificar al admin:", e);
+      }
+    },
+    async cargarMisModulos() {
+      try {
+        const res = await fetch(`${API_URL}/mis-modulos`);
+        if (res.ok) {
+          this.modulosPermitidos = await res.json();
+        }
+      } catch (e) {
+        console.error("Error cargando módulos:", e);
       }
     },
     enviarWhatsApp(doc) {

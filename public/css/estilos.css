@@ -357,6 +357,81 @@ body {
   color: #ffffff !important;
 }
 
+/* ── Transición suave al cargar página ── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#app {
+  animation: pageEnter 0.22s ease-out;
+}
+
+/* ── Badge del módulo activo en el brand ── */
+.module-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 2px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+}
+
+.module-badge i {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* separador entre brand y badge */
+.brand-sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+  font-weight: 300;
+}
+
+/* ── Botones de navegación entre módulos ── */
+.btn-module {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 13px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.btn-module:hover {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-module.active {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-module i {
+  font-size: 0.8rem;
+}
+
 /* El nombre del sistema con un toque de opacidad para que no brille tanto como el nombre de usuario */
 .small-brand {
   font-size: 0.8rem;

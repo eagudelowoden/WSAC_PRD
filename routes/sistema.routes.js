@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const db = require("../databases/db");
+const { verificarAuth, DEFAULTS_MODULOS_POR_ROL } = require("../middlewares/auth");
 
 // ==========================================
 // LOGIN
@@ -143,6 +144,41 @@ router.post("/update-mantenimiento", (req, res) => {
       mensaje: "Aviso guardado en DB y notificado por Socket",
     });
   });
+});
+
+// ==========================================
+// MÓDULOS PERMITIDOS DEL USUARIO ACTUAL
+// ==========================================
+router.get("/mis-modulos", verificarAuth, (req, res) => {
+  const { rol, id } = req.session.usuario;
+
+  if (rol === "superadmin") {
+    return res.json({
+      modulo_seleccion: true,
+      modulo_nomina: true,
+      modulo_postulaciones: true,
+    });
+  }
+
+  const modulos = {
+    modulo_seleccion: false,
+    modulo_nomina: false,
+    modulo_postulaciones: false,
+    ...(DEFAULTS_MODULOS_POR_ROL[rol] || {}),
+  };
+
+  db.query(
+    "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion LIKE 'modulo_%'",
+    [id],
+    (err, results) => {
+      if (!err && results) {
+        results.forEach((r) => {
+          modulos[r.seccion] = r.puede_editar === 1;
+        });
+      }
+      res.json(modulos);
+    },
+  );
 });
 
 // ==========================================

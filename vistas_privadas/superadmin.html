@@ -366,45 +366,100 @@
                   >
 
                   <div class="p-3 rounded-4 bg-light border">
-                    <div class="form-check form-switch mb-3">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        v-model="mapaPermisos.tarjeta_contratacion"
-                      />
-                      <label class="form-check-label fw-bold"
-                        >Habilitar Tarjeta de Contratación</label
-                      >
-                      <div class="small text-muted">
-                        Permite ver y usar la tarjeta lateral de gestión.
+
+                    <!-- ACCESO A MÓDULOS -->
+                    <div class="mb-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>
+                        <span class="fw-bold small text-uppercase" style="letter-spacing:0.5px;">Acceso a Módulos</span>
+                      </div>
+
+                      <div class="p-2 rounded-3 border border-primary border-opacity-25 bg-white mb-2">
+                        <div class="form-check form-switch mb-2">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            v-model="mapaPermisos.modulo_seleccion"
+                          />
+                          <label class="form-check-label fw-bold">
+                            <i class="bi bi-people me-1 text-primary"></i>Área de Selección
+                          </label>
+                          <div class="small text-muted">Acceso a Colaboradores y Agendamiento.</div>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            v-model="mapaPermisos.modulo_nomina"
+                          />
+                          <label class="form-check-label fw-bold">
+                            <i class="bi bi-cash-stack me-1 text-success"></i>Nómina y Contratación
+                          </label>
+                          <div class="small text-muted">Acceso al panel de nómina y contratos.</div>
+                        </div>
+                        <div class="form-check form-switch">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            v-model="mapaPermisos.modulo_postulaciones"
+                          />
+                          <label class="form-check-label fw-bold">
+                            <i class="bi bi-file-earmark-text me-1 text-warning"></i>Postulaciones
+                          </label>
+                          <div class="small text-muted">Acceso al módulo de postulaciones.</div>
+                        </div>
                       </div>
                     </div>
-                    <hr />
-                    <div class="form-check form-switch mb-3">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        v-model="mapaPermisos.editar_salario"
-                      />
-                      <label class="form-check-label fw-bold"
-                        >Editar Salario</label
-                      >
+
+                    <hr class="my-3" />
+
+                    <!-- PERMISOS DE EDICIÓN -->
+                    <div class="mb-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-pencil-square text-orange me-2"></i>
+                        <span class="fw-bold small text-uppercase" style="letter-spacing:0.5px;">Permisos de Edición</span>
+                      </div>
+
+                      <div class="form-check form-switch mb-3">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          v-model="mapaPermisos.tarjeta_contratacion"
+                        />
+                        <label class="form-check-label fw-bold"
+                          >Habilitar Tarjeta de Contratación</label
+                        >
+                        <div class="small text-muted">
+                          Permite ver y usar la tarjeta lateral de gestión.
+                        </div>
+                      </div>
+                      <div class="form-check form-switch mb-3">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          v-model="mapaPermisos.editar_salario"
+                        />
+                        <label class="form-check-label fw-bold"
+                          >Editar Salario</label
+                        >
+                      </div>
+                      <div class="form-check form-switch mb-3">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          v-model="mapaPermisos.editar_ciudad"
+                        />
+                        <label class="form-check-label fw-bold"
+                          >Editar Ciudad</label
+                        >
+                      </div>
                     </div>
-                    <div class="form-check form-switch mb-3">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        v-model="mapaPermisos.editar_ciudad"
-                      />
-                      <label class="form-check-label fw-bold"
-                        >Editar Ciudad</label
-                      >
-                    </div>
+
                     <button
-                      class="btn btn-orange w-100 mt-3"
+                      class="btn btn-orange w-100 mt-2"
                       @click="guardarPermisos"
                     >
-                      Actualizar Permisos
+                      <i class="bi bi-floppy-fill me-1"></i>Actualizar Permisos
                     </button>
                   </div>
                 </div>

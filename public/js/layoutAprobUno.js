@@ -1,4 +1,4 @@
-// js/layout.js
+// js/layoutAprobUno.js
 const NavbarComponent = {
     template: `
     <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between" style="flex-shrink: 0; min-height: 40px;">
@@ -9,21 +9,28 @@ const NavbarComponent = {
         </span>
 
         <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color: rgba(255,255,255,0.2) !important;">
-          <a href="/panel-administrativo" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_seleccion" href="/panel-administrativo" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'colaboradores' }">
               <i class="bi bi-people me-1"></i>
               <span class="d-none d-lg-inline">Colaboradores</span>
             </button>
           </a>
 
-          <a href="/postulaciones" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_nomina" href="/panel-aprobacionesDos" class="text-decoration-none">
+            <button class="btn-module" :class="{ 'active': activeModule === 'nomina' }">
+              <i class="bi bi-cash-stack me-1"></i>
+              <span class="d-none d-lg-inline">Nómina</span>
+            </button>
+          </a>
+
+          <a v-if="modulosPermitidos.modulo_postulaciones" href="/postulaciones" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'postulaciones' }">
               <i class="bi bi-file-earmark-text me-1"></i>
               <span class="d-none d-lg-inline">Postulaciones</span>
             </button>
           </a>
 
-          <a href="/agendamiento" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_seleccion" href="/agendamiento" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'agendamiento' }">
               <i class="bi bi-calendar-event me-1"></i>
               <span class="d-none d-lg-inline">Agendamiento</span>
@@ -34,7 +41,7 @@ const NavbarComponent = {
 
       <div class="d-flex align-items-center">
         <div class="dropdown">
-          <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 user-dropdown-btn py-0" 
+          <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 user-dropdown-btn py-0"
                   type="button" @click="toggleMenu">
             <div class="avatar-circle-sm">{{ usuarioSys?.nombre?.charAt(0).toUpperCase() || '?' }}</div>
             <span class="extra-small d-none d-md-inline">{{ usuarioSys?.nombre }}</span>
@@ -49,7 +56,22 @@ const NavbarComponent = {
     `,
     props: ['activeModule', 'usuarioSys'],
     data() {
-        return { menuOpen: false }
+        return {
+            menuOpen: false,
+            modulosPermitidos: {
+                modulo_seleccion: false,
+                modulo_nomina: false,
+                modulo_postulaciones: false,
+            }
+        }
+    },
+    async mounted() {
+        try {
+            const res = await fetch('/api/mis-modulos');
+            if (res.ok) this.modulosPermitidos = await res.json();
+        } catch (e) {
+            console.error('Error cargando módulos:', e);
+        }
     },
     methods: {
         toggleMenu() { this.menuOpen = !this.menuOpen; },

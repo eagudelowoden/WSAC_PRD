@@ -20,7 +20,7 @@ const descripcionCargoRoutes = require("./routes/descripcionCargo.routes");
 const emailsRoutes = require("./routes/emails.routes");
 
 // Middlewares de auth
-const { verificarAuth, verificarSuperAdmin } = require("./middlewares/auth");
+const { verificarAuth, verificarSuperAdmin, verificarModulo } = require("./middlewares/auth");
 
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -126,14 +126,10 @@ app.get("/visualizar.html", vistaPrivada("visualizar.html"));
 app.get("/registro.html", vistaPrivada("registro.html"));
 app.get("/subsanar.html", vistaPrivada("subsanar.html"));
 app.get("/firmar.html", vistaPrivada("firmar.html"));
-app.get("/panel-administrativo", verificarAuth, vistaPrivada("index.html"));
-app.get(
-  "/panel-aprobacionesDos",
-  verificarAuth,
-  vistaPrivada("aprobacionesDos.html"),
-);
+app.get("/panel-administrativo", verificarAuth, verificarModulo("modulo_seleccion"), vistaPrivada("index.html"));
+app.get("/panel-aprobacionesDos", verificarAuth, verificarModulo("modulo_nomina"), vistaPrivada("aprobacionesDos.html"));
 app.get("/superadmin", verificarSuperAdmin, vistaPrivada("superadmin.html"));
-app.get("/postulaciones", verificarAuth, vistaPrivada("postulaciones.html"));
+app.get("/postulaciones", verificarAuth, verificarModulo("modulo_postulaciones"), vistaPrivada("postulaciones.html"));
 app.get("/agendamiento", verificarAuth, vistaPrivada("agendamientos.html"));
 
 // Exportamos tanto app como server (server lo necesita server.js para el listen)

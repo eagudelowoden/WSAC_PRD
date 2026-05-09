@@ -64,10 +64,35 @@
     </transition>
     <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
       style="flex-shrink: 0; min-height: 40px;">
-      <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
-        <i class="bi bi-building-gear fs-6"></i>
-        <span class="small-brand">Gestión Área de Nómina y Contratación</span>
-      </span>
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-building-gear fs-6"></i>
+          <span class="small-brand">Gestión Área de Nómina y Contratación</span>
+        </span>
+
+        <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color: rgba(255,255,255,0.2) !important;">
+          <a v-if="modulosPermitidos.modulo_seleccion" href="/panel-administrativo" class="btn-module">
+            <i class="bi bi-people"></i>
+            <span class="d-none d-lg-inline">Colaboradores</span>
+          </a>
+
+          <a v-if="modulosPermitidos.modulo_nomina" href="/panel-aprobacionesDos" class="btn-module active">
+            <i class="bi bi-cash-stack"></i>
+            <span class="d-none d-lg-inline">Nómina</span>
+          </a>
+
+          <a v-if="modulosPermitidos.modulo_postulaciones" href="/postulaciones" class="btn-module">
+            <i class="bi bi-file-earmark-text"></i>
+            <span class="d-none d-lg-inline">Postulaciones</span>
+          </a>
+
+          <a v-if="usuarioSys?.rol === 'superadmin'" href="/superadmin" class="btn-module">
+            <i class="bi bi-shield-lock"></i>
+            <span class="d-none d-lg-inline">Super Admin</span>
+          </a>
+        </div>
+      </div>
 
       <div class="d-flex align-items-center">
         <div class="dropdown">

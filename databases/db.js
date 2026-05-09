@@ -85,6 +85,23 @@ pool.getConnection((err, connection) => {
         if (err) console.log("Error creando tabla notificaciones:", err);
     });
 
+    // ====================================================
+    // 5. CREAR TABLA DE PERMISOS DE EDICIÓN/MÓDULOS
+    // ====================================================
+    const tablaPermisos = `
+        CREATE TABLE IF NOT EXISTS permisos_edicion (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_id INT NOT NULL,
+            seccion VARCHAR(100) NOT NULL,
+            puede_editar TINYINT(1) DEFAULT 0,
+            UNIQUE KEY unique_usuario_seccion (usuario_id, seccion)
+        )
+    `;
+    connection.query(tablaPermisos, (err) => {
+        if (err) console.log("Error creando tabla permisos_edicion:", err);
+        else console.log("✅ Tabla permisos_edicion verificada.");
+    });
+
     // MUY IMPORTANTE: Liberar la conexión al terminar la inicialización
     connection.release();
 });

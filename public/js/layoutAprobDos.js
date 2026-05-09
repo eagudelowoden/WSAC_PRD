@@ -1,8 +1,7 @@
-// js/layout.js
+// js/layoutAprobDos.js
 const NavbarComponent = {
     template: `
     <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between" style="flex-shrink: 0; min-height: 40px;">
-      
       <div class="d-flex align-items-center gap-4">
         <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
           <i class="bi bi-building-gear fs-6"></i>
@@ -10,21 +9,28 @@ const NavbarComponent = {
         </span>
 
         <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color: rgba(255,255,255,0.2) !important;">
-          <a href="/panel-administrativo" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_seleccion" href="/panel-administrativo" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'colaboradores' }">
               <i class="bi bi-people me-1"></i>
               <span class="d-none d-lg-inline">Colaboradores</span>
             </button>
           </a>
 
-          <a href="/postulaciones" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_nomina" href="/panel-aprobacionesDos" class="text-decoration-none">
+            <button class="btn-module" :class="{ 'active': activeModule === 'nomina' }">
+              <i class="bi bi-cash-stack me-1"></i>
+              <span class="d-none d-lg-inline">Nómina</span>
+            </button>
+          </a>
+
+          <a v-if="modulosPermitidos.modulo_postulaciones" href="/postulaciones" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'postulaciones' }">
               <i class="bi bi-file-earmark-text me-1"></i>
               <span class="d-none d-lg-inline">Postulaciones</span>
             </button>
           </a>
 
-          <a href="/agendamiento" class="text-decoration-none">
+          <a v-if="modulosPermitidos.modulo_seleccion" href="/agendamiento" class="text-decoration-none">
             <button class="btn-module" :class="{ 'active': activeModule === 'agendamiento' }">
               <i class="bi bi-calendar-event me-1"></i>
               <span class="d-none d-lg-inline">Agendamiento</span>
@@ -63,13 +69,25 @@ const NavbarComponent = {
     `,
     props: ['activeModule', 'usuarioSys'],
     data() {
-        return { 
-            menuAbierto: false // IMPORTANTE: Cambiado de menuOpen a menuAbierto para coincidir con el @click del template
+        return {
+            menuAbierto: false,
+            modulosPermitidos: {
+                modulo_seleccion: false,
+                modulo_nomina: false,
+                modulo_postulaciones: false,
+            }
+        }
+    },
+    async mounted() {
+        try {
+            const res = await fetch('/api/mis-modulos');
+            if (res.ok) this.modulosPermitidos = await res.json();
+        } catch (e) {
+            console.error('Error cargando módulos:', e);
         }
     },
     methods: {
         logout() {
-            // Usamos SweetAlert para confirmar el cierre de sesión si lo tienes disponible
             fetch('/api/logout', { method: 'POST' })
                 .then(() => {
                     localStorage.removeItem('usuario');
