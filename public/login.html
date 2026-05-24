@@ -1,147 +1,312 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WSAC | Sistema de Aprobaciones</title>
+    <link rel="icon" type="image/png" href="imagenes/doc.png" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WSAC | Sistema de Aprobaciones</title>
-  <link rel="icon" type="image/png" href="imagenes/doc.png" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-  <link rel="stylesheet" href="css/login.css" />
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
 
-<script src="js/actualizacion-check.js"></script>
-</head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-<body>
-  <div id="app" class="login-wrapper">
-    <div class="circle-decoration c1"></div>
-    <div class="circle-decoration c2"></div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/actualizacion-check.js"></script>
 
-    <div class="time-widget">
-      <div class="time">{{ currentTime }}</div>
-      <div class="date">{{ currentDate }}</div>
-    </div>
+    <style>
+      /* --- PALETA DE COLORES ESTILO AWS (LIGHT PREMIUM) --- */
+      :root {
+        --aws-bg: #f2f5fa;
+        --aws-card: #ffffff;
+        --aws-text-main: #16191f;
+        --aws-text-muted: #5f6b7a;
+        --aws-border: #eaeded;
+        --aws-blue-brand: #0056b3;
+        --aws-blue-hover: #004494;
+        --aws-input-focus: #4d90fe;
+      }
 
-    <div class="login-card">
-      <div class="text-center">
-        <h1 class="brand-name">WSAC</h1>
-        <h2 class="brand-title">Bienvenido</h2>
-        <p class="subtitle">Sistema de Aprobaciones Woden</p>
-      </div>
+      body {
+        background-color: var(--aws-bg);
+        /* Gradiente de fondo sutil inspirado exactamente en el banner superior de AWS */
+        background-image: linear-gradient(180deg, #e2e8f7 0%, #f2f5fa 400px);
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        color: var(--aws-text-main);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+      }
 
-      <div class="divider-modern"></div>
+      .login-wrapper {
+        width: 100%;
+        max-width: 440px;
+        padding: 20px;
+      }
 
-      <form @submit.prevent="iniciarSesion">
-        <div class="form-floating mb-3">
-          <input type="text" class="form-control" id="u" placeholder="Usuario" v-model="usuario" required />
-          <label for="u"><i class="bi bi-person me-2"></i>Usuario de red</label>
+      /* Tarjeta estilo Consola AWS */
+      .login-card {
+        background: var(--aws-card);
+        border: 1px solid var(--aws-border);
+        border-radius: 8px;
+        padding: 2.5rem 2.25rem;
+        box-shadow:
+          0 4px 20px rgba(22, 25, 31, 0.05),
+          0 1px 3px rgba(22, 25, 31, 0.05);
+      }
+
+      .brand-name {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--aws-text-main);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--aws-text-muted);
+        margin-bottom: 2.25rem;
+      }
+
+      /* Formulario e Inputs Corporativos */
+      .form-group-custom {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group-custom label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--aws-text-main);
+        margin-bottom: 0.5rem;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-wrapper i.input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--aws-text-muted);
+        font-size: 1.05rem;
+      }
+
+      .form-control-aws {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #aab7c4;
+        border-radius: 4px;
+        padding: 11px 14px 11px 40px;
+        color: var(--aws-text-main);
+        font-size: 0.95rem;
+        transition: all 0.15s ease-in-out;
+      }
+
+      .form-control-aws:focus {
+        outline: none;
+        border-color: var(--aws-blue-brand);
+        box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+      }
+
+      /* Ojo de la contraseña */
+      .btn-show-pass {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--aws-text-muted);
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .btn-show-pass:hover {
+        color: var(--aws-text-main);
+      }
+
+      /* Botón AWS Blue Primary */
+      .btn-aws {
+        background: var(--aws-blue-brand);
+        color: #ffffff;
+        border: 1px solid var(--aws-blue-brand);
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        width: 100%;
+        margin-top: 0.5rem;
+        transition:
+          background-color 0.15s ease,
+          border-color 0.15s ease;
+      }
+
+      .btn-aws:hover:not(:disabled) {
+        background: var(--aws-blue-hover);
+        border-color: var(--aws-blue-hover);
+      }
+
+      .btn-aws:disabled {
+        background: #eaeded;
+        border-color: #eaeded;
+        color: #aab7c4;
+        cursor: not-allowed;
+      }
+
+      .footer-text {
+        color: var(--aws-text-muted);
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app" class="login-wrapper">
+      <div class="login-card">
+        <div class="text-center">
+          <h1 class="brand-name">WSAC</h1>
+          <p class="subtitle">Sistema de Aprobaciones Woden</p>
         </div>
 
-        <div class="form-floating mb-4">
-          <input :type="showPass ? 'text' : 'password'" class="form-control" id="p" placeholder="Contraseña"
-            v-model="password" required />
-          <label for="p"><i class="bi bi-key me-2"></i>Contraseña</label>
-          <button type="button" class="btn-show-pass" @click="showPass = !showPass">
-            <i :class="showPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-          </button>
-        </div>
-
-        <button type="submit" class="btn btn-custom w-100" :disabled="loading">
-          <template v-if="loading">
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            AUTENTICANDO...
-          </template>
-          <template v-else> INGRESAR </template>
-        </button>
-
-        <div class="text-center mt-4">
-          <div class="security-badge mx-auto">
-            <span class="pulse-dot"></span>
-            <i class="bi bi-shield-lock-fill me-1"></i> CONEXIÓN SEGURA
+        <form @submit.prevent="iniciarSesion">
+          <div class="form-group-custom">
+            <label for="u">Usuario de red</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person input-icon"></i>
+              <input
+                type="text"
+                class="form-control-aws"
+                id="u"
+                placeholder="Introduce tu usuario"
+                v-model="usuario"
+                required
+              />
+            </div>
           </div>
-          <hr class="my-3 opacity-25" />
-          <small class="text-muted" style="font-size: 0.65rem">Versión 2.0.8 • © 2026 WSAC CLOUD</small>
-        </div>
-      </form>
+
+          <div class="form-group-custom">
+            <label for="p">Contraseña</label>
+            <div class="input-wrapper">
+              <i class="bi bi-key input-icon"></i>
+              <input
+                :type="showPass ? 'text' : 'password'"
+                class="form-control-aws"
+                id="p"
+                placeholder="Introduce tu contraseña"
+                v-model="password"
+                required
+              />
+              <button
+                type="button"
+                class="btn-show-pass"
+                @click="showPass = !showPass"
+              >
+                <i :class="showPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-aws" :disabled="loading">
+            <template v-if="loading">
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                style="width: 1rem; height: 1rem"
+              ></span>
+              Autenticando...
+            </template>
+            <template v-else>Iniciar sesión</template>
+          </button>
+
+          <div class="text-center mt-4pt">
+            <hr
+              class="my-4 opacity-25"
+              style="border-color: var(--aws-text-muted)"
+            />
+            <div class="footer-text">Versión 2.0.8 • © 2026 WSAC CLOUD</div>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <script>
-    const { createApp } = Vue;
+    <script>
+      const { createApp } = Vue;
 
-    createApp({
-      data() {
-        return {
-          usuario: "",
-          password: "",
-          loading: false,
-          showPass: false,
-          currentTime: "",
-          currentDate: "",
-        };
-      },
-      mounted() {
-        this.updateClock();
-        setInterval(this.updateClock, 1000);
-      },
-      methods: {
-        updateClock() {
-          const now = new Date();
-          this.currentTime = now.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          this.currentDate = now.toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          });
+      createApp({
+        data() {
+          return {
+            usuario: "",
+            password: "",
+            loading: false,
+            showPass: false,
+          };
         },
-        async iniciarSesion() {
-          this.loading = true;
-          const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-          });
-
-          try {
-            const res = await fetch("/api/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                usuario: this.usuario,
-                password: this.password,
-              }),
+        methods: {
+          async iniciarSesion() {
+            this.loading = true;
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
             });
-            const data = await res.json();
 
-            if (data.status === "ok") {
-              await Toast.fire({ icon: "success", title: "Acceso correcto" });
-              window.location.href = data.redirect;
-            } else {
-              Swal.fire({
-                title: "Error",
-                text: "Credenciales inválidas",
-                icon: "error",
-                confirmButtonColor: "#e2712a",
+            try {
+              const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  usuario: this.usuario,
+                  password: this.password,
+                }),
               });
-            }
-          } catch (e) {
-            Toast.fire({ icon: "error", title: "Error de conexión" });
-          } finally {
-            this.loading = false;
-          }
-        },
-      },
-    }).mount("#app");
-  </script>
-</body>
+              const data = await res.json();
 
+              if (data.status === "ok") {
+                await Toast.fire({ icon: "success", title: "Acceso correcto" });
+                window.location.href = data.redirect;
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "Credenciales inválidas",
+                  icon: "error",
+                  confirmButtonColor: "#0056b3",
+                  background: "#ffffff",
+                  color: "#16191f",
+                });
+              }
+            } catch (e) {
+              Toast.fire({ icon: "error", title: "Error de conexión" });
+            } finally {
+              this.loading = false;
+            }
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>
