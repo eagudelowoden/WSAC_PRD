@@ -250,8 +250,7 @@ router.post("/enviar", upload.any(), async (req, res) => {
             ContentType: file.mimetype,
           }),
         );
-        // Borrar el temporal local después de subir
-        fs.unlinkSync(file.path);
+
       } catch (err) {
         console.error(`❌ Error subiendo ${file.originalname} a S3:`, err);
       }
