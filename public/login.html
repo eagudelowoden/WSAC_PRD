@@ -1,147 +1,325 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WSAC | Sistema de Aprobaciones</title>
+    <link rel="icon" type="image/png" href="imagenes/doc.png" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WSAC | Sistema de Aprobaciones</title>
-  <link rel="icon" type="image/png" href="imagenes/doc.png" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-  <link rel="stylesheet" href="css/login.css" />
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
 
-<script src="js/actualizacion-check.js"></script>
-</head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-<body>
-  <div id="app" class="login-wrapper">
-    <div class="circle-decoration c1"></div>
-    <div class="circle-decoration c2"></div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/actualizacion-check.js"></script>
 
-    <div class="time-widget">
-      <div class="time">{{ currentTime }}</div>
-      <div class="date">{{ currentDate }}</div>
-    </div>
+    <style>
+      /* --- CONFIGURACIÓN DE COLORES --- */
+      :root {
+        --vercel-clean-card: #ffffff; /* Tarjeta blanca nítida */
+        --vercel-border: #e2e8f0; /* Borde gris sutil */
+        --text-main: #0f172a; /* Texto principal */
+        --text-muted: #64748b; /* Texto secundario */
+        --aws-exact-blue: #001c3d; /* Azul corporativo de la imagen */
+      }
 
-    <div class="login-card">
-      <div class="text-center">
-        <h1 class="brand-name">WSAC</h1>
-        <h2 class="brand-title">Bienvenido</h2>
-        <p class="subtitle">Sistema de Aprobaciones Woden</p>
-      </div>
+      body {
+        /* Fondo con azul más marcado arriba, centro claro para contraste, y azul suave abajo */
+        background: linear-gradient(
+          180deg,
+          #dbe4f9 0%,
+          #f8fafc 50%,
+          #e0e8f7 100%
+        );
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        overflow-x: hidden;
+      }
 
-      <div class="divider-modern"></div>
+      .login-wrapper {
+        width: 100%;
+        max-width: 420px;
+        padding: 20px;
+      }
 
-      <form @submit.prevent="iniciarSesion">
-        <div class="form-floating mb-3">
-          <input type="text" class="form-control" id="u" placeholder="Usuario" v-model="usuario" required />
-          <label for="u"><i class="bi bi-person me-2"></i>Usuario de red</label>
+      /* Tarjeta estilo Vercel */
+      .login-card {
+        background: var(--vercel-clean-card);
+        border: 1px solid var(--vercel-border);
+        border-radius: 12px;
+        padding: 3rem 2.25rem;
+        box-shadow:
+          0 10px 30px -5px rgba(0, 0, 0, 0.04),
+          0 8px 12px -6px rgba(0, 0, 0, 0.04);
+        transition:
+          border-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .login-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.06);
+      }
+
+      .brand-name {
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.25rem;
+        color: var(--aws-exact-blue);
+      }
+
+      .subtitle {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+      }
+
+      /* Inputs Vercel */
+      .form-group-custom {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group-custom label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-wrapper i.input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1.1rem;
+      }
+
+      .form-control-custom {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid var(--vercel-border);
+        border-radius: 6px;
+        padding: 11px 14px 11px 42px;
+        color: var(--text-main);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+      }
+
+      .form-control-custom:focus {
+        outline: none;
+        border-color: var(--aws-exact-blue);
+        box-shadow: 0 0 0 3px rgba(0, 28, 61, 0.08);
+      }
+
+      /* Botón ocultar/mostrar contraseña */
+      .btn-show-pass {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0;
+      }
+      .btn-show-pass:hover {
+        color: var(--text-main);
+      }
+
+      /* Botón Azul Principal */
+      .btn-submit-premium {
+        background: var(--aws-exact-blue);
+        color: #ffffff;
+        border: 1px solid var(--aws-exact-blue);
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        width: 100%;
+        margin-top: 0.5rem;
+        transition: all 0.2s ease;
+      }
+
+      .btn-submit-premium:hover:not(:disabled) {
+        background: transparent;
+        color: var(--aws-exact-blue);
+        border-color: var(--aws-exact-blue);
+      }
+
+      .btn-submit-premium:disabled {
+        background: #f1f5f9;
+        border-color: var(--vercel-border);
+        color: var(--text-muted);
+        cursor: not-allowed;
+      }
+
+      .footer-text {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app" class="login-wrapper">
+      <div class="login-card">
+        <div class="text-center">
+          <h1 class="brand-name">WSAC</h1>
+          <p class="subtitle">Sistema de Aprobaciones Woden</p>
         </div>
 
-        <div class="form-floating mb-4">
-          <input :type="showPass ? 'text' : 'password'" class="form-control" id="p" placeholder="Contraseña"
-            v-model="password" required />
-          <label for="p"><i class="bi bi-key me-2"></i>Contraseña</label>
-          <button type="button" class="btn-show-pass" @click="showPass = !showPass">
-            <i :class="showPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-          </button>
-        </div>
-
-        <button type="submit" class="btn btn-custom w-100" :disabled="loading">
-          <template v-if="loading">
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            AUTENTICANDO...
-          </template>
-          <template v-else> INGRESAR </template>
-        </button>
-
-        <div class="text-center mt-4">
-          <div class="security-badge mx-auto">
-            <span class="pulse-dot"></span>
-            <i class="bi bi-shield-lock-fill me-1"></i> CONEXIÓN SEGURA
+        <form @submit.prevent="iniciarSesion">
+          <div class="form-group-custom">
+            <label for="u">Usuario de red</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person input-icon"></i>
+              <input
+                type="text"
+                class="form-control-custom"
+                id="u"
+                placeholder="ej. jdoe"
+                v-model="usuario"
+                required
+              />
+            </div>
           </div>
-          <hr class="my-3 opacity-25" />
-          <small class="text-muted" style="font-size: 0.65rem">Versión 2.0.8 • © 2026 WSAC CLOUD</small>
-        </div>
-      </form>
+
+          <div class="form-group-custom">
+            <label for="p">Contraseña</label>
+            <div class="input-wrapper">
+              <i class="bi bi-key input-icon"></i>
+              <input
+                :type="showPass ? 'text' : 'password'"
+                class="form-control-custom"
+                id="p"
+                placeholder="••••••••"
+                v-model="password"
+                required
+              />
+              <button
+                type="button"
+                class="btn-show-pass"
+                @click="showPass = !showPass"
+              >
+                <i :class="showPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit-premium" :disabled="loading">
+            <template v-if="loading">
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                style="width: 1rem; height: 1rem"
+              ></span>
+              AUTENTICANDO...
+            </template>
+            <template v-else>Ingresar</template>
+          </button>
+
+          <div class="text-center mt-4">
+            <hr
+              class="my-4 opacity-25"
+              style="border-color: var(--vercel-border)"
+            />
+            <div class="footer-text">Versión 2.0.8 • © 2026 WSAC CLOUD</div>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <script>
-    const { createApp } = Vue;
+    <script>
+      const { createApp } = Vue;
 
-    createApp({
-      data() {
-        return {
-          usuario: "",
-          password: "",
-          loading: false,
-          showPass: false,
-          currentTime: "",
-          currentDate: "",
-        };
-      },
-      mounted() {
-        this.updateClock();
-        setInterval(this.updateClock, 1000);
-      },
-      methods: {
-        updateClock() {
-          const now = new Date();
-          this.currentTime = now.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          this.currentDate = now.toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          });
+      createApp({
+        data() {
+          return {
+            usuario: "",
+            password: "",
+            loading: false,
+            showPass: false,
+          };
         },
-        async iniciarSesion() {
-          this.loading = true;
-          const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-          });
-
-          try {
-            const res = await fetch("/api/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                usuario: this.usuario,
-                password: this.password,
-              }),
+        methods: {
+          async iniciarSesion() {
+            this.loading = true;
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
             });
-            const data = await res.json();
 
-            if (data.status === "ok") {
-              await Toast.fire({ icon: "success", title: "Acceso correcto" });
-              window.location.href = data.redirect;
-            } else {
-              Swal.fire({
-                title: "Error",
-                text: "Credenciales inválidas",
-                icon: "error",
-                confirmButtonColor: "#e2712a",
+            try {
+              const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  usuario: this.usuario,
+                  password: this.password,
+                }),
               });
-            }
-          } catch (e) {
-            Toast.fire({ icon: "error", title: "Error de conexión" });
-          } finally {
-            this.loading = false;
-          }
-        },
-      },
-    }).mount("#app");
-  </script>
-</body>
+              const data = await res.json();
 
+              if (data.status === "ok") {
+                await Toast.fire({ icon: "success", title: "Acceso correcto" });
+                window.location.href = data.redirect;
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "Credenciales inválidas",
+                  icon: "error",
+                  confirmButtonColor: "#001c3d",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                });
+              }
+            } catch (e) {
+              Toast.fire({ icon: "error", title: "Error de conexión" });
+            } finally {
+              this.loading = false;
+            }
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>
