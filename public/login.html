@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WSAC</title>
+    <title>WSAC | Sistema de Aprobaciones</title>
     <link rel="icon" type="image/png" href="imagenes/doc.png" />
     <link rel="stylesheet" href="css/loginv2.css" />
 
@@ -42,26 +42,28 @@
 
         <form @submit.prevent="iniciarSesion">
           <div class="form-group-custom">
+            <label for="u" class="field-label">Usuario</label>
             <div class="input-wrapper">
               <input
                 type="text"
                 class="form-control-custom"
                 id="u"
-                placeholder="Usuario de red"
+                placeholder="user"
                 v-model="usuario"
                 required
               />
-              <i class="bi bi-person-vcard input-icon"></i>
+              <i class="bi bi-person input-icon"></i>
             </div>
           </div>
 
           <div class="form-group-custom">
+            <label for="p" class="field-label">Contraseña</label>
             <div class="input-wrapper">
               <input
                 :type="showPass ? 'text' : 'password'"
                 class="form-control-custom"
                 id="p"
-                placeholder="Contraseña de red"
+                placeholder="password"
                 v-model="password"
                 required
               />
@@ -94,7 +96,7 @@
               class="my-4 opacity-25"
               style="border-color: rgba(0, 47, 153, 0.15)"
             />
-            <div class="footer-text">Versión 2.0.8 • © 2026 WSAC CLOUD</div>
+            <div class="footer-text">Versión 2.0.8 • © 2026 SAC CLOUD</div>
           </div>
         </form>
       </div>
