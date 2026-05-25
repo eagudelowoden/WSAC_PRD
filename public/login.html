@@ -207,14 +207,14 @@
 
         <form @submit.prevent="iniciarSesion">
           <div class="form-group-custom">
-            <label for="u">Usuario de red</label>
+            <label for="u">Usuario</label>
             <div class="input-wrapper">
               <i class="bi bi-person input-icon"></i>
               <input
                 type="text"
                 class="form-control-custom"
                 id="u"
-                placeholder=""
+                placeholder="Digite su usuario"
                 v-model="usuario"
                 required
               />
@@ -229,7 +229,7 @@
                 :type="showPass ? 'text' : 'password'"
                 class="form-control-custom"
                 id="p"
-                placeholder=""
+                placeholder="Digite su contraseña"
                 v-model="password"
                 required
               />
