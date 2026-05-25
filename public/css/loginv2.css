@@ -5,36 +5,35 @@
   --bank-border: rgba(0, 47, 153, 0.08);
   --text-main: #0c111d;
   --text-muted: #475467;
-  --bank-blue-intense: #0c1c41; /* Azul WSAC con máxima potencia y profundidad */
+  --bank-blue-intense: #002f99; /* Azul WSAC con máxima potencia y profundidad */
   --bank-blue-hover: #001f66; /* Variación para hover */
 }
 
 body {
   background-color: var(--bank-light-bg);
-  /* FONDO DE ONDAS FLUIDAS: Creado con la superposición de curvas radiales alargadas */
+  /* FONDO DE ONDAS FLUIDAS */
   background-image:
     radial-gradient(
       ellipse 70% 40% at 30% -10%,
-      rgba(47, 72, 132, 0.85) 0%,
-      transparent 100%
+      rgba(144, 165, 218, 0.85) 0%,
+      transparent 90%
     ),
     radial-gradient(
       ellipse 60% 50% at 80% 110%,
-      rgba(47, 72, 132, 0.7) 0%,
-      transparent 100%
+      rgba(144, 165, 218, 0.7) 0%,
+      transparent 90%
     ),
     radial-gradient(
       ellipse 50% 30% at 100% 20%,
-      rgba(228, 237, 255, 0.9) 0%,
-      transparent 100%
+      rgba(144, 165, 218, 0.9) 0%,
+      transparent 90%
     ),
     radial-gradient(
       ellipse 80% 40% at 0% 80%,
       rgba(235, 242, 255, 0.95) 0%,
-      transparent 100%
+      transparent 90%
     );
 
-  /* Tipografía idéntica a la UI nativa de AWS */
   font-family:
     "Amazon Ember", "Open Sans", "Helvetica Neue", Roboto, Arial, sans-serif;
   color: var(--text-main);
@@ -52,16 +51,16 @@ body {
   padding: 20px;
 }
 
-/* Tarjeta Estilo Vercel con la SOMBRA DE CABECERA DE AWS (Iluminación suave azul/lila integrada) */
+/* TARJETA DE LOGIN CON TAMAÑO AMPLIO ORIGINAL Y SOMBRA DE CABECERA DE AWS */
 .login-card {
   background: var(--bank-card-glass);
   border: 1px solid var(--bank-border);
-  border-radius: 12px; /* Esquinas sutiles estilo Vercel */
+  border-radius: 12px;
   padding: 3rem 2.25rem;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  position: relative;
 
-  /* Recreación exacta del efecto de iluminación suave y dispersa de AWS de tu captura */
   box-shadow:
     0 30px 60px -15px rgba(0, 47, 153, 0.07),
     0 15px 30px -10px rgba(165, 198, 255, 0.12),
@@ -77,8 +76,23 @@ body {
     0 20px 35px -10px rgba(165, 198, 255, 0.18);
 }
 
+/* Icono de nube en la esquina superior derecha */
+.card-cloud-badge {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  color: var(--bank-blue-intense);
+  opacity: 0.65;
+  font-size: 1.35rem;
+  transition: opacity 0.2s ease;
+}
+
+.login-card:hover .card-cloud-badge {
+  opacity: 1;
+}
+
 .brand-name {
-  font-size: 2.25rem;
+  font-size: 2.1rem;
   font-weight: 700;
   letter-spacing: -0.04em;
   margin-bottom: 0.35rem;
@@ -93,89 +107,111 @@ body {
   margin-bottom: 2.5rem;
 }
 
-/* Estructura Limpia Vercel */
+/* --- ESTRUCTURA DE CAMPOS COMPACTOS --- */
 .form-group-custom {
   position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.form-group-custom label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .input-wrapper {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
+/* Iconos modernos de líneas finas estilo Fintech */
 .input-wrapper i.input-icon {
   position: absolute;
   left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
   color: var(--text-muted);
   font-size: 1.1rem;
+  transition: color 0.2s ease;
+  z-index: 4;
+  pointer-events: none;
 }
 
+/* Inputs compactos */
 .form-control-custom {
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 47, 153, 0.14);
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(0, 47, 153, 0.12);
   border-radius: 6px;
-  padding: 12px 14px 12px 44px;
+  padding: 10px 14px 10px 40px;
   color: var(--text-main);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Efectos interactivos de enfoque */
 .form-control-custom:focus {
   outline: none;
   border-color: var(--bank-blue-intense);
-  box-shadow: 0 0 0 3px rgba(0, 47, 153, 0.08);
+  box-shadow: 0 0 0 3px rgba(0, 47, 153, 0.07);
   background: #ffffff;
 }
 
-/* Mostrar / Ocultar Password */
+.form-control-custom:focus + i.input-icon,
+.form-control-custom:focus ~ i.input-icon {
+  color: var(--bank-blue-intense);
+}
+
+/* Botón Mostrar/Ocultar Contraseña */
 .btn-show-pass {
   position: absolute;
   right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
+  padding: 2px;
+  font-size: 1rem;
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  z-index: 4;
 }
 .btn-show-pass:hover {
-  color: var(--text-main);
+  color: var(--bank-blue-intense);
+  transform: scale(1.05);
 }
 
-/* Botón Sólido de Alta Intensidad */
+/* Botón Sólido con alineación para icono interno */
 .btn-submit-premium {
   background: var(--bank-blue-intense);
   color: #ffffff;
   border: 1px solid var(--bank-blue-intense);
   border-radius: 6px;
-  padding: 12px;
-  font-size: 0.95rem;
+  padding: 10px 14px;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   width: 100%;
-  margin-top: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0.25rem;
+  box-shadow: 0 4px 10px rgba(0, 47, 153, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Espacio entre texto e icono */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-submit-premium i.btn-icon {
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+  line-height: 1;
 }
 
 .btn-submit-premium:hover:not(:disabled) {
   background: var(--bank-blue-hover);
   border-color: var(--bank-blue-hover);
   transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(0, 47, 153, 0.22);
+}
+
+/* Efecto dinámico en el icono del botón al hacer hover */
+.btn-submit-premium:hover:not(:disabled) i.btn-icon {
+  transform: translateX(2px);
 }
 
 .btn-submit-premium:active:not(:disabled) {
@@ -183,15 +219,16 @@ body {
 }
 
 .btn-submit-premium:disabled {
-  background: #f1f5f9;
-  border-color: rgba(0, 47, 153, 0.1);
-  color: var(--text-muted);
+  background: #e2e8f0;
+  border-color: transparent;
+  color: #94a3b8;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .footer-text {
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.03em;
   font-weight: 500;
 }
