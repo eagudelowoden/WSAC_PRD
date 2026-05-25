@@ -27,22 +27,23 @@
     <script src="js/actualizacion-check.js"></script>
 
     <style>
-      /* --- PALETA DE COLORES ESTILO AWS (LIGHT PREMIUM) --- */
+      /* --- CONFIGURACIÓN DE COLORES --- */
       :root {
-        --aws-bg: #f2f5fa;
-        --aws-card: #ffffff;
-        --aws-text-main: #16191f;
-        --aws-text-muted: #5f6b7a;
-        --aws-border: #eaeded;
-        --aws-blue-brand: #0056b3;
-        --aws-blue-hover: #004494;
-        --aws-input-focus: #4d90fe;
+        --vercel-clean-card: #ffffff; /* Tarjeta blanca nítida */
+        --vercel-border: #e2e8f0; /* Borde gris sutil */
+        --text-main: #0f172a; /* Texto principal */
+        --text-muted: #64748b; /* Texto secundario */
+        --aws-exact-blue: #001c3d; /* Azul corporativo de la imagen */
       }
 
       body {
-        background-color: var(--aws-bg);
-        /* Gradiente de fondo sutil inspirado exactamente en el banner superior de AWS */
-        background-image: linear-gradient(180deg, #e2e8f7 0%, #f2f5fa 400px);
+        /* Fondo con azul más marcado arriba, centro claro para contraste, y azul suave abajo */
+        background: linear-gradient(
+          180deg,
+          #dbe4f9 0%,
+          #f8fafc 50%,
+          #e0e8f7 100%
+        );
         font-family:
           "Inter",
           -apple-system,
@@ -50,55 +51,67 @@
           "Segoe UI",
           Roboto,
           sans-serif;
-        color: var(--aws-text-main);
+        color: var(--text-main);
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0;
+        overflow-x: hidden;
       }
 
       .login-wrapper {
         width: 100%;
-        max-width: 440px;
+        max-width: 420px;
         padding: 20px;
       }
 
-      /* Tarjeta estilo Consola AWS */
+      /* Tarjeta estilo Vercel */
       .login-card {
-        background: var(--aws-card);
-        border: 1px solid var(--aws-border);
-        border-radius: 8px;
-        padding: 2.5rem 2.25rem;
+        background: var(--vercel-clean-card);
+        border: 1px solid var(--vercel-border);
+        border-radius: 12px;
+        padding: 3rem 2.25rem;
         box-shadow:
-          0 4px 20px rgba(22, 25, 31, 0.05),
-          0 1px 3px rgba(22, 25, 31, 0.05);
+          0 10px 30px -5px rgba(0, 0, 0, 0.04),
+          0 8px 12px -6px rgba(0, 0, 0, 0.04);
+        transition:
+          border-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .login-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.06);
       }
 
       .brand-name {
         font-size: 1.75rem;
         font-weight: 600;
-        color: var(--aws-text-main);
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
         margin-bottom: 0.25rem;
+        color: var(--aws-exact-blue);
       }
 
       .subtitle {
-        font-size: 0.9rem;
-        color: var(--aws-text-muted);
-        margin-bottom: 2.25rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
       }
 
-      /* Formulario e Inputs Corporativos */
+      /* Inputs Vercel */
       .form-group-custom {
+        position: relative;
         margin-bottom: 1.5rem;
       }
 
       .form-group-custom label {
         display: block;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 500;
-        color: var(--aws-text-main);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
         margin-bottom: 0.5rem;
       }
 
@@ -111,28 +124,28 @@
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--aws-text-muted);
-        font-size: 1.05rem;
+        color: var(--text-muted);
+        font-size: 1.1rem;
       }
 
-      .form-control-aws {
+      .form-control-custom {
         width: 100%;
         background: #ffffff;
-        border: 1px solid #aab7c4;
-        border-radius: 4px;
-        padding: 11px 14px 11px 40px;
-        color: var(--aws-text-main);
+        border: 1px solid var(--vercel-border);
+        border-radius: 6px;
+        padding: 11px 14px 11px 42px;
+        color: var(--text-main);
         font-size: 0.95rem;
-        transition: all 0.15s ease-in-out;
+        transition: all 0.2s ease;
       }
 
-      .form-control-aws:focus {
+      .form-control-custom:focus {
         outline: none;
-        border-color: var(--aws-blue-brand);
-        box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+        border-color: var(--aws-exact-blue);
+        box-shadow: 0 0 0 3px rgba(0, 28, 61, 0.08);
       }
 
-      /* Ojo de la contraseña */
+      /* Botón ocultar/mostrar contraseña */
       .btn-show-pass {
         position: absolute;
         right: 14px;
@@ -140,46 +153,46 @@
         transform: translateY(-50%);
         background: none;
         border: none;
-        color: var(--aws-text-muted);
+        color: var(--text-muted);
         cursor: pointer;
         padding: 0;
       }
-
       .btn-show-pass:hover {
-        color: var(--aws-text-main);
+        color: var(--text-main);
       }
 
-      /* Botón AWS Blue Primary */
-      .btn-aws {
-        background: var(--aws-blue-brand);
+      /* Botón Azul Principal */
+      .btn-submit-premium {
+        background: var(--aws-exact-blue);
         color: #ffffff;
-        border: 1px solid var(--aws-blue-brand);
-        border-radius: 4px;
+        border: 1px solid var(--aws-exact-blue);
+        border-radius: 6px;
         padding: 12px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 500;
+        letter-spacing: 0.02em;
         width: 100%;
         margin-top: 0.5rem;
-        transition:
-          background-color 0.15s ease,
-          border-color 0.15s ease;
+        transition: all 0.2s ease;
       }
 
-      .btn-aws:hover:not(:disabled) {
-        background: var(--aws-blue-hover);
-        border-color: var(--aws-blue-hover);
+      .btn-submit-premium:hover:not(:disabled) {
+        background: transparent;
+        color: var(--aws-exact-blue);
+        border-color: var(--aws-exact-blue);
       }
 
-      .btn-aws:disabled {
-        background: #eaeded;
-        border-color: #eaeded;
-        color: #aab7c4;
+      .btn-submit-premium:disabled {
+        background: #f1f5f9;
+        border-color: var(--vercel-border);
+        color: var(--text-muted);
         cursor: not-allowed;
       }
 
       .footer-text {
-        color: var(--aws-text-muted);
-        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
       }
     </style>
   </head>
@@ -199,9 +212,9 @@
               <i class="bi bi-person input-icon"></i>
               <input
                 type="text"
-                class="form-control-aws"
+                class="form-control-custom"
                 id="u"
-                placeholder="Introduce tu usuario"
+                placeholder="ej. jdoe"
                 v-model="usuario"
                 required
               />
@@ -214,9 +227,9 @@
               <i class="bi bi-key input-icon"></i>
               <input
                 :type="showPass ? 'text' : 'password'"
-                class="form-control-aws"
+                class="form-control-custom"
                 id="p"
-                placeholder="Introduce tu contraseña"
+                placeholder="••••••••"
                 v-model="password"
                 required
               />
@@ -230,21 +243,21 @@
             </div>
           </div>
 
-          <button type="submit" class="btn-aws" :disabled="loading">
+          <button type="submit" class="btn-submit-premium" :disabled="loading">
             <template v-if="loading">
               <span
                 class="spinner-border spinner-border-sm me-2"
                 style="width: 1rem; height: 1rem"
               ></span>
-              Autenticando...
+              AUTENTICANDO...
             </template>
-            <template v-else>Iniciar sesión</template>
+            <template v-else>Ingresar</template>
           </button>
 
-          <div class="text-center mt-4pt">
+          <div class="text-center mt-4">
             <hr
               class="my-4 opacity-25"
-              style="border-color: var(--aws-text-muted)"
+              style="border-color: var(--vercel-border)"
             />
             <div class="footer-text">Versión 2.0.8 • © 2026 WSAC CLOUD</div>
           </div>
@@ -294,9 +307,9 @@
                   title: "Error",
                   text: "Credenciales inválidas",
                   icon: "error",
-                  confirmButtonColor: "#0056b3",
+                  confirmButtonColor: "#001c3d",
                   background: "#ffffff",
-                  color: "#16191f",
+                  color: "#0f172a",
                 });
               }
             } catch (e) {
