@@ -114,13 +114,15 @@ const SegmentosMixin = {
     async eliminarContrato(nombreArchivo) {
       // 1. Preguntar confirmación
       const result = await Swal.fire({
-        title: "¿Borrar este documento?",
-        text: "Esta acción no se puede deshacer.",
+        title: "¿Eliminar documento?",
+        html: `<span style="font-size:0.88rem;color:#64748b;">Esta acción no se puede deshacer.</span>`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        confirmButtonText: "Sí, borrar",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
+        customClass: { popup: "swal-custom-popup" },
       });
 
       if (!result.isConfirmed) return;
@@ -145,11 +147,12 @@ const SegmentosMixin = {
         if (data.status === "ok") {
           Swal.fire({
             icon: "success",
-            title: "Eliminado",
+            title: "Archivo eliminado",
             toast: true,
             position: "top-end",
             showConfirmButton: false,
             timer: 1500,
+            customClass: { popup: "swal-custom-popup" },
           });
 
           // 4. Recargar la lista
@@ -159,7 +162,7 @@ const SegmentosMixin = {
         }
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "No se pudo borrar el archivo", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo borrar el archivo.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
     async eliminarDocumentoFirmado(nombreArchivo) {
@@ -173,22 +176,20 @@ const SegmentosMixin = {
           "No se encontró la información del usuario o su carpeta",
           usuario,
         );
-        return Swal.fire(
-          "Error",
-          "No se pudo identificar la carpeta del usuario",
-          "error",
-        );
+        return Swal.fire({ icon: "error", title: "Error", text: "No se pudo identificar la carpeta del usuario.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
 
       // 2. Preguntar confirmación
       const result = await Swal.fire({
-        title: "¿Borrar este documento?",
-        text: "Se eliminará permanentemente de los archivos firmados.",
+        title: "¿Eliminar documento firmado?",
+        html: `<span style="font-size:0.88rem;color:#64748b;">Se eliminará permanentemente de los archivos firmados.</span>`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        confirmButtonText: "Sí, borrar",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
+        customClass: { popup: "swal-custom-popup" },
       });
 
       if (!result.isConfirmed) return;
@@ -212,11 +213,12 @@ const SegmentosMixin = {
         if (data.status === "ok") {
           Swal.fire({
             icon: "success",
-            title: "Eliminado",
+            title: "Archivo eliminado",
             toast: true,
             position: "top-end",
             showConfirmButton: false,
             timer: 1500,
+            customClass: { popup: "swal-custom-popup" },
           });
 
           // 5. Recargar la lista (asegúrate de que este método existe)
@@ -228,7 +230,7 @@ const SegmentosMixin = {
         }
       } catch (error) {
         console.error("Error al eliminar:", error);
-        Swal.fire("Error", "No se pudo borrar el archivo", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo borrar el archivo.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
     // --- B. GENERADOR DE WORD ---
@@ -250,9 +252,10 @@ const SegmentosMixin = {
       this.docGenerado = null; // Limpiamos previo
 
       Swal.fire({
-        title: "Generando y Subiendo...",
-        text: "Guardando en la nube, por favor espere...",
+        title: "Generando contrato...",
+        html: `<span style="font-size:0.85rem;color:#64748b;">Guardando en la nube, por favor espere...</span>`,
         allowOutsideClick: false,
+        customClass: { popup: "swal-custom-popup" },
         didOpen: () => Swal.showLoading(),
       });
 
@@ -271,10 +274,11 @@ const SegmentosMixin = {
         if (response.ok) {
           Swal.fire({
             icon: "success",
-            title: "¡Guardado!",
-            text: "El documento se ha generado y guardado.",
-            timer: 1500,
+            title: "¡Documento generado!",
+            text: "El contrato fue guardado en la nube exitosamente.",
+            timer: 1600,
             showConfirmButton: false,
+            customClass: { popup: "swal-custom-popup" },
           });
 
           // 👇👇👇 AGREGA ESTAS LÍNEAS AQUÍ 👇👇👇
@@ -288,11 +292,11 @@ const SegmentosMixin = {
 
           await this.cargarUsuarioDesdeBD();
         } else {
-          Swal.fire("Error", data.message || "No se pudo generar", "error");
+          Swal.fire({ icon: "error", title: "Error", text: data.message || "No se pudo generar el documento.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
         }
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "Fallo de conexión", "error");
+        Swal.fire({ icon: "error", title: "Error de conexión", text: "No se pudo conectar con el servidor.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
   },
@@ -398,7 +402,7 @@ createApp({
           console.log(`User: ${u.nombres} - Aprobacion: ${estado}`);
 
           return (
-            estado == null || estado === "" || estado == "0" || estado == "1"
+            estado == null || estado === "" || estado == "0" || estado == "1" || estado == "3"
           );
         });
       } else if (this.filtroEstado === "pendientes") {
@@ -540,7 +544,7 @@ createApp({
         this.usuarios = await response.json();
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "No se pudo cargar la lista de usuarios.", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar la lista de colaboradores.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       } finally {
         // 2. IMPORTANTE: Desactivamos el spinner al terminar (sea éxito o error)
         this.cargandoUsuarios = false;
@@ -600,7 +604,6 @@ createApp({
         userData.tipo_contrato = userData.tipo_contrato;
         userData.aprobacion = userData.aprobacion;
         userData.fechaSuscripcion = userData.fecha_suscripcion;
-        userData.curso = userData.curso; // Nuevo campo para contrato de aprendizaje
         userData.curso = userData.curso; // Nuevo campo para contrato de aprendizaje
         if (userData.fechaSuscripcion)
           userData.fechaSuscripcion = userData.fechaSuscripcion.split("T")[0];
@@ -681,7 +684,7 @@ createApp({
         await Promise.all(peticionesEnParalelo);
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "No se pudieron cargar los detalles", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudieron cargar los detalles del colaborador.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       } finally {
         this.cargandoArchivos = false;
         this.cargandoUsuario = false;
@@ -725,10 +728,11 @@ createApp({
         if (data.status === "ok") {
           Swal.fire({
             icon: "success",
-            title: "Guardado",
-            text: "Los datos han sido actualizados.",
-            timer: 1500,
+            title: "Datos guardados",
+            text: "La información del colaborador fue actualizada.",
+            timer: 1600,
             showConfirmButton: false,
+            customClass: { popup: "swal-custom-popup" },
           });
 
           // Refrescamos la lista de la izquierda por si cambiaste nombres/apellidos
@@ -738,11 +742,7 @@ createApp({
         }
       } catch (error) {
         console.error(error);
-        Swal.fire(
-          "Error",
-          "No se pudieron guardar los cambios: " + error.message,
-          "error",
-        );
+        Swal.fire({ icon: "error", title: "Error al guardar", text: "No se pudieron guardar los cambios: " + error.message, confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
     async obtenerDocumentosFirmados() {
@@ -769,14 +769,15 @@ createApp({
     async eliminarUsuario(id) {
       // 1. Preguntar ¿Estás seguro?
       const result = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "No podrás revertir esta acción.",
+        title: "¿Eliminar colaborador?",
+        html: '<span style="font-size:0.88rem;color:#64748b;">Esta acción no se puede revertir.</span>',
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6c757d",
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
+        customClass: { popup: "swal-custom-popup" },
       });
 
       if (!result.isConfirmed) return;
@@ -792,7 +793,7 @@ createApp({
         const data = await response.json();
 
         if (data.status === "ok") {
-          Swal.fire("¡Eliminado!", "El usuario ha sido eliminado.", "success");
+          Swal.fire({ icon: "success", title: "Colaborador eliminado", timer: 1800, showConfirmButton: false, customClass: { popup: "swal-custom-popup" } });
 
           // 3. Actualizar la interfaz
           this.obtenerListaUsuarios(); // Recargar la lista
@@ -813,7 +814,7 @@ createApp({
         }
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el colaborador.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
     async solicitarFirmaContratos() {
@@ -821,9 +822,10 @@ createApp({
       if (!this.usuarioActual || this.listaContratos.length === 0) {
         return Swal.fire({
           icon: "warning",
-          title: "SIN DOCUMENTOS",
-          text: "Primero debes generar los contratos (Word a PDF) antes de solicitar la firma.",
-          confirmButtonColor: "#1e3a8a",
+          title: "Sin documentos",
+          text: "Primero debes generar los contratos antes de solicitar la firma.",
+          confirmButtonColor: "#f37021",
+          customClass: { popup: "swal-custom-popup" },
         });
       }
 
@@ -852,18 +854,20 @@ createApp({
         confirmButtonText: "SÍ, ENVIAR PARA FIRMA",
         cancelButtonText: "CANCELAR",
         confirmButtonColor: "#0891b2",
+        cancelButtonColor: "#6c757d",
         reverseButtons: true,
-        customClass: { popup: "rounded-5 shadow-lg" },
+        customClass: { popup: "swal-custom-popup" },
       });
 
       if (!isConfirmed) return;
 
       // 2. Cargando
       Swal.fire({
-        title: "PROCESANDO SOLICITUD",
-        html: "Generando link y preparando documentos...",
+        title: "Procesando solicitud...",
+        html: '<span style="font-size:0.85rem;color:#64748b;">Generando link y preparando documentos...</span>',
         didOpen: () => Swal.showLoading(),
         allowOutsideClick: false,
+        customClass: { popup: "swal-custom-popup" },
       });
 
       try {
@@ -883,11 +887,11 @@ createApp({
         if (data.status === "ok") {
           Swal.fire({
             icon: "success",
-            title: "SOLICITUD ENVIADA",
-            text: `Se ha enviado el correo a ${this.usuarioActual.correo} con éxito.`,
-            timer: 3500,
+            title: "¡Solicitud enviada!",
+            text: `Correo enviado a ${this.usuarioActual.correo} exitosamente.`,
+            timer: 3000,
             showConfirmButton: false,
-            customClass: { popup: "rounded-5" },
+            customClass: { popup: "swal-custom-popup" },
           });
         } else {
           throw new Error(data.message);
@@ -896,10 +900,10 @@ createApp({
         console.error("Error al solicitar firma:", error);
         Swal.fire({
           icon: "error",
-          title: "FALLO EN EL PROCESO",
-          text:
-            error.message || "No se pudo conectar con el servicio de firmas.",
-          confirmButtonColor: "#d33",
+          title: "Fallo en el proceso",
+          text: error.message || "No se pudo conectar con el servicio de firmas.",
+          confirmButtonColor: "#f37021",
+          customClass: { popup: "swal-custom-popup" },
         });
       }
     },
@@ -935,12 +939,12 @@ createApp({
         confirmButtonText: "SÍ, ENVIAR AHORA",
         cancelButtonText: "CANCELAR",
         confirmButtonColor: "#1e3a8a",
-        cancelButtonColor: "#f8f9fa",
+        cancelButtonColor: "#6c757d",
         reverseButtons: true,
         customClass: {
-          popup: "rounded-5 border-0 shadow-lg",
-          confirmButton: "btn btn-primary rounded-pill py-2 px-5 fw-bold",
-          cancelButton: "btn btn-light rounded-pill py-2 px-4 text-muted",
+          popup: "swal-custom-popup",
+          confirmButton: "fw-bold",
+          cancelButton: "text-muted",
         },
       });
 
@@ -977,11 +981,11 @@ createApp({
         if (data.status === "ok") {
           Swal.fire({
             icon: "success",
-            title: "¡CONTRATOS ENVIADOS!",
+            title: "¡Contratos enviados!",
             text: "El colaborador ha recibido los documentos exitosamente.",
             timer: 2500,
             showConfirmButton: false,
-            customClass: { popup: "rounded-5" },
+            customClass: { popup: "swal-custom-popup" },
           });
         } else {
           throw new Error(data.message);
@@ -989,9 +993,10 @@ createApp({
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "FALLO EN EL ENVÍO",
+          title: "Fallo en el envío",
           text: error.message || "No se pudo conectar con el servidor.",
-          confirmButtonColor: "#1e3a8a",
+          confirmButtonColor: "#f37021",
+          customClass: { popup: "swal-custom-popup" },
         });
       }
     },
@@ -1001,11 +1006,11 @@ createApp({
 
       if (!this.usuarioActual.correo) {
         return Swal.fire({
-          icon: "info",
-          title:
-            '<span style="font-size:1.2rem; font-weight:800;">AVISO</span>',
-          text: "Usuario sin correo registrado.",
-          confirmButtonColor: "#2c3e50",
+          icon: "warning",
+          title: "Sin correo registrado",
+          text: "Este colaborador no tiene correo electrónico registrado.",
+          confirmButtonColor: "#f37021",
+          customClass: { popup: "swal-custom-popup" },
         });
       }
 
@@ -1035,14 +1040,14 @@ createApp({
         showCancelButton: true,
         confirmButtonText: "ENVIAR",
         cancelButtonText: "CANCELAR",
-        confirmButtonColor: "#2a71ff",
-        cancelButtonColor: "#f8f9fa",
+        confirmButtonColor: "#f37021",
+        cancelButtonColor: "#6c757d",
         reverseButtons: true,
         customClass: {
-          popup: "rounded-5 border-0 shadow-lg",
+          popup: "swal-custom-popup",
           input: "mx-auto my-2",
-          confirmButton: "btn btn-primary rounded-pill py-2 px-5 fw-bold",
-          cancelButton: "btn btn-light rounded-pill py-2 px-4 text-muted",
+          confirmButton: "fw-bold",
+          cancelButton: "text-muted",
         },
         didOpen: () => {
           const input = Swal.getInput();
@@ -1062,12 +1067,11 @@ createApp({
       if (motivo) {
         // 1. Mostrar el cargando
         Swal.fire({
-          title: "ENVIANDO NOTIFICACIÓN",
+          title: "Enviando notificación...",
           html: '<p class="text-muted small">Por favor espere...</p>',
           allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
+          customClass: { popup: "swal-custom-popup" },
+          didOpen: () => { Swal.showLoading(); },
         });
 
         try {
@@ -1088,27 +1092,28 @@ createApp({
           if (data.status === "ok") {
             Swal.fire({
               icon: "success",
-              title: "¡ENVIADO!",
-              text: "El correo ha sido entregado correctamente.",
+              title: "¡Notificación enviada!",
+              text: "El correo fue entregado correctamente.",
               timer: 2000,
               showConfirmButton: false,
-              customClass: { popup: "rounded-5" },
+              customClass: { popup: "swal-custom-popup" },
             });
           } else {
             Swal.fire({
               icon: "error",
-              title: "ERROR EN EL ENVÍO",
+              title: "Error al enviar",
               text: data.message || "No se pudo enviar el correo.",
-              confirmButtonColor: "#2a71ff",
+              confirmButtonColor: "#f37021",
+              customClass: { popup: "swal-custom-popup" },
             });
           }
         } catch (e) {
-          // Manejo de errores de conexión
           Swal.fire({
             icon: "error",
-            title: "FALLO DE CONEXIÓN",
+            title: "Fallo de conexión",
             text: "No hay respuesta del servidor.",
-            confirmButtonColor: "#2a71ff",
+            confirmButtonColor: "#f37021",
+            customClass: { popup: "swal-custom-popup" },
           });
         }
       }
@@ -1181,12 +1186,12 @@ createApp({
         }
       } catch (error) {
         console.error(error);
-        Swal.fire("Error", "No se pudo aprobar: " + error.message, "error");
+        Swal.fire({ icon: "error", title: "Error al aprobar", text: "No se pudo completar la aprobación: " + error.message, confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
 
     rechazar() {
-      Swal.fire("Rechazado", "Candidato rechazado", "info");
+      Swal.fire({ icon: "error", title: "Candidato rechazado", text: "El proceso de selección fue cerrado para este candidato.", confirmButtonColor: "#dc2626", customClass: { popup: "swal-custom-popup" } });
     },
     async identificarAdmin() {
       try {

@@ -63,7 +63,7 @@ textarea.form-control-mini {
   transition: all 0.2s;
 }
 
-/* Botones Grises */
+/* Botones Grises (legacy) */
 .btn-gray-mini {
   background-color: #a5abb6;
   color: white;
@@ -74,10 +74,45 @@ textarea.form-control-mini {
   width: 100%;
   font-size: 0.8rem;
 }
-
 .btn-gray-mini:hover {
   background-color: #8e95a1;
   opacity: 0.9;
+}
+
+/* Botón Aprobar */
+.btn-approve-dos {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-weight: 700;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+}
+.btn-approve-dos:hover {
+  background-color: #16a34a;
+  color: white;
+  border-color: #16a34a;
+  box-shadow: 0 4px 10px rgba(22,163,74,0.25);
+}
+
+/* Botón Rechazar */
+.btn-reject-dos {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  font-weight: 700;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+}
+.btn-reject-dos:hover {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+  box-shadow: 0 4px 10px rgba(220,38,38,0.25);
 }
 
 /* AJUSTES RESPONSIVE ADICIONALES */
@@ -1175,5 +1210,83 @@ textarea.form-control-mini {
 
 .user-card-mini.active {
   background-color: #f0f7ff;
-  box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2); /* Borde interno sutil */
+  border-left: 3px solid #4f46e5 !important;
+  box-shadow: none;
+}
+.user-card-mini {
+  border-left: 3px solid transparent;
+}
+.user-card-mini:hover {
+  border-left-color: #c7d2fe;
+}
+
+/* =============================================
+   DESIGN SYSTEM — Panel Nómina v2
+   ============================================= */
+
+/* Card accent borders */
+.card-accent-blue   { border-top: 3px solid #1a56db !important; }
+.card-accent-orange { border-top: 3px solid #f37021 !important; }
+.card-accent-dark   { border-top: 3px solid #1e3a8a !important; }
+.card-accent-teal   { border-top: 3px solid #0891b2 !important; }
+
+/* Botón Guardar */
+.btn-save-main {
+  background: linear-gradient(135deg, #1e3a8a, #1e40af);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(30,58,138,0.25);
+  cursor: pointer;
+}
+.btn-save-main:hover {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30,64,175,0.3);
+}
+
+/* Botón Eliminar */
+.btn-delete-soft {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.btn-delete-soft:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+/* SweetAlert2 custom */
+.swal2-popup.swal-custom-popup {
+  border-radius: 16px !important;
+  padding: 2rem !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+.swal2-popup.swal-custom-popup .swal2-title {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+.swal2-popup.swal-custom-popup .swal2-html-container {
+  font-size: 0.88rem !important;
+  color: #475569 !important;
+}
+.swal2-popup.swal-custom-popup .swal2-confirm,
+.swal2-popup.swal-custom-popup .swal2-cancel {
+  border-radius: 8px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
 }

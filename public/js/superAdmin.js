@@ -33,7 +33,6 @@ createApp({
         mensaje: "",
         fecha: "",
       },
-      tab: "mantenimiento",
       modulosSistema: [
         { id: "admin", nombre: "Panel Administrativo", checkVersion: true },
         { id: "aprobador", nombre: "Panel Aprobadores", checkVersion: true },
