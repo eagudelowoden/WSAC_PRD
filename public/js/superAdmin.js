@@ -85,7 +85,7 @@ createApp({
         }),
       });
       if (res.ok) {
-        Swal.fire("Éxito", "Permisos actualizados correctamente", "success");
+        Swal.fire({ icon: "success", title: "Permisos actualizados", text: "Los cambios se guardaron correctamente.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
     async cargarDatos() {
@@ -210,16 +210,17 @@ createApp({
         this.cargarDatos();
         Swal.fire({
           icon: "success",
-          title: "¡Creado!",
-          text: "Usuario agregado correctamente",
+          title: "Usuario creado",
+          text: "Usuario agregado correctamente.",
           timer: 2000,
           showConfirmButton: false,
+          customClass: { popup: "swal-custom-popup" },
         });
       }
     },
     async guardarAvisoGlobal() {
       if (!this.avisoMantenimiento.mensaje) {
-        Swal.fire("Atención", "Escribe un mensaje para el aviso", "warning");
+        Swal.fire({ icon: "warning", title: "Atención", text: "Escribe un mensaje para el aviso.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
         return;
       }
 
@@ -236,23 +237,29 @@ createApp({
 
           Swal.fire({
             icon: "success",
-            title: "¡Publicado!",
+            title: "Aviso publicado",
             text: "Sincronizado con Base de Datos y Sockets.",
             timer: 2000,
             showConfirmButton: false,
+            customClass: { popup: "swal-custom-popup" },
           });
         }
       } catch (error) {
-        Swal.fire("Error", "No se pudo conectar con el servidor", "error");
+        Swal.fire({ icon: "error", title: "Error de conexión", text: "No se pudo conectar con el servidor.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
 
     async eliminarUsuario(id) {
       const result = await Swal.fire({
         title: "¿Eliminar usuario?",
+        text: "Esta acción no se puede deshacer.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        customClass: { popup: "swal-custom-popup" },
       });
       if (result.isConfirmed) {
         await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
@@ -278,9 +285,10 @@ createApp({
           position: "top-end",
           showConfirmButton: false,
           timer: 2000,
+          customClass: { popup: "swal-custom-popup" },
         });
       } else {
-        Swal.fire("Error", data.message, "error");
+        Swal.fire({ icon: "error", title: "Error", text: data.message, confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
 
@@ -320,7 +328,7 @@ createApp({
           throw new Error(data.message);
         }
       } catch (error) {
-        Swal.fire("Error", "No se pudo agregar el correo de nómina", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo agregar el correo de nómina.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
 
@@ -331,9 +339,11 @@ createApp({
         text: `El correo ${email} dejará de recibir alertas de nómina.`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6c757d",
         cancelButtonText: "Cancelar",
         confirmButtonText: "Sí, eliminar",
+        customClass: { popup: "swal-custom-popup" },
       });
 
       if (!result.isConfirmed) return;
@@ -355,14 +365,15 @@ createApp({
             toast: true,
             position: "top-end",
             icon: "success",
-            title: "Eliminado",
+            title: "Correo eliminado",
             showConfirmButton: false,
             timer: 1500,
+            customClass: { popup: "swal-custom-popup" },
           });
         }
       } catch (error) {
         console.error("Error al eliminar:", error);
-        Swal.fire("Error", "No se pudo eliminar el correo", "error");
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el correo.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
   },
