@@ -102,7 +102,7 @@ function verificarModulo(modulo) {
       : res.redirect("/login.html?error=sin_acceso");
 
     db.query(
-      "SELECT puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion = ?",
+      "SELECT CAST(puede_editar AS UNSIGNED) AS puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion = ? LIMIT 1",
       [id, modulo],
       (err, results) => {
         // Defaults del rol (siempre se evalúan como red de seguridad)
@@ -114,7 +114,9 @@ function verificarModulo(modulo) {
         }
 
         if (results && results.length > 0) {
-          if (Number(results[0].puede_editar) === 1 || defaults[modulo]) return next();
+          const val = results[0].puede_editar;
+          const permitido = val === 1 || val === true || val === "1";
+          if (permitido || defaults[modulo]) return next();
           return denegarAcceso();
         }
 

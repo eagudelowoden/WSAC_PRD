@@ -374,9 +374,9 @@ createApp({
       this._t = setTimeout(async () => {
         this.cargando = true;
         try {
-          const p = new URLSearchParams({ estado: this.filtroEstado });
+          const p = new URLSearchParams({ estado: this.filtroEstado, _t: Date.now() });
           if (this.busqueda.trim()) p.set("search", this.busqueda.trim());
-          const res = await fetch(`/api/requisiciones?${p}`, { credentials: "same-origin" });
+          const res = await fetch(`/api/requisiciones?${p}`, { credentials: "same-origin", cache: "no-store" });
           this.lista = res.ok ? await res.json() : [];
         } catch { this.lista = []; }
         finally { this.cargando = false; }

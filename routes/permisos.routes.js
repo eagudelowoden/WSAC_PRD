@@ -10,12 +10,13 @@ const {
 // Obtener permisos de un usuario
 router.get("/:id", verificarAuth, (req, res) => {
   const sql =
-    "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ?";
+    "SELECT seccion, CAST(puede_editar AS UNSIGNED) AS puede_editar FROM permisos_edicion WHERE usuario_id = ?";
   db.query(sql, [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
 
     const mapaPermisos = results.reduce((acc, p) => {
-      acc[p.seccion] = Number(p.puede_editar) === 1;
+      const val = p.puede_editar;
+      acc[p.seccion] = val === 1 || val === true || val === "1";
       return acc;
     }, {});
     res.json(mapaPermisos);

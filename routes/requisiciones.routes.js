@@ -37,8 +37,14 @@ router.get("/", (req, res) => {
 
   sql += " ORDER BY r.creado_en DESC LIMIT 200";
 
+  db.query("SELECT DATABASE() AS bd, COUNT(*) AS total FROM requisiciones_portal", (e2, r2) => {
+    console.log("🗄️  [requisiciones] DB activa:", r2?.[0]?.bd, "| total rows:", r2?.[0]?.total);
+  });
   db.query(sql, params, (err, rows) => {
+    console.log("🔍 [requisiciones] err:", err?.message || null);
+    console.log("🔍 [requisiciones] rows count:", rows?.length, rows);
     if (err) return res.status(500).json({ error: "Error al obtener requisiciones." });
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate");
     res.json(rows || []);
   });
 });
