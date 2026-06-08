@@ -157,7 +157,8 @@
                 }
             },
             methods: {
-                cerrarSesion() {
+                async cerrarSesion() {
+                    await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
                     localStorage.removeItem('usuario');
                     window.location.href = '/login.html';
                 }

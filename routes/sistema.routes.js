@@ -1,175 +1,97 @@
-const express = require("express");
-const router = express.Router();
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const db = require("../databases/db");
-const { verificarAuth, DEFAULTS_MODULOS_POR_ROL } = require("../middlewares/auth");
+const express    = require("express");
+const router     = express.Router();
+const jwt        = require("jsonwebtoken");
+const bcrypt     = require("bcrypt");
+const db         = require("../databases/knex");
+const { verificarAuth, DEFAULTS_MODULOS_POR_ROL, JWT_SECRET } = require("../middlewares/auth");
 
-// ==========================================
-// LOGIN
-// ==========================================
-router.post("/login", (req, res) => {
-  const ticketAcceso = require("crypto").randomBytes(16).toString("hex");
-  const { usuario, password } = req.body;
+// Opciones de la cookie JWT (reutilizables)
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure  : process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge  : 8 * 60 * 60 * 1000, // 8 horas
+};
 
-  db.query(
-    "SELECT * FROM usuariosSys WHERE usuario = ?",
-    [usuario],
-    (err, results) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ status: "error", message: "Error servidor" });
-      if (results.length === 0)
-        return res
-          .status(401)
-          .json({ status: "error", message: "Usuario no encontrado" });
+// ── LOGIN ────────────────────────────────────────────────────────
+router.post("/login", async (req, res, next) => {
+  try {
+    const { usuario, password } = req.body;
+    const [users] = await db.raw("SELECT * FROM usuariosSys WHERE usuario = ?", [usuario]);
 
-      const user = results[0];
+    if (!users.length)
+      return res.status(401).json({ status: "error", message: "Usuario no encontrado" });
 
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        if (isMatch) {
-          // Los usuarios con rol "jefe" se redirigen al portal automáticamente
-          if (user.rol === "jefe") {
-            const tokenPayload = { id: user.id, nombre: user.nombre, rol: user.rol };
-            req.session.usuario = tokenPayload;
-            req.session.tokenSeguridad = "WSAC_SECURE_" + Date.now();
-            req.session.lastActivity = Date.now();
-            return req.session.save(() => {
-              res.json({ status: "ok", message: "Bienvenido", redirect: "/portal/inicio" });
-            });
-          }
+    const user    = users[0];
+    const isMatch = await bcrypt.compare(password, user.password);
 
-          const tokenPayload = {
-            id: user.id,
-            nombre: user.nombre,
-            rol: user.rol,
-          };
+    if (!isMatch)
+      return res.status(401).json({ status: "error", message: "Contraseña incorrecta" });
 
-          req.session.usuario = tokenPayload;
-          req.session.tokenSeguridad = "WSAC_SECURE_" + Date.now();
-          req.session.lastActivity = Date.now();
+    const payload = { id: user.id, nombre: user.nombre, rol: user.rol };
+    const token   = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
 
-          const token = jwt.sign(
-            tokenPayload,
-            process.env.JWT_SECRET || "Secret_WAS_Key_123",
-            { expiresIn: "8h" },
-          );
+    res.cookie("wsac_token", token, COOKIE_OPTS);
 
-          // Si venía de un redirect (ej: /login.html?redirect=/portal/inicio), usarlo
-          const redirectParam = req.body.redirect || req.query.redirect || null;
+    // Redirigir según rol
+    let redirectUrl = "/panel-administrativo";
+    if (user.rol === "superadmin")   redirectUrl = "/superadmin";
+    else if (user.rol === "aprobadorDos") redirectUrl = "/panel-aprobacionesDos";
+    else if (user.rol === "jefe")    redirectUrl = "/portal/inicio";
 
-          let redirectUrl = "/panel-administrativo";
-          if (user.rol === "superadmin")        redirectUrl = "/superadmin";
-          else if (user.rol === "aprobadorDos") redirectUrl = "/panel-aprobacionesDos";
-          else if (user.rol === "jefe")         redirectUrl = "/portal/inicio";
-
-          // Solo usar el redirect externo si es una ruta interna segura
-          if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
-            redirectUrl = redirectParam;
-          }
-
-          req.session.save((err) => {
-            if (err)
-              return res
-                .status(500)
-                .json({ status: "error", message: "Error al crear sesión" });
-
-            return res.json({
-              status: "ok",
-              message: "Bienvenido",
-              token,
-              usuario: tokenPayload,
-              redirect: `${redirectUrl}?s=${ticketAcceso}`,
-            });
-          });
-        } else {
-          return res
-            .status(401)
-            .json({ status: "error", message: "Contraseña incorrecta" });
-        }
-      });
-    },
-  );
-});
-
-// ==========================================
-// LOGOUT
-// ==========================================
-router.post("/logout", (req, res) => {
-  if (req.logout) req.logout(() => {});
-
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error al destruir la sesión:", err);
-      return res
-        .status(500)
-        .json({ status: "error", message: "Error al cerrar sesión" });
+    const redirectParam = req.body.redirect || req.query.redirect || null;
+    if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
+      redirectUrl = redirectParam;
     }
 
-    res.clearCookie("session_cookie_name", { path: "/", httpOnly: true });
-    res.status(200).json({
-      status: "ok",
-      message: "Sesión eliminada en servidor y cookie limpiada",
+    const ticketAcceso = require("crypto").randomBytes(16).toString("hex");
+    return res.json({
+      status  : "ok",
+      message : "Bienvenido",
+      usuario : payload,
+      redirect: `${redirectUrl}?s=${ticketAcceso}`,
     });
-  });
+  } catch (err) {
+    next(err);
+  }
 });
 
-// ==========================================
-// CHECK VERSION (Polling)
-// ==========================================
+// ── LOGOUT ───────────────────────────────────────────────────────
+router.post("/logout", (req, res) => {
+  res.clearCookie("wsac_token", { path: "/" });
+  res.json({ status: "ok", message: "Sesión cerrada" });
+});
+
+// ── CHECK VERSION ────────────────────────────────────────────────
 router.get("/check-version", (req, res) => {
-  console.log("🔍 Petición de chequeo de versión recibida");
-  // serverID viene del app principal — lo inyectamos como app.locals
   res.json({ version: req.app.locals.serverID });
 });
 
-// ==========================================
-// MANTENIMIENTO
-// ==========================================
-router.get("/check-mantenimiento", (req, res) => {
-  const query =
-    "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1";
-
-  db.query(query, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (result.length > 0) res.json(result[0]);
+// ── MANTENIMIENTO ────────────────────────────────────────────────
+router.get("/check-mantenimiento", async (req, res, next) => {
+  try {
+    const [rows] = await db.raw(
+      "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1",
+    );
+    if (rows.length > 0) res.json(rows[0]);
     else res.json({ activo: false, mensaje: "", fecha: "" });
-  });
+  } catch (err) { next(err); }
 });
 
-router.post("/update-mantenimiento", (req, res) => {
-  const { activo, mensaje, fecha } = req.body;
-  const query =
-    "UPDATE mantenimiento SET activo = ?, mensaje = ?, fecha = ? WHERE id = 1";
+router.post("/update-mantenimiento", async (req, res, next) => {
+  try {
+    const { activo, mensaje, fecha } = req.body;
+    await db("mantenimiento").where({ id: 1 }).update({ activo, mensaje, fecha });
 
-  db.query(query, [activo, mensaje, fecha], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (global.io) global.io.emit("nuevo-aviso-global", { activo, mensaje, fecha });
 
-    const datosAviso = { activo, mensaje, fecha };
-    const socketInstance = global.io;
-
-    if (socketInstance) {
-      socketInstance.emit("nuevo-aviso-global", datosAviso);
-      console.log(
-        "📢 Aviso emitido por Socket a todos los usuarios conectados",
-      );
-    } else {
-      console.warn("⚠️ Socket.io no está inicializado correctamente");
-    }
-
-    res.json({
-      status: "ok",
-      mensaje: "Aviso guardado en DB y notificado por Socket",
-    });
-  });
+    res.json({ status: "ok", mensaje: "Aviso guardado y notificado" });
+  } catch (err) { next(err); }
 });
 
-// ==========================================
-// MÓDULOS PERMITIDOS DEL USUARIO ACTUAL
-// ==========================================
-router.get("/mis-modulos", verificarAuth, (req, res) => {
-  const { rol, id } = req.session.usuario;
+// ── MÓDULOS PERMITIDOS ───────────────────────────────────────────
+router.get("/mis-modulos", verificarAuth, async (req, res, next) => {
+  const { rol, id } = req.user;
 
   if (rol === "superadmin") {
     return res.json({
@@ -188,40 +110,27 @@ router.get("/mis-modulos", verificarAuth, (req, res) => {
     ...(DEFAULTS_MODULOS_POR_ROL[rol] || {}),
   };
 
-  db.query(
-    "SELECT seccion, puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion LIKE 'modulo_%'",
-    [id],
-    (err, results) => {
-      if (!err && results) {
-        results.forEach((r) => {
-          modulos[r.seccion] = r.puede_editar === 1;
-        });
-      }
-      res.json(modulos);
-    },
-  );
+  try {
+    const [rows] = await db.raw(
+      "SELECT seccion, CAST(puede_editar AS UNSIGNED) AS puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion LIKE 'modulo_%'",
+      [id],
+    );
+    rows.forEach((r) => {
+      modulos[r.seccion] = r.puede_editar === 1;
+    });
+    res.json(modulos);
+  } catch (err) { next(err); }
 });
 
-// ==========================================
-// HORA COLOMBIA
-// ==========================================
+// ── HORA COLOMBIA ────────────────────────────────────────────────
 router.get("/time-colombia", (req, res) => {
-  try {
-    const ahora = new Date();
-    const fechaColombiaStr = ahora.toLocaleString("es-CO", {
-      timeZone: "America/Bogota",
-      hour12: false,
-    });
-
-    res.json({
-      datetime: ahora.toISOString(),
-      formatted: fechaColombiaStr,
-      fecha_hora: ahora.toISOString(),
-      status: "ok",
-    });
-  } catch (error) {
-    res.status(500).json({ status: "error", message: error.message });
-  }
+  const ahora = new Date();
+  res.json({
+    datetime  : ahora.toISOString(),
+    formatted : ahora.toLocaleString("es-CO", { timeZone: "America/Bogota", hour12: false }),
+    fecha_hora: ahora.toISOString(),
+    status    : "ok",
+  });
 });
 
 module.exports = router;
