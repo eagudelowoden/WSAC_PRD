@@ -10,16 +10,15 @@ const {
   DeleteObjectsCommand,
 } = require("@aws-sdk/client-s3");
 const { s3Client, BUCKET_NAME } = require("../services/s3Config");
-const { registrarActividad }    = require("../middlewares/auth");
+const { registrarActividad, verificarAuth } = require("../middlewares/auth");
 
 const RUTA_SEGMENTOS = process.env.SEGMENTOS;
 
 // ⚠️ Rutas específicas SIEMPRE antes que /:id
 
-// Sesión actual (JWT)
-router.get("/session/actual", (req, res) => {
-  if (req.user) return res.json({ status: "ok", usuario: req.user });
-  res.status(401).json({ status: "error", message: "No logueado" });
+// Sesión actual (JWT) — verificarAuth setea req.user desde la cookie
+router.get("/session/actual", verificarAuth, (req, res) => {
+  res.json({ status: "ok", usuario: req.user });
 });
 
 // Listar segmentos (carpetas)
