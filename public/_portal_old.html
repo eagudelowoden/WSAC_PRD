@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Colaborador | Acceso</title>
+  <link rel="icon" type="image/png" href="imagenes/doc.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="css/portal.css" />
+</head>
+<body>
+
+  <!-- FONDO DECORATIVO -->
+  <div class="pg-bg">
+    <div class="pg-bg-blob pg-bg-blob-1"></div>
+    <div class="pg-bg-blob pg-bg-blob-2"></div>
+  </div>
+
+  <div class="pg-shell">
+
+    <!-- COLUMNA IZQUIERDA — branding -->
+    <aside class="pg-aside">
+      <div class="pg-aside-inner">
+        <div class="pg-logo">
+          <div class="pg-logo-icon"><i class="bi bi-building-fill-check"></i></div>
+          <div>
+            <div class="pg-logo-name">Woden</div>
+            <div class="pg-logo-sub">Capital Humano</div>
+          </div>
+        </div>
+
+        <div class="pg-hero">
+          <h1 class="pg-hero-title">Portal<br/>Colaborador</h1>
+          <p class="pg-hero-desc">
+            Accede a tu información, realiza solicitudes y mantente al tanto del estado de tu proceso de vinculación.
+          </p>
+        </div>
+
+        <ul class="pg-features">
+          <li class="pg-feature">
+            <span class="pg-feature-icon"><i class="bi bi-person-badge-fill"></i></span>
+            <div>
+              <div class="pg-feature-name">Tu información</div>
+              <div class="pg-feature-desc">Consulta tus datos registrados</div>
+            </div>
+          </li>
+          <li class="pg-feature">
+            <span class="pg-feature-icon"><i class="bi bi-pencil-square"></i></span>
+            <div>
+              <div class="pg-feature-name">Solicitudes</div>
+              <div class="pg-feature-desc">Reporta correcciones o pide documentos</div>
+            </div>
+          </li>
+          <li class="pg-feature">
+            <span class="pg-feature-icon"><i class="bi bi-shield-check-fill"></i></span>
+            <div>
+              <div class="pg-feature-name">100% Seguro</div>
+              <div class="pg-feature-desc">Acceso protegido con tus datos personales</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="pg-aside-footer">
+          © 2026 Woden S.A.S · Todos los derechos reservados
+        </div>
+      </div>
+    </aside>
+
+    <!-- COLUMNA DERECHA — formulario -->
+    <main class="pg-main">
+      <div class="pg-card">
+
+        <!-- Estado: formulario de acceso -->
+        <div id="view-login">
+          <div class="pg-card-header">
+            <div class="pg-card-icon"><i class="bi bi-lock-fill"></i></div>
+            <div>
+              <h2 class="pg-card-title">Identificación</h2>
+              <p class="pg-card-subtitle">Ingresa tu cédula y fecha de nacimiento para continuar</p>
+            </div>
+          </div>
+
+          <form id="form-acceso" novalidate autocomplete="off" spellcheck="false">
+            <div class="pg-field">
+              <label class="pg-label" for="documento">
+                <i class="bi bi-credit-card me-1"></i>Número de cédula
+              </label>
+              <input
+                type="text"
+                id="documento"
+                name="documento"
+                class="pg-input"
+                placeholder="Ej: 1012345678"
+                inputmode="numeric"
+                maxlength="12"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="pg-field">
+              <label class="pg-label" for="fechaNacimiento">
+                <i class="bi bi-calendar3 me-1"></i>Fecha de nacimiento
+              </label>
+              <input
+                type="date"
+                id="fechaNacimiento"
+                name="fechaNacimiento"
+                class="pg-input"
+                required
+              />
+            </div>
+
+            <!-- Mensaje de error -->
+            <div id="msg-error" class="pg-alert pg-alert-error" style="display:none"></div>
+
+            <button type="submit" class="pg-btn-primary" id="btn-ingresar">
+              <span id="btn-text"><i class="bi bi-arrow-right-circle-fill me-2"></i>Ingresar al Portal</span>
+              <span id="btn-loading" style="display:none">
+                <span class="pg-spinner"></span> Verificando...
+              </span>
+            </button>
+          </form>
+
+          <div class="pg-card-footer">
+            <i class="bi bi-shield-lock me-1"></i>
+            Tu información está protegida. Nunca compartimos tus datos.
+          </div>
+        </div>
+
+        <!-- Estado: demasiados intentos -->
+        <div id="view-bloqueado" style="display:none">
+          <div class="pg-empty-state">
+            <div class="pg-empty-icon pg-empty-warn"><i class="bi bi-clock-history"></i></div>
+            <h3 class="pg-empty-title">Acceso temporalmente bloqueado</h3>
+            <p class="pg-empty-desc">Por seguridad, después de varios intentos fallidos el acceso se bloquea por <strong>15 minutos</strong>. Por favor intenta de nuevo más tarde.</p>
+            <button onclick="mostrarLogin()" class="pg-btn-secondary mt-3">
+              <i class="bi bi-arrow-counterclockwise me-2"></i>Intentar de nuevo
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Nota de ayuda -->
+      <p class="pg-help-text">
+        ¿Problemas para ingresar? Contacta al área de Recursos Humanos.
+      </p>
+    </main>
+
+  </div>
+
+  <script src="js/portal.js"></script>
+</body>
+</html>

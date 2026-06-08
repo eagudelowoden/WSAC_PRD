@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Requisición de Personal</title>
+  <link rel="icon" type="image/png" href="/imagenes/doc.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="/css/portal-dashboard.css" />
+</head>
+<body>
+<div id="app" v-cloak>
+
+  <!-- TOP BAR -->
+  <header class="pd-topbar">
+    <div class="pd-topbar-left">
+      <div class="pd-logo-icon"><i class="bi bi-building-fill-check"></i></div>
+      <div>
+        <div class="pd-logo-name">Woden Capital Humano</div>
+        <div class="pd-logo-sub">Portal de Requisición de Personal</div>
+      </div>
+    </div>
+    <div class="pd-topbar-right">
+      <div class="pd-user-chip" v-if="sesion">
+        <div class="pd-user-avatar">{{ iniciales }}</div>
+        <span class="pd-user-name d-none d-sm-inline">{{ sesion.nombre }}</span>
+      </div>
+      <button class="pd-btn-logout" @click="cerrarSesion" title="Cerrar sesión">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="d-none d-sm-inline ms-1">Salir</span>
+      </button>
+    </div>
+  </header>
+
+  <div v-if="cargando" class="pd-loading">
+    <div class="pd-loading-spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <main class="pd-main" v-else>
+
+    <!-- SALUDO -->
+    <div class="pd-greeting">
+      <div>
+        <h1 class="pd-greeting-title">Requisición de Personal</h1>
+        <p class="pd-greeting-sub">Hola <strong>{{ sesion?.nombre }}</strong> — crea y gestiona tus solicitudes de personal.</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="pd-tabs">
+      <button class="pd-tab" :class="{ active: tab === 'nueva' }" @click="tab = 'nueva'">
+        <i class="bi bi-plus-circle me-1"></i> Nueva Requisición
+      </button>
+      <button class="pd-tab" :class="{ active: tab === 'historial' }" @click="tab = 'historial'; cargarRequisiciones()">
+        <i class="bi bi-clock-history me-1"></i> Mis Solicitudes
+        <span class="pd-tab-badge" v-if="pendientes > 0">{{ pendientes }}</span>
+      </button>
+    </div>
+
+    <!-- ═══ TAB: NUEVA REQUISICIÓN ═══ -->
+    <div v-if="tab === 'nueva'" class="pd-panel animate-fade">
+      <div class="pd-section-title mb-4">
+        <i class="bi bi-clipboard2-plus-fill me-2"></i>Formulario de Requisición
+      </div>
+
+      <form @submit.prevent="enviarRequisicion" novalidate>
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="pd-label">Cargo requerido <span class="text-danger">*</span></label>
+            <input v-model="form.cargo_requerido" class="pd-input" :class="{ error: errores.cargo_requerido }"
+              placeholder="Ej: Técnico de mantenimiento" maxlength="150" />
+            <div class="pd-field-error" v-if="errores.cargo_requerido">{{ errores.cargo_requerido }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="pd-label">Área / Dependencia</label>
+            <input v-model="form.area" class="pd-input" placeholder="Ej: Operaciones" maxlength="100" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="pd-label">Cantidad de personas <span class="text-danger">*</span></label>
+            <input v-model.number="form.cantidad" type="number" min="1" max="50" class="pd-input" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="pd-label">Tipo de contrato</label>
+            <select v-model="form.tipo_contrato" class="pd-input">
+              <option value="">— Seleccionar —</option>
+              <option>Término fijo</option>
+              <option>Término indefinido</option>
+              <option>Obra o labor</option>
+              <option>Aprendizaje (SENA)</option>
+              <option>Prestación de servicios</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="pd-label">Salario propuesto (COP)</label>
+            <input v-model.number="form.salario_propuesto" type="number" min="0" class="pd-input" placeholder="0" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="pd-label">Fecha requerida de ingreso</label>
+            <input v-model="form.fecha_requerida" type="date" class="pd-input" />
+          </div>
+
+          <div class="col-12">
+            <label class="pd-label">
+              Justificación <span class="text-danger">*</span>
+              <span class="pd-label-hint">¿Por qué se necesita este cargo?</span>
+            </label>
+            <textarea v-model="form.justificacion" class="pd-textarea" :class="{ error: errores.justificacion }"
+              rows="4" maxlength="2000"
+              placeholder="Describe la razón de la requisición, contexto del área, carga de trabajo, etc."></textarea>
+            <div class="d-flex justify-content-between">
+              <div class="pd-field-error" v-if="errores.justificacion">{{ errores.justificacion }}</div>
+              <div class="pd-char-count ms-auto">{{ form.justificacion.length }} / 2000</div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="pd-label">
+              Perfil requerido
+              <span class="pd-label-hint">Experiencia, estudios, habilidades</span>
+            </label>
+            <textarea v-model="form.perfil_requerido" class="pd-textarea"
+              rows="4" maxlength="2000"
+              placeholder="Ej: Tecnólogo o profesional en áreas afines, 2 años de experiencia en..."></textarea>
+            <div class="pd-char-count">{{ form.perfil_requerido.length }} / 2000</div>
+          </div>
+
+          <div class="col-12">
+            <div v-if="errGlobal"  class="pd-alert pd-alert-error">{{ errGlobal }}</div>
+            <div v-if="okMensaje"  class="pd-alert pd-alert-success">{{ okMensaje }}</div>
+
+            <button type="submit" class="pd-btn-primary" :disabled="enviando">
+              <span v-if="!enviando"><i class="bi bi-send-fill me-2"></i>Enviar Requisición</span>
+              <span v-else><span class="pd-spinner"></span> Enviando...</span>
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══ TAB: HISTORIAL ═══ -->
+    <div v-if="tab === 'historial'" class="pd-panel animate-fade">
+      <div class="pd-section-title mb-3">
+        <i class="bi bi-clock-history me-2"></i>Mis Requisiciones
+      </div>
+
+      <div v-if="cargandoReq" class="text-center py-4 text-muted">
+        <div class="pd-loading-spinner mx-auto mb-2"></div> Cargando...
+      </div>
+
+      <div v-else-if="!requisiciones.length" class="pd-empty">
+        <i class="bi bi-clipboard2 pd-empty-icon"></i>
+        <p>Aún no tienes requisiciones enviadas.</p>
+      </div>
+
+      <div v-else class="pd-sol-list">
+        <div v-for="r in requisiciones" :key="r.id" class="pd-sol-card">
+          <div class="pd-sol-header">
+            <div>
+              <div class="pd-sol-tipo">{{ r.cargo_requerido }}</div>
+              <div style="font-size:.72rem;color:#a1a1aa;margin-top:2px">
+                {{ r.area || 'Sin área' }} · {{ r.cantidad }} persona(s) · {{ r.tipo_contrato || 'Contrato sin definir' }}
+              </div>
+            </div>
+            <span class="pd-sol-badge" :class="'pd-estado-' + r.estado">{{ estadoLabel(r.estado) }}</span>
+          </div>
+          <p class="pd-sol-desc">{{ r.justificacion }}</p>
+          <div v-if="r.observaciones_rrhh" class="pd-sol-respuesta">
+            <i class="bi bi-reply-fill me-1"></i> <strong>RRHH:</strong> {{ r.observaciones_rrhh }}
+          </div>
+          <div class="pd-sol-fecha">Enviada el {{ formatFecha(r.creado_en) }}</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/portal-requisicion.js"></script>
+</body>
+</html>

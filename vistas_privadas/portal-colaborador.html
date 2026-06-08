@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Colaborador</title>
+  <link rel="icon" type="image/png" href="/imagenes/doc.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="/css/portal-dashboard.css" />
+</head>
+<body>
+<div id="app" v-cloak>
+
+  <!-- TOP BAR -->
+  <header class="pd-topbar">
+    <div class="pd-topbar-left">
+      <div class="pd-logo-icon"><i class="bi bi-building-fill-check"></i></div>
+      <div>
+        <div class="pd-logo-name">Woden Capital Humano</div>
+        <div class="pd-logo-sub">Portal Colaborador</div>
+      </div>
+    </div>
+    <div class="pd-topbar-right">
+      <div class="pd-user-chip" v-if="info">
+        <div class="pd-user-avatar">{{ iniciales }}</div>
+        <span class="pd-user-name d-none d-sm-inline">{{ info.nombres }} {{ info.apellidos }}</span>
+      </div>
+      <button class="pd-btn-logout" @click="cerrarSesion" title="Cerrar sesión">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="d-none d-sm-inline ms-1">Salir</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- LOADING -->
+  <div v-if="cargando" class="pd-loading">
+    <div class="pd-loading-spinner"></div>
+    <p>Cargando tu información...</p>
+  </div>
+
+  <!-- CONTENIDO -->
+  <main class="pd-main" v-else-if="info">
+
+    <!-- SALUDO -->
+    <div class="pd-greeting">
+      <div>
+        <h1 class="pd-greeting-title">Hola, {{ info.nombres }} 👋</h1>
+        <p class="pd-greeting-sub">Aquí puedes consultar tu información y realizar solicitudes.</p>
+      </div>
+      <div class="pd-status-badge" :class="estadoBadgeClass">
+        <i :class="estadoIcono" class="me-1"></i> {{ estadoTexto }}
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="pd-tabs">
+      <button class="pd-tab" :class="{ active: tab === 'info' }" @click="tab = 'info'">
+        <i class="bi bi-person-badge me-1"></i> Mi Información
+      </button>
+      <button class="pd-tab" :class="{ active: tab === 'solicitud' }" @click="tab = 'solicitud'">
+        <i class="bi bi-pencil-square me-1"></i> Nueva Solicitud
+      </button>
+      <button class="pd-tab" :class="{ active: tab === 'historial' }" @click="tab = 'historial'; cargarSolicitudes()">
+        <i class="bi bi-clock-history me-1"></i> Mis Solicitudes
+        <span class="pd-tab-badge" v-if="solicitudesPendientes > 0">{{ solicitudesPendientes }}</span>
+      </button>
+    </div>
+
+    <!-- ═══ TAB: INFORMACIÓN ═══ -->
+    <div v-if="tab === 'info'" class="pd-panel animate-fade">
+
+      <div class="row g-3">
+        <!-- Datos personales -->
+        <div class="col-12">
+          <div class="pd-section-title"><i class="bi bi-person-fill me-2"></i>Datos Personales</div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Nombre completo</div>
+            <div class="pd-info-value">{{ info.nombres }} {{ info.apellidos }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Cédula de ciudadanía</div>
+            <div class="pd-info-value pd-mono">{{ info.documento }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Correo electrónico</div>
+            <div class="pd-info-value">{{ info.correo || '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Teléfono</div>
+            <div class="pd-info-value">{{ info.telefono || '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Ciudad</div>
+            <div class="pd-info-value">{{ info.ciudad || '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Dirección</div>
+            <div class="pd-info-value">{{ info.direccion || '—' }}</div>
+          </div>
+        </div>
+
+        <!-- Datos laborales -->
+        <div class="col-12 mt-2">
+          <div class="pd-section-title"><i class="bi bi-briefcase-fill me-2"></i>Datos Laborales</div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Cargo</div>
+            <div class="pd-info-value">{{ info.cargo || '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Tipo de contrato</div>
+            <div class="pd-info-value">{{ info.tipo_contrato || '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pd-info-item">
+            <div class="pd-info-label">Segmento</div>
+            <div class="pd-info-value">{{ info.segmento_contrato || '—' }}</div>
+          </div>
+        </div>
+
+        <!-- Afiliaciones -->
+        <div class="col-12 mt-2">
+          <div class="pd-section-title"><i class="bi bi-heart-pulse-fill me-2"></i>Afiliaciones</div>
+        </div>
+        <div class="col-md-3" v-for="af in afiliaciones" :key="af.key">
+          <div class="pd-info-item">
+            <div class="pd-info-label">{{ af.label }}</div>
+            <div class="pd-info-value">{{ info[af.key] || '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-info-note">
+        <i class="bi bi-info-circle me-2"></i>
+        Si algún dato es incorrecto, usa <strong>Nueva Solicitud</strong> para reportarlo.
+      </div>
+    </div>
+
+    <!-- ═══ TAB: NUEVA SOLICITUD ═══ -->
+    <div v-if="tab === 'solicitud'" class="pd-panel animate-fade">
+      <div class="pd-section-title mb-3"><i class="bi bi-pencil-square me-2"></i>Crear Nueva Solicitud</div>
+
+      <form @submit.prevent="enviarSolicitud" novalidate>
+        <div class="pd-field mb-3">
+          <label class="pd-label">Tipo de solicitud</label>
+          <div class="pd-tipo-grid">
+            <label v-for="t in tiposSolicitud" :key="t.value" class="pd-tipo-card" :class="{ active: formSolicitud.tipo === t.value }">
+              <input type="radio" :value="t.value" v-model="formSolicitud.tipo" style="display:none" />
+              <div class="pd-tipo-icon"><i :class="t.icon"></i></div>
+              <div class="pd-tipo-name">{{ t.label }}</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="pd-field mb-3">
+          <label class="pd-label" for="descripcion">
+            Descripción <span class="pd-label-hint">Mínimo 10 caracteres</span>
+          </label>
+          <textarea
+            id="descripcion"
+            v-model="formSolicitud.descripcion"
+            class="pd-textarea"
+            :class="{ error: errDescripcion }"
+            rows="5"
+            placeholder="Describe detalladamente tu solicitud..."
+            maxlength="1000"
+          ></textarea>
+          <div class="pd-char-count">{{ formSolicitud.descripcion.length }} / 1000</div>
+        </div>
+
+        <div v-if="errSolicitud" class="pd-alert pd-alert-error">{{ errSolicitud }}</div>
+        <div v-if="okSolicitud"  class="pd-alert pd-alert-success">{{ okSolicitud }}</div>
+
+        <button type="submit" class="pd-btn-primary" :disabled="enviandoSolicitud">
+          <span v-if="!enviandoSolicitud"><i class="bi bi-send-fill me-2"></i>Enviar Solicitud</span>
+          <span v-else><span class="pd-spinner"></span> Enviando...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- ═══ TAB: HISTORIAL ═══ -->
+    <div v-if="tab === 'historial'" class="pd-panel animate-fade">
+      <div class="pd-section-title mb-3"><i class="bi bi-clock-history me-2"></i>Mis Solicitudes</div>
+
+      <div v-if="cargandoSolicitudes" class="text-center py-4 text-muted">
+        <div class="pd-loading-spinner mx-auto mb-2"></div> Cargando...
+      </div>
+
+      <div v-else-if="!solicitudes.length" class="pd-empty">
+        <i class="bi bi-inbox pd-empty-icon"></i>
+        <p>Aún no tienes solicitudes registradas.</p>
+      </div>
+
+      <div v-else class="pd-sol-list">
+        <div v-for="s in solicitudes" :key="s.id" class="pd-sol-card">
+          <div class="pd-sol-header">
+            <span class="pd-sol-tipo">{{ tipoLabel(s.tipo) }}</span>
+            <span class="pd-sol-badge" :class="'pd-estado-' + s.estado">{{ estadoLabel(s.estado) }}</span>
+          </div>
+          <p class="pd-sol-desc">{{ s.descripcion }}</p>
+          <div v-if="s.respuesta_admin" class="pd-sol-respuesta">
+            <i class="bi bi-reply-fill me-1"></i> <strong>Respuesta:</strong> {{ s.respuesta_admin }}
+          </div>
+          <div class="pd-sol-fecha">{{ formatFecha(s.creado_en) }}</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<script src="/js/portal-dashboard.js"></script>
+</body>
+</html>

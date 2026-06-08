@@ -116,6 +116,8 @@
                     <tr>
                       <th>Colaborador</th>
                       <th>Usuario / ID</th>
+                      <th>Cédula</th>
+                      <th>F. Nacimiento</th>
                       <th>Rol</th>
                       <th class="text-center">Acciones</th>
                     </tr>
@@ -132,6 +134,14 @@
                         <span class="sa-monospace">{{ u.usuario }}</span>
                       </td>
                       <td>
+                        <span v-if="u.cedula" class="sa-monospace">{{ u.cedula }}</span>
+                        <span v-else class="text-muted" style="font-size:.78rem">—</span>
+                      </td>
+                      <td>
+                        <span v-if="u.fecha_nacimiento" style="font-size:.82rem">{{ u.fecha_nacimiento }}</span>
+                        <span v-else class="text-muted" style="font-size:.78rem">—</span>
+                      </td>
+                      <td>
                         <span class="sa-badge-role" :class="u.rol">{{ u.rol }}</span>
                       </td>
                       <td class="text-center">
@@ -141,7 +151,7 @@
                       </td>
                     </tr>
                     <tr v-if="!usuarios.length">
-                      <td colspan="4" class="text-center py-5 text-muted">
+                      <td colspan="6" class="text-center py-5 text-muted">
                         <i class="bi bi-people mb-2" style="font-size:2rem;display:block;opacity:.3"></i>
                         No hay usuarios registrados
                       </td>
@@ -269,7 +279,7 @@
                         <div class="sa-avatar sa-avatar-sm">{{ u.nombre ? u.nombre.charAt(0).toUpperCase() : '?' }}</div>
                         <div class="sa-user-info">
                           <div class="sa-user-name">{{ u.nombre }}</div>
-                          <div class="sa-user-role">{{ u.rol }}</div>
+                          <div class="sa-user-role">{{ u.rol }}<span v-if="u.cedula"> · CC {{ u.cedula }}</span></div>
                         </div>
                         <i class="bi bi-chevron-right sa-user-arrow"></i>
                       </button>
@@ -326,6 +336,16 @@
                           </div>
                           <div class="sa-perm-card-switch">
                             <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_postulaciones" />
+                          </div>
+                        </label>
+                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_portal }">
+                          <div class="sa-perm-card-icon" style="background:#fdf4ff;color:#9333ea"><i class="bi bi-clipboard2-plus-fill"></i></div>
+                          <div class="sa-perm-card-body">
+                            <div class="sa-perm-card-name">Portal Requisición</div>
+                            <div class="sa-perm-card-desc">Crear solicitudes de personal</div>
+                          </div>
+                          <div class="sa-perm-card-switch">
+                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_portal" />
                           </div>
                         </label>
                       </div>

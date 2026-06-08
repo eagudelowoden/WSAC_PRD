@@ -7,10 +7,14 @@ const {
   registrarActividad,
 } = require("../middlewares/auth");
 
+// Asegurar columnas cedula y fecha_nacimiento en usuariosSys (compatible MySQL 5.7+)
+db.query("ALTER TABLE usuariosSys ADD COLUMN cedula VARCHAR(20) DEFAULT NULL", () => {});
+db.query("ALTER TABLE usuariosSys ADD COLUMN fecha_nacimiento DATE DEFAULT NULL", () => {});
+
 // Listar usuarios
 router.get("/", verificarSuperAdmin, (req, res) => {
   db.query(
-    "SELECT id, nombre, usuario, rol FROM usuariosSys",
+    "SELECT id, nombre, usuario, rol, cedula, DATE_FORMAT(fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento FROM usuariosSys",
     (err, results) => {
       if (err) return res.status(500).json([]);
       res.json(results);
@@ -24,12 +28,12 @@ router.post(
   verificarSuperAdmin,
   registrarActividad("Crear usuario"),
   (req, res) => {
-    const { nombre, usuario, password, rol } = req.body;
+    const { nombre, usuario, password, rol, cedula, fecha_nacimiento } = req.body;
     bcrypt.hash(password, 10, (err, hash) => {
       if (err) return res.status(500).json({ error: "Error encriptando" });
       db.query(
-        "INSERT INTO usuariosSys (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)",
-        [nombre, usuario, hash, rol],
+        "INSERT INTO usuariosSys (nombre, usuario, password, rol, cedula, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)",
+        [nombre, usuario, hash, rol, cedula || null, fecha_nacimiento || null],
         (err, result) => {
           if (err) {
             if (err.code === "ER_DUP_ENTRY")

@@ -16,6 +16,7 @@ createApp({
         modulo_seleccion: false,
         modulo_nomina: false,
         modulo_postulaciones: false,
+        modulo_portal: false,
         // Permisos de edición
         tarjeta_contratacion: false,
         editar_salario: false,
@@ -69,6 +70,7 @@ createApp({
         modulo_seleccion: data.modulo_seleccion || false,
         modulo_nomina: data.modulo_nomina || false,
         modulo_postulaciones: data.modulo_postulaciones || false,
+        modulo_portal: data.modulo_portal || false,
         tarjeta_contratacion: data.tarjeta_contratacion || false,
         editar_salario: data.editar_salario || false,
         editar_ciudad: data.editar_ciudad || false,
@@ -132,23 +134,36 @@ createApp({
       <div class="text-start px-3" style="font-family: 'Segoe UI', sans-serif;">
         <div class="mb-2">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Nombre Completo</label>
-          <input id="swal-nombre" class="swal-custom-input" placeholder="Ej. Juan Pérez">
+          <input id="swal-nombre" class="swal-custom-input" placeholder="Ej. Juan Pérez" autocomplete="off">
         </div>
         <div class="mb-2">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Usuario (Login)</label>
-          <input id="swal-user" class="swal-custom-input" placeholder="jperez">
+          <input id="swal-user" class="swal-custom-input" placeholder="jperez" autocomplete="off">
         </div>
         <div class="mb-2">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Contraseña</label>
-          <input id="swal-pass" type="password" class="swal-custom-input" placeholder="••••••••">
+          <input id="swal-pass" type="password" class="swal-custom-input" placeholder="••••••••" autocomplete="new-password">
         </div>
-        <div class="mb-1">
+        <div class="mb-2">
           <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Rol de Sistema</label>
           <select id="swal-rol" class="swal-custom-select">
             <option value="aprobadorUno">AprobadorUno (Carga datos)</option>
             <option value="aprobadorDos">AprobadorDos (Valida contratos)</option>
+            <option value="jefe">Jefe (Portal Requisición)</option>
             <option value="superadmin">Super Admin (Control total)</option>
           </select>
+        </div>
+        <hr style="border-color:#e2e8f0;margin:8px 0;" />
+        <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:6px;margin-left:5px;">Datos de identificación (opcional)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Cédula</label>
+            <input id="swal-cedula" class="swal-custom-input" placeholder="Ej: 1012345678" autocomplete="off">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 5px;">Fecha de nacimiento</label>
+            <input id="swal-fechanac" type="date" class="swal-custom-input">
+          </div>
         </div>
       </div>
       <style>
@@ -188,16 +203,18 @@ createApp({
         },
         focusConfirm: false,
         preConfirm: () => {
-          const nombre = document.getElementById("swal-nombre").value;
-          const usuario = document.getElementById("swal-user").value;
+          const nombre = document.getElementById("swal-nombre").value.trim();
+          const usuario = document.getElementById("swal-user").value.trim();
           const password = document.getElementById("swal-pass").value;
           const rol = document.getElementById("swal-rol").value;
+          const cedula = document.getElementById("swal-cedula").value.trim();
+          const fecha_nacimiento = document.getElementById("swal-fechanac").value;
 
           if (!nombre || !usuario || !password) {
-            Swal.showValidationMessage(`Por favor completa todos los campos`);
+            Swal.showValidationMessage(`Por favor completa todos los campos obligatorios`);
             return false;
           }
-          return { nombre, usuario, password, rol };
+          return { nombre, usuario, password, rol, cedula: cedula || null, fecha_nacimiento: fecha_nacimiento || null };
         },
       });
 
