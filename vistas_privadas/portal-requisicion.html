@@ -36,6 +36,7 @@
     </div>
   </header>
 
+  <!-- LOADING -->
   <div v-if="cargando" class="pd-loading">
     <div class="pd-loading-spinner"></div>
     <p>Cargando...</p>
@@ -45,19 +46,17 @@
 
     <!-- SALUDO -->
     <div class="pd-greeting">
-      <div>
-        <h1 class="pd-greeting-title">Requisición de Personal</h1>
-        <p class="pd-greeting-sub">Hola <strong>{{ sesion?.nombre }}</strong> — crea y gestiona tus solicitudes de personal.</p>
-      </div>
+      <h1 class="pd-greeting-title">Requisición de Personal</h1>
+      <p class="pd-greeting-sub">Hola <strong>{{ sesion?.nombre }}</strong> — crea y gestiona tus solicitudes de personal.</p>
     </div>
 
     <!-- TABS -->
     <div class="pd-tabs">
       <button class="pd-tab" :class="{ active: tab === 'nueva' }" @click="tab = 'nueva'">
-        <i class="bi bi-plus-circle me-1"></i> Nueva Requisición
+        <i class="bi bi-plus-circle"></i> Nueva Requisición
       </button>
       <button class="pd-tab" :class="{ active: tab === 'historial' }" @click="tab = 'historial'; cargarRequisiciones()">
-        <i class="bi bi-clock-history me-1"></i> Mis Solicitudes
+        <i class="bi bi-clock-history"></i> Mis Solicitudes
         <span class="pd-tab-badge" v-if="pendientes > 0">{{ pendientes }}</span>
       </button>
     </div>
@@ -65,30 +64,37 @@
     <!-- ═══ TAB: NUEVA REQUISICIÓN ═══ -->
     <div v-if="tab === 'nueva'" class="pd-panel animate-fade">
       <div class="pd-section-title mb-4">
-        <i class="bi bi-clipboard2-plus-fill me-2"></i>Formulario de Requisición
+        <i class="bi bi-clipboard2-plus me-2"></i>Formulario de Requisición
       </div>
 
       <form @submit.prevent="enviarRequisicion" novalidate>
-        <div class="row g-3">
 
-          <div class="col-md-6">
+        <!-- Bloque 1: Cargo y área -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-7">
             <label class="pd-label">Cargo requerido <span class="text-danger">*</span></label>
-            <input v-model="form.cargo_requerido" class="pd-input" :class="{ error: errores.cargo_requerido }"
+            <input v-model="form.cargo_requerido" class="pd-input"
+              :class="{ error: errores.cargo_requerido }"
               placeholder="Ej: Técnico de mantenimiento" maxlength="150" />
             <div class="pd-field-error" v-if="errores.cargo_requerido">{{ errores.cargo_requerido }}</div>
           </div>
-
-          <div class="col-md-6">
+          <div class="col-md-5">
             <label class="pd-label">Área / Dependencia</label>
             <input v-model="form.area" class="pd-input" placeholder="Ej: Operaciones" maxlength="100" />
           </div>
+        </div>
 
-          <div class="col-md-4">
-            <label class="pd-label">Cantidad de personas <span class="text-danger">*</span></label>
+        <!-- Bloque 2: Cantidad, contrato, salario, fecha -->
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <label class="pd-label">Cantidad <span class="text-danger">*</span></label>
             <input v-model.number="form.cantidad" type="number" min="1" max="50" class="pd-input" />
           </div>
-
-          <div class="col-md-4">
+          <div class="col-6 col-md-3">
+            <label class="pd-label">Fecha de ingreso</label>
+            <input v-model="form.fecha_requerida" type="date" class="pd-input" />
+          </div>
+          <div class="col-md-6">
             <label class="pd-label">Tipo de contrato</label>
             <select v-model="form.tipo_contrato" class="pd-input">
               <option value="">— Seleccionar —</option>
@@ -99,69 +105,75 @@
               <option>Prestación de servicios</option>
             </select>
           </div>
+        </div>
 
+        <!-- Bloque 3: Salario -->
+        <div class="row g-3 mb-3">
           <div class="col-md-4">
             <label class="pd-label">Salario propuesto (COP)</label>
             <input v-model.number="form.salario_propuesto" type="number" min="0" class="pd-input" placeholder="0" />
           </div>
-
-          <div class="col-md-6">
-            <label class="pd-label">Fecha requerida de ingreso</label>
-            <input v-model="form.fecha_requerida" type="date" class="pd-input" />
-          </div>
-
-          <div class="col-12">
-            <label class="pd-label">
-              Justificación <span class="text-danger">*</span>
-              <span class="pd-label-hint">¿Por qué se necesita este cargo?</span>
-            </label>
-            <textarea v-model="form.justificacion" class="pd-textarea" :class="{ error: errores.justificacion }"
-              rows="4" maxlength="2000"
-              placeholder="Describe la razón de la requisición, contexto del área, carga de trabajo, etc."></textarea>
-            <div class="d-flex justify-content-between">
-              <div class="pd-field-error" v-if="errores.justificacion">{{ errores.justificacion }}</div>
-              <div class="pd-char-count ms-auto">{{ form.justificacion.length }} / 2000</div>
-            </div>
-          </div>
-
-          <div class="col-12">
-            <label class="pd-label">
-              Perfil requerido
-              <span class="pd-label-hint">Experiencia, estudios, habilidades</span>
-            </label>
-            <textarea v-model="form.perfil_requerido" class="pd-textarea"
-              rows="4" maxlength="2000"
-              placeholder="Ej: Tecnólogo o profesional en áreas afines, 2 años de experiencia en..."></textarea>
-            <div class="pd-char-count">{{ form.perfil_requerido.length }} / 2000</div>
-          </div>
-
-          <div class="col-12">
-            <div v-if="errGlobal"  class="pd-alert pd-alert-error">{{ errGlobal }}</div>
-            <div v-if="okMensaje"  class="pd-alert pd-alert-success">{{ okMensaje }}</div>
-
-            <button type="submit" class="pd-btn-primary" :disabled="enviando">
-              <span v-if="!enviando"><i class="bi bi-send-fill me-2"></i>Enviar Requisición</span>
-              <span v-else><span class="pd-spinner"></span> Enviando...</span>
-            </button>
-          </div>
-
         </div>
+
+        <hr class="pd-form-divider mb-3" />
+
+        <!-- Bloque 4: Justificación -->
+        <div class="mb-3">
+          <label class="pd-label">
+            Justificación <span class="text-danger">*</span>
+            <span class="pd-label-hint">¿Por qué se necesita este cargo?</span>
+          </label>
+          <textarea v-model="form.justificacion" class="pd-textarea"
+            :class="{ error: errores.justificacion }"
+            rows="3" maxlength="2000"
+            placeholder="Describe la razón de la requisición, contexto del área, carga de trabajo, etc."></textarea>
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="pd-field-error" v-if="errores.justificacion">{{ errores.justificacion }}</div>
+            <div class="pd-char-count ms-auto">{{ form.justificacion.length }} / 2000</div>
+          </div>
+        </div>
+
+        <!-- Bloque 5: Perfil -->
+        <div class="mb-4">
+          <label class="pd-label">
+            Perfil requerido
+            <span class="pd-label-hint">Experiencia, estudios, habilidades</span>
+          </label>
+          <textarea v-model="form.perfil_requerido" class="pd-textarea"
+            rows="3" maxlength="2000"
+            placeholder="Ej: Tecnólogo o profesional en áreas afines, 2 años de experiencia en..."></textarea>
+          <div class="pd-char-count">{{ form.perfil_requerido.length }} / 2000</div>
+        </div>
+
+        <!-- Alertas y botón -->
+        <div v-if="errGlobal"  class="pd-alert pd-alert-error"><i class="bi bi-exclamation-circle-fill"></i>{{ errGlobal }}</div>
+        <div v-if="okMensaje"  class="pd-alert pd-alert-success"><i class="bi bi-check-circle-fill"></i>{{ okMensaje }}</div>
+
+        <div class="d-flex align-items-center gap-3">
+          <button type="submit" class="pd-btn-primary" :disabled="enviando">
+            <span v-if="!enviando"><i class="bi bi-send-fill me-1"></i>Enviar Requisición</span>
+            <span v-else class="d-flex align-items-center gap-2"><span class="pd-spinner"></span> Enviando...</span>
+          </button>
+          <button type="button" class="btn btn-link btn-sm text-muted p-0" @click="resetForm" v-if="!enviando">
+            Limpiar
+          </button>
+        </div>
+
       </form>
     </div>
 
     <!-- ═══ TAB: HISTORIAL ═══ -->
-    <div v-if="tab === 'historial'" class="pd-panel animate-fade">
-      <div class="pd-section-title mb-3">
-        <i class="bi bi-clock-history me-2"></i>Mis Requisiciones
-      </div>
+    <div v-if="tab === 'historial'" class="animate-fade">
 
-      <div v-if="cargandoReq" class="text-center py-4 text-muted">
+      <div v-if="cargandoReq" class="pd-panel text-center py-4 text-muted">
         <div class="pd-loading-spinner mx-auto mb-2"></div> Cargando...
       </div>
 
-      <div v-else-if="!requisiciones.length" class="pd-empty">
-        <i class="bi bi-clipboard2 pd-empty-icon"></i>
-        <p>Aún no tienes requisiciones enviadas.</p>
+      <div v-else-if="!requisiciones.length" class="pd-panel">
+        <div class="pd-empty">
+          <i class="bi bi-clipboard2 pd-empty-icon"></i>
+          <p class="mb-0" style="font-size:.85rem">Aún no tienes requisiciones enviadas.</p>
+        </div>
       </div>
 
       <div v-else class="pd-sol-list">
@@ -182,6 +194,7 @@
           <div class="pd-sol-fecha">Enviada el {{ formatFecha(r.creado_en) }}</div>
         </div>
       </div>
+
     </div>
 
   </main>

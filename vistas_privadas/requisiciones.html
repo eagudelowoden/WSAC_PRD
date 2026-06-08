@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Requisiciones · WSAC</title>
+  <link rel="icon" type="image/png" href="imagenes/doc.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="css/estilos.css" />
+  <style>
+    body { overflow: auto; }
+    #app { height: auto; min-height: 100vh; }
+
+    /* Scrollbar sutil */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+    /* Contenido */
+    .rq-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    /* Stats */
+    .rq-stats { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .rq-stat {
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      border-radius: 10px;
+      padding: 12px 16px;
+      flex: 1; min-width: 110px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .rq-stat-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem; flex-shrink: 0;
+    }
+    .rq-stat-num { font-size: 1.25rem; font-weight: 800; color: #18181b; line-height: 1; }
+    .rq-stat-lbl { font-size: .68rem; color: #71717a; margin-top: 2px; }
+
+    /* Filtros */
+    .rq-filters {
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .rq-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .rq-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #a1a1aa; font-size: .85rem; }
+    .rq-search {
+      width: 100%;
+      border: 1.5px solid #e4e4e7; border-radius: 8px;
+      padding: 7px 12px 7px 32px;
+      font-size: .83rem; font-family: 'Inter', sans-serif; color: #18181b;
+      background: #fafafa; outline: none; transition: border-color .15s;
+    }
+    .rq-search:focus { border-color: #1e3a8a; background: #fff; }
+    .rq-select {
+      border: 1.5px solid #e4e4e7; border-radius: 8px;
+      padding: 7px 12px; font-size: .82rem; font-family: 'Inter', sans-serif;
+      color: #18181b; background: #fafafa; outline: none; cursor: pointer;
+    }
+    .rq-select:focus { border-color: #1e3a8a; }
+    .rq-btn-refresh {
+      background: #1e3a8a; color: #fff; border: none; border-radius: 8px;
+      padding: 7px 12px; font-size: .82rem; cursor: pointer; transition: background .15s;
+    }
+    .rq-btn-refresh:hover { background: #1e40af; }
+
+    /* Tabla */
+    .rq-table-wrap {
+      background: #fff; border: 1px solid #e4e4e7;
+      border-radius: 10px; overflow: hidden;
+    }
+    .rq-table { width: 100%; border-collapse: collapse; }
+    .rq-table thead tr { background: #f4f4f5; }
+    .rq-table th {
+      padding: 9px 13px; font-size: .67rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: #71717a;
+      text-align: left; white-space: nowrap;
+    }
+    .rq-table td {
+      padding: 10px 13px; font-size: .82rem; color: #18181b;
+      border-top: 1px solid #f4f4f5; vertical-align: middle;
+    }
+    .rq-table tbody tr:hover { background: #fafafa; }
+    .rq-cargo { font-weight: 600; font-size: .83rem; }
+    .rq-meta  { font-size: .72rem; color: #71717a; margin-top: 1px; }
+
+    .rq-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: .67rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px; border: 1px solid; white-space: nowrap;
+    }
+    .rq-pendiente  { background:#fffbeb; color:#d97706; border-color:#fde68a; }
+    .rq-en_proceso { background:#eff6ff; color:#1e3a8a; border-color:#bfdbfe; }
+    .rq-aprobada   { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
+    .rq-rechazada  { background:#fef2f2; color:#dc2626; border-color:#fecaca; }
+
+    .rq-btn-gestionar {
+      background: none; color: #1e3a8a; border: 1.5px solid #bfdbfe;
+      border-radius: 6px; padding: 4px 11px;
+      font-size: .75rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all .15s;
+    }
+    .rq-btn-gestionar:hover { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+
+    .rq-empty { text-align: center; padding: 48px 24px; color: #a1a1aa; }
+    .rq-empty i { font-size: 2rem; display: block; margin-bottom: 8px; opacity: .35; }
+
+    /* Modal */
+    .rq-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .rq-modal {
+      background: #fff; border-radius: 14px;
+      width: 100%; max-width: 540px; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.15);
+    }
+    .rq-modal-header {
+      padding: 18px 22px 14px; border-bottom: 1px solid #f4f4f5;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .rq-modal-title { font-size: .95rem; font-weight: 700; color: #18181b; }
+    .rq-modal-sub   { font-size: .74rem; color: #71717a; margin-top: 2px; }
+    .rq-modal-close {
+      background: none; border: none; color: #a1a1aa;
+      font-size: 1rem; cursor: pointer; flex-shrink: 0; line-height: 1; padding: 2px;
+    }
+    .rq-modal-close:hover { color: #18181b; }
+    .rq-modal-body   { padding: 18px 22px; }
+    .rq-modal-footer { padding: 12px 22px; border-top: 1px solid #f4f4f5; display: flex; justify-content: flex-end; gap: 8px; }
+
+    .rq-detail-row { display: flex; gap: 8px; margin-bottom: 8px; font-size: .81rem; }
+    .rq-detail-lbl { font-weight: 600; color: #52525b; min-width: 120px; flex-shrink: 0; }
+    .rq-detail-val { color: #18181b; }
+    .rq-text-block {
+      font-size: .81rem; color: #3f3f46; background: #f9f9f9;
+      border-radius: 7px; padding: 9px 12px; line-height: 1.6; margin: 0;
+    }
+    .rq-form-label {
+      font-size: .69rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: #71717a; margin-bottom: 5px; display: block;
+    }
+    .rq-modal-select, .rq-modal-textarea {
+      width: 100%; border: 1.5px solid #e4e4e7; border-radius: 8px;
+      padding: 8px 11px; font-size: .82rem; font-family: 'Inter', sans-serif;
+      color: #18181b; background: #fafafa; outline: none;
+      transition: border-color .15s;
+    }
+    .rq-modal-textarea { resize: vertical; line-height: 1.5; }
+    .rq-modal-select:focus, .rq-modal-textarea:focus { border-color: #1e3a8a; background: #fff; }
+
+    .btn-cancel-modal {
+      background: #f4f4f5; color: #52525b; border: none; border-radius: 7px;
+      padding: 7px 15px; font-size: .81rem; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+    }
+    .btn-save-modal {
+      background: #1e3a8a; color: #fff; border: none; border-radius: 7px;
+      padding: 7px 17px; font-size: .81rem; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: background .15s;
+    }
+    .btn-save-modal:hover    { background: #1e40af; }
+    .btn-save-modal:disabled { opacity: .6; cursor: not-allowed; }
+
+    [v-cloak] { display: none; }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+
+  <!-- NAVBAR igual al resto de la app -->
+  <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between" style="flex-shrink:0;min-height:40px">
+    <div class="d-flex align-items-center gap-3">
+      <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-clipboard2-check-fill fs-6"></i>
+        <span class="small-brand">Gestión de Requisiciones</span>
+      </span>
+      <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color:rgba(255,255,255,.2)!important">
+        <a href="/panel-administrativo" class="btn-module">
+          <i class="bi bi-people"></i>
+          <span class="d-none d-lg-inline">Panel</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <div class="rq-content">
+
+    <!-- Stats -->
+    <div class="rq-stats">
+      <div class="rq-stat">
+        <div class="rq-stat-icon" style="background:#f4f4f5;color:#52525b"><i class="bi bi-clipboard2-fill"></i></div>
+        <div><div class="rq-stat-num">{{ lista.length }}</div><div class="rq-stat-lbl">Total</div></div>
+      </div>
+      <div class="rq-stat">
+        <div class="rq-stat-icon" style="background:#fffbeb;color:#d97706"><i class="bi bi-hourglass-split"></i></div>
+        <div><div class="rq-stat-num">{{ count('pendiente') }}</div><div class="rq-stat-lbl">Pendientes</div></div>
+      </div>
+      <div class="rq-stat">
+        <div class="rq-stat-icon" style="background:#eff6ff;color:#1e3a8a"><i class="bi bi-arrow-repeat"></i></div>
+        <div><div class="rq-stat-num">{{ count('en_proceso') }}</div><div class="rq-stat-lbl">En proceso</div></div>
+      </div>
+      <div class="rq-stat">
+        <div class="rq-stat-icon" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-check-circle-fill"></i></div>
+        <div><div class="rq-stat-num">{{ count('aprobada') }}</div><div class="rq-stat-lbl">Aprobadas</div></div>
+      </div>
+      <div class="rq-stat">
+        <div class="rq-stat-icon" style="background:#fef2f2;color:#dc2626"><i class="bi bi-x-circle-fill"></i></div>
+        <div><div class="rq-stat-num">{{ count('rechazada') }}</div><div class="rq-stat-lbl">Rechazadas</div></div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="rq-filters">
+      <div class="rq-search-wrap">
+        <i class="bi bi-search rq-search-icon"></i>
+        <input class="rq-search" v-model="busqueda" @input="cargar" placeholder="Buscar cargo, área, solicitante..." />
+      </div>
+      <select class="rq-select" v-model="filtroEstado" @change="cargar">
+        <option value="todas">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="en_proceso">En proceso</option>
+        <option value="aprobada">Aprobada</option>
+        <option value="rechazada">Rechazada</option>
+      </select>
+      <button class="rq-btn-refresh" @click="cargar" title="Actualizar">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="rq-table-wrap">
+      <div class="rq-empty" v-if="cargando">
+        <div class="spinner-border spinner-border-sm text-secondary mb-2"></div>
+        <p class="mb-0" style="font-size:.82rem">Cargando...</p>
+      </div>
+      <div class="rq-empty" v-else-if="!lista.length">
+        <i class="bi bi-clipboard2"></i>
+        <p class="mb-0" style="font-size:.82rem">No hay requisiciones{{ filtroEstado !== 'todas' ? ' con este estado' : '' }}.</p>
+      </div>
+      <table class="rq-table" v-else>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cargo / Área</th>
+            <th>Solicitante</th>
+            <th>Cant.</th>
+            <th>Contrato</th>
+            <th>F. Requerida</th>
+            <th>Estado</th>
+            <th>Recibida</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in lista" :key="r.id">
+            <td style="color:#a1a1aa;font-size:.72rem">{{ r.id }}</td>
+            <td>
+              <div class="rq-cargo">{{ r.cargo_requerido }}</div>
+              <div class="rq-meta">{{ r.area || '—' }}</div>
+            </td>
+            <td style="font-size:.8rem">{{ r.solicitante_nombre || '—' }}</td>
+            <td>{{ r.cantidad }}</td>
+            <td style="font-size:.78rem;color:#52525b">{{ r.tipo_contrato || '—' }}</td>
+            <td style="font-size:.76rem;color:#52525b">{{ r.fecha_requerida || '—' }}</td>
+            <td>
+              <span class="rq-badge" :class="'rq-' + r.estado">{{ labelEstado(r.estado) }}</span>
+            </td>
+            <td style="font-size:.73rem;color:#71717a">{{ r.creado_en }}</td>
+            <td>
+              <button class="rq-btn-gestionar" @click="abrirModal(r)">
+                <i class="bi bi-pencil-square me-1"></i>Gestionar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /rq-content -->
+
+  <!-- MODAL -->
+  <div class="rq-modal-backdrop" v-if="modal.open" @click.self="modal.open = false">
+    <div class="rq-modal">
+      <div class="rq-modal-header">
+        <div>
+          <div class="rq-modal-title">{{ modal.data.cargo_requerido }}</div>
+          <div class="rq-modal-sub">
+            {{ modal.data.solicitante_nombre }} · {{ modal.data.area || 'Sin área' }} · {{ modal.data.cantidad }} persona(s)
+          </div>
+        </div>
+        <button class="rq-modal-close" @click="modal.open = false"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="rq-modal-body">
+        <div class="row g-2 mb-3" style="font-size:.81rem">
+          <div class="col-6" v-if="modal.data.tipo_contrato">
+            <span style="font-weight:600;color:#52525b">Tipo contrato: </span>{{ modal.data.tipo_contrato }}
+          </div>
+          <div class="col-6" v-if="modal.data.salario_propuesto">
+            <span style="font-weight:600;color:#52525b">Salario: </span>$ {{ Number(modal.data.salario_propuesto).toLocaleString('es-CO') }}
+          </div>
+          <div class="col-6" v-if="modal.data.fecha_requerida">
+            <span style="font-weight:600;color:#52525b">F. Requerida: </span>{{ modal.data.fecha_requerida }}
+          </div>
+        </div>
+
+        <div class="mb-3" v-if="modal.data.justificacion">
+          <div class="rq-form-label">Justificación</div>
+          <p class="rq-text-block">{{ modal.data.justificacion }}</p>
+        </div>
+        <div class="mb-3" v-if="modal.data.perfil_requerido">
+          <div class="rq-form-label">Perfil requerido</div>
+          <p class="rq-text-block">{{ modal.data.perfil_requerido }}</p>
+        </div>
+
+        <hr style="border-color:#f4f4f5;margin:4px 0 16px" />
+
+        <div class="mb-3">
+          <label class="rq-form-label">Cambiar estado</label>
+          <select class="rq-modal-select" v-model="modal.estado">
+            <option value="pendiente">⏳ Pendiente</option>
+            <option value="en_proceso">🔄 En proceso</option>
+            <option value="aprobada">✅ Aprobada</option>
+            <option value="rechazada">❌ Rechazada</option>
+          </select>
+        </div>
+        <div>
+          <label class="rq-form-label">Observaciones RRHH <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea class="rq-modal-textarea" v-model="modal.observaciones" rows="3"
+            placeholder="Respuesta o comentario para el solicitante..."></textarea>
+        </div>
+      </div>
+
+      <div class="rq-modal-footer">
+        <button class="btn-cancel-modal" @click="modal.open = false">Cancelar</button>
+        <button class="btn-save-modal" @click="guardar" :disabled="modal.guardando">
+          <i class="bi bi-floppy-fill me-1"></i>{{ modal.guardando ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+  data() {
+    return {
+      lista: [], cargando: true,
+      busqueda: "", filtroEstado: "todas",
+      _t: null,
+      modal: { open: false, data: {}, estado: "pendiente", observaciones: "", guardando: false },
+    };
+  },
+  mounted() { this.cargar(); },
+  methods: {
+    async cargar() {
+      clearTimeout(this._t);
+      this._t = setTimeout(async () => {
+        this.cargando = true;
+        try {
+          const p = new URLSearchParams({ estado: this.filtroEstado });
+          if (this.busqueda.trim()) p.set("search", this.busqueda.trim());
+          const res = await fetch(`/api/requisiciones?${p}`, { credentials: "same-origin" });
+          this.lista = res.ok ? await res.json() : [];
+        } catch { this.lista = []; }
+        finally { this.cargando = false; }
+      }, 280);
+    },
+    count(e) { return this.lista.filter(r => r.estado === e).length; },
+    abrirModal(r) {
+      this.modal = { open: true, data: { ...r }, estado: r.estado,
+        observaciones: r.observaciones_rrhh || "", guardando: false };
+    },
+    async guardar() {
+      this.modal.guardando = true;
+      try {
+        const res = await fetch(`/api/requisiciones/${this.modal.data.id}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ estado: this.modal.estado, observaciones_rrhh: this.modal.observaciones }),
+        });
+        if (res.ok) {
+          this.modal.open = false;
+          await this.cargar();
+          Swal.fire({ icon: "success", title: "Guardado", timer: 1400, showConfirmButton: false,
+            customClass: { popup: "swal-custom-popup" } });
+        }
+      } catch { }
+      finally { this.modal.guardando = false; }
+    },
+    labelEstado(e) {
+      return { pendiente:"Pendiente", en_proceso:"En proceso", aprobada:"Aprobada", rechazada:"Rechazada" }[e] || e;
+    },
+  },
+}).mount("#app");
+</script>
+</body>
+</html>

@@ -21,7 +21,8 @@ const emailsRoutes = require("./routes/emails.routes");
 
 // Middlewares de auth
 const { verificarAuth, verificarSuperAdmin, verificarModulo } = require("./middlewares/auth");
-const portalRoutes = require("./routes/portal.routes");
+const portalRoutes        = require("./routes/portal.routes");
+const requisicionesRoutes = require("./routes/requisiciones.routes");
 
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -114,6 +115,7 @@ app.use("/api/admin", emailsRoutes);
 app.use("/api", apiRoutes);
 app.use("/api/descripcion-cargo", descripcionCargoRoutes);
 app.use("/api/portal", portalRoutes);
+app.use("/api/requisiciones", requisicionesRoutes);
 
 // ── VISTAS ──────────────────────────────────────────────────────
 app.get("/", (req, res) => {
@@ -138,6 +140,7 @@ app.get("/agendamiento", verificarAuth, vistaPrivada("agendamientos.html"));
 // /portal redirige al login del portal
 app.get("/portal", (req, res) => res.redirect("/portal.html"));
 app.get("/portal/inicio", verificarAuth, verificarModulo("modulo_portal"), vistaPrivada("portal-requisicion.html"));
+app.get("/requisiciones", verificarAuth, verificarModulo("modulo_requisiciones"), vistaPrivada("requisiciones.html"));
 
 // Exportamos tanto app como server (server lo necesita server.js para el listen)
 module.exports = { app, server, serverID };

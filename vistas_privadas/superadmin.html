@@ -348,6 +348,16 @@
                             <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_portal" />
                           </div>
                         </label>
+                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_requisiciones }">
+                          <div class="sa-perm-card-icon" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-clipboard2-check-fill"></i></div>
+                          <div class="sa-perm-card-body">
+                            <div class="sa-perm-card-name">Gestión Requisiciones</div>
+                            <div class="sa-perm-card-desc">Ver y gestionar solicitudes de jefes</div>
+                          </div>
+                          <div class="sa-perm-card-switch">
+                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_requisiciones" />
+                          </div>
+                        </label>
                       </div>
                     </div>
 

@@ -135,6 +135,15 @@
             </a>
 
             <a
+              v-if="modulosPermitidos.modulo_requisiciones"
+              href="/requisiciones"
+              class="btn-module"
+            >
+              <i class="bi bi-clipboard2-check"></i>
+              <span class="d-none d-lg-inline">Requisiciones</span>
+            </a>
+
+            <a
               v-if="usuarioSys?.rol === 'superadmin'"
               href="/superadmin"
               class="btn-module"

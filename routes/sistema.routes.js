@@ -29,12 +29,14 @@ router.post("/login", (req, res) => {
 
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
-          // Los usuarios con rol "jefe" solo pueden entrar por el Portal
+          // Los usuarios con rol "jefe" se redirigen al portal automáticamente
           if (user.rol === "jefe") {
-            return res.status(403).json({
-              status : "error",
-              message: "Tu usuario solo tiene acceso al Portal de Requisición. Ingresa desde /portal.html",
-              redirect: "/portal.html",
+            const tokenPayload = { id: user.id, nombre: user.nombre, rol: user.rol };
+            req.session.usuario = tokenPayload;
+            req.session.tokenSeguridad = "WSAC_SECURE_" + Date.now();
+            req.session.lastActivity = Date.now();
+            return req.session.save(() => {
+              res.json({ status: "ok", message: "Bienvenido", redirect: "/portal/inicio" });
             });
           }
 
@@ -171,16 +173,18 @@ router.get("/mis-modulos", verificarAuth, (req, res) => {
 
   if (rol === "superadmin") {
     return res.json({
-      modulo_seleccion: true,
-      modulo_nomina: true,
+      modulo_seleccion    : true,
+      modulo_nomina       : true,
       modulo_postulaciones: true,
+      modulo_requisiciones: true,
     });
   }
 
   const modulos = {
-    modulo_seleccion: false,
-    modulo_nomina: false,
+    modulo_seleccion    : false,
+    modulo_nomina       : false,
     modulo_postulaciones: false,
+    modulo_requisiciones: false,
     ...(DEFAULTS_MODULOS_POR_ROL[rol] || {}),
   };
 

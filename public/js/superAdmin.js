@@ -17,6 +17,7 @@ createApp({
         modulo_nomina: false,
         modulo_postulaciones: false,
         modulo_portal: false,
+        modulo_requisiciones: false,
         // Permisos de edición
         tarjeta_contratacion: false,
         editar_salario: false,
@@ -67,13 +68,14 @@ createApp({
       const data = await res.json();
       // Resetear mapa y asignar lo que venga de la BD
       this.mapaPermisos = {
-        modulo_seleccion: data.modulo_seleccion || false,
-        modulo_nomina: data.modulo_nomina || false,
+        modulo_seleccion    : data.modulo_seleccion     || false,
+        modulo_nomina       : data.modulo_nomina        || false,
         modulo_postulaciones: data.modulo_postulaciones || false,
-        modulo_portal: data.modulo_portal || false,
+        modulo_portal       : data.modulo_portal        || false,
+        modulo_requisiciones: data.modulo_requisiciones || false,
         tarjeta_contratacion: data.tarjeta_contratacion || false,
-        editar_salario: data.editar_salario || false,
-        editar_ciudad: data.editar_ciudad || false,
+        editar_salario      : data.editar_salario       || false,
+        editar_ciudad       : data.editar_ciudad        || false,
       };
     },
 

@@ -2,9 +2,9 @@ const db = require("../databases/db");
 
 // Defaults de módulos por rol cuando no hay permisos explícitos en DB
 const DEFAULTS_MODULOS_POR_ROL = {
-  aprobadorUno: { modulo_seleccion: true,  modulo_nomina: false, modulo_postulaciones: false, modulo_portal: false },
-  aprobadorDos: { modulo_seleccion: false, modulo_nomina: true,  modulo_postulaciones: false, modulo_portal: false },
-  jefe:         { modulo_seleccion: false, modulo_nomina: false, modulo_postulaciones: false, modulo_portal: true  },
+  aprobadorUno: { modulo_seleccion: true,  modulo_nomina: false, modulo_postulaciones: false, modulo_portal: false, modulo_requisiciones: false },
+  aprobadorDos: { modulo_seleccion: false, modulo_nomina: true,  modulo_postulaciones: false, modulo_portal: false, modulo_requisiciones: false },
+  jefe:         { modulo_seleccion: false, modulo_nomina: false, modulo_postulaciones: false, modulo_portal: true,  modulo_requisiciones: false },
 };
 
 function verificarAuth(req, res, next) {
@@ -114,7 +114,7 @@ function verificarModulo(modulo) {
         }
 
         if (results && results.length > 0) {
-          if (results[0].puede_editar === 1 || defaults[modulo]) return next();
+          if (Number(results[0].puede_editar) === 1 || defaults[modulo]) return next();
           return denegarAcceso();
         }
 
