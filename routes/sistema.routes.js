@@ -64,7 +64,10 @@ router.post("/logout", (req, res) => {
 
 // ── CHECK VERSION ────────────────────────────────────────────────
 router.get("/check-version", (req, res) => {
-  res.json({ version: req.app.locals.serverID });
+  res.json({
+    version      : req.app.locals.serverID,          // timestamp para detectar reinicios
+    appVersion   : require("../package.json").version, // semántica: "2.0.8"
+  });
 });
 
 // ── MANTENIMIENTO ────────────────────────────────────────────────
