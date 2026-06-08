@@ -15,7 +15,7 @@ router.get("/:id", verificarAuth, (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
 
     const mapaPermisos = results.reduce((acc, p) => {
-      acc[p.seccion] = p.puede_editar === 1;
+      acc[p.seccion] = Number(p.puede_editar) === 1;
       return acc;
     }, {});
     res.json(mapaPermisos);
