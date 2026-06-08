@@ -12,6 +12,12 @@ const { Server }   = require("socket.io");
 // Inicialización de BD (crea tablas y superadmin si no existen)
 const db = require("./databases/db");
 
+// ── LOGGER CONDICIONAL ───────────────────────────────────────────
+// En producción silencia los console.log informativos; los errores siempre se muestran
+const IS_DEV = process.env.NODE_ENV !== "production";
+global.log   = IS_DEV ? console.log.bind(console)  : () => {};
+global.logWarn = IS_DEV ? console.warn.bind(console) : () => {};
+
 // Middlewares de auth
 const { verificarAuth, verificarSuperAdmin, verificarModulo } = require("./middlewares/auth");
 
@@ -55,17 +61,31 @@ const transporter = nodemailer.createTransport({
 });
 
 transporter.verify((error) => {
-  if (error) console.log("❌ Error conectando al correo:", error.message);
-  else       console.log("✅ Servidor de correo listo.");
+  if (error) console.error("❌ Error conectando al correo:", error.message);
+  else       log("✅ Servidor de correo listo.");
 });
 
-// Inyectar transporter y lista de emails en cada request
-app.use((req, res, next) => {
-  req.transporter = transporter;
-  db.query("SELECT email FROM notificaciones", (err, results) => {
-    req.emailsNotificaciones = results ? results.map((r) => r.email) : [];
-    next();
-  });
+// ── CACHÉ DE EMAILS DE NOTIFICACIÓN ─────────────────────────────
+// Evita un SELECT en cada request — se refresca cada 5 minutos
+let _emailsCache    = [];
+let _emailsCacheAt  = 0;
+const EMAIL_TTL     = 5 * 60 * 1000; // 5 min
+
+async function getEmailsNotificacion() {
+  if (Date.now() - _emailsCacheAt < EMAIL_TTL) return _emailsCache;
+  try {
+    const rows     = await require("./databases/knex")("notificaciones").select("email");
+    _emailsCache   = rows.map((r) => r.email);
+    _emailsCacheAt = Date.now();
+  } catch { /* mantiene cache anterior */ }
+  return _emailsCache;
+}
+
+// Inyectar transporter y emails (desde caché) en cada request
+app.use(async (req, res, next) => {
+  req.transporter          = transporter;
+  req.emailsNotificaciones = await getEmailsNotificacion();
+  next();
 });
 
 // ── SOCKETS ──────────────────────────────────────────────────────
@@ -113,9 +133,15 @@ app.get("/requisiciones", verificarAuth, verificarModulo("modulo_requisiciones")
 // ── MANEJO CENTRALIZADO DE ERRORES ───────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  // Errores de Multer (tamaño / tipo de archivo)
+  if (err.code === "LIMIT_FILE_SIZE")
+    return res.status(413).json({ status: "error", message: "El archivo supera el límite de 20 MB." });
+  if (err.message?.startsWith("Tipo de archivo no permitido"))
+    return res.status(415).json({ status: "error", message: err.message });
+
   console.error("❌ Error no controlado:", err.message || err);
   const status  = err.status || err.statusCode || 500;
-  const message = process.env.NODE_ENV === "production" ? "Error interno del servidor" : (err.message || "Error interno");
+  const message = IS_DEV ? (err.message || "Error interno") : "Error interno del servidor";
   res.status(status).json({ status: "error", message });
 });
 

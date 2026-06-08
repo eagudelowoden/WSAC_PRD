@@ -96,9 +96,12 @@
               <span v-if="tab === 'mantenimiento'">Gestiona avisos y control de versiones</span>
             </p>
           </div>
-          <div class="sa-topbar-right">
+          <div class="sa-topbar-right d-flex align-items-center gap-2">
             <button v-if="tab === 'users'" class="sa-btn-primary" @click="abrirModalUsuario">
               <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
+            </button>
+            <button class="sa-btn-logout" @click="cerrarSesion" title="Cerrar sesión">
+              <i class="bi bi-box-arrow-right me-1"></i> Salir
             </button>
           </div>
         </header>

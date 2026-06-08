@@ -16,7 +16,17 @@ const { getSignedUrl }              = require("@aws-sdk/s3-request-presigner");
 const { s3Client, BUCKET_NAME }     = require("../services/s3Config");
 const { registrarActividad }        = require("../middlewares/auth");
 
-const upload = multer({ storage: multer.memoryStorage() });
+const MB     = 1024 * 1024;
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits : { fileSize: 20 * MB, files: 10 }, // máx 20 MB por archivo, 10 archivos
+  fileFilter(req, file, cb) {
+    const allowed = /pdf|docx?|jpe?g|png|xlsx?/i;
+    allowed.test(file.mimetype) || allowed.test(file.originalname)
+      ? cb(null, true)
+      : cb(new Error(`Tipo de archivo no permitido: ${file.originalname}`));
+  },
+});
 
 // ⚠️ /ver-archivo y /listar-firmados ANTES de /:carpeta
 
@@ -70,7 +80,7 @@ router.get("/listar-firmados/:carpeta", async (req, res) => {
   }
 });
 
-router.get("/:carpeta", async (req, res) => {
+router.get("/:carpeta", async (req, res, next) => {
   const { carpeta } = req.params;
   const sub         = req.query.sub;
   const prefijo     = sub ? `${carpeta}/${sub}/` : `${carpeta}/`;
@@ -91,12 +101,17 @@ router.get("/:carpeta", async (req, res) => {
         }),
     );
     res.json(files);
-  } catch {
-    res.json([]);
+  } catch (err) {
+    console.error("❌ S3 listar archivos:", err.message);
+    res.status(502).json({ status: "error", message: "No se pudieron cargar los archivos. Intenta de nuevo." });
   }
 });
 
 router.post("/upload-documento-colaborador", registrarActividad("Subir documento colaborador"), upload.single("file"), async (req, res, next) => {
+  // Multer envía el error de fileSize como err.code === 'LIMIT_FILE_SIZE'
+  if (req.fileValidationError)
+    return res.status(400).json({ status: "error", message: req.fileValidationError });
+
   try {
     const file = req.file;
     if (!file) return res.status(400).json({ status: "error", message: "No se recibió archivo" });

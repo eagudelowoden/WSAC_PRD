@@ -54,6 +54,19 @@ createApp({
     });
   },
   methods: {
+    async cerrarSesion() {
+      const confirm = await Swal.fire({
+        title: "¿Cerrar sesión?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, salir",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#1e3a8a",
+      });
+      if (!confirm.isConfirmed) return;
+      await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
+      window.location.href = "/login.html";
+    },
     toggleTheme() {
       this.isDarkMode = !this.isDarkMode;
       const theme = this.isDarkMode ? "dark" : "light";

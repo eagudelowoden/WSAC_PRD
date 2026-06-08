@@ -2,8 +2,19 @@ const express    = require("express");
 const router     = express.Router();
 const jwt        = require("jsonwebtoken");
 const bcrypt     = require("bcrypt");
+const rateLimit  = require("express-rate-limit");
 const db         = require("../databases/knex");
 const { verificarAuth, DEFAULTS_MODULOS_POR_ROL, JWT_SECRET } = require("../middlewares/auth");
+
+// Máximo 10 intentos de login por IP cada 15 minutos
+const loginLimiter = rateLimit({
+  windowMs       : 15 * 60 * 1000,
+  max            : 10,
+  standardHeaders: true,
+  legacyHeaders  : false,
+  message        : { status: "error", message: "Demasiados intentos. Espera 15 minutos." },
+  skipSuccessfulRequests: true, // no penaliza logins exitosos
+});
 
 // Opciones de la cookie JWT (reutilizables)
 const COOKIE_OPTS = {
@@ -14,7 +25,7 @@ const COOKIE_OPTS = {
 };
 
 // ── LOGIN ────────────────────────────────────────────────────────
-router.post("/login", async (req, res, next) => {
+router.post("/login", loginLimiter, async (req, res, next) => {
   try {
     const { usuario, password } = req.body;
     const [users] = await db.raw("SELECT * FROM usuariosSys WHERE usuario = ?", [usuario]);

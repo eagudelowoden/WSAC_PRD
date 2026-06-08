@@ -706,6 +706,28 @@ body {
   box-shadow: 0 0 0 3px rgba(30,58,138,.15);
 }
 
+.sa-btn-logout {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--v-radius-sm);
+  padding: 7px 14px;
+  font-size: 0.79rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background .12s, color .12s, border-color .12s;
+  letter-spacing: -.01em;
+}
+.sa-btn-logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
 .sa-btn-save {
   background: #1e3a8a;
   color: white;

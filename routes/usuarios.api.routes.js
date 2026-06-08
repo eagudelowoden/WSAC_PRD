@@ -50,10 +50,18 @@ router.get("/cargos-por-segmento/:segmento", async (req, res) => {
   }
 });
 
-// Listar todos los colaboradores (stored procedure)
+// Listar todos los colaboradores
 router.get("/", async (req, res, next) => {
   try {
-    const [[rows]] = await db.raw("CALL sp_ListarUsuariosResumen()");
+    const rows = await db("usuarios").select(
+      "id", "nombres", "apellidos", "documento", "telefono", "correo",
+      "cargo", "ciudad", "salario", "eps", "arl", "afp", "ccf",
+      "aprobacion", "segmento_contrato", "descripcion_cargo",
+      "tipo_contrato", "carpeta", "observaciones",
+      db.raw("DATE_FORMAT(fechaNacimiento, '%Y-%m-%d') AS fechaNacimiento"),
+      db.raw("DATE_FORMAT(fechaterminacion, '%Y-%m-%d') AS fechaterminacion"),
+      db.raw("DATE_FORMAT(fecha_suscripcion, '%Y-%m-%d') AS fecha_suscripcion"),
+    ).orderBy("id", "desc");
     res.json(rows);
   } catch (err) { next(err); }
 });
@@ -63,9 +71,21 @@ router.get("/", async (req, res, next) => {
 // Obtener colaborador por ID
 router.get("/usuario/:id", async (req, res, next) => {
   try {
-    const [[rows]] = await db.raw("CALL sp_ObtenerUsuarioPorId(?)", [req.params.id]);
-    if (!rows?.length) return res.status(404).json({ message: "Usuario no encontrado" });
-    res.json(rows[0]);
+    const row = await db("usuarios")
+      .where({ id: req.params.id })
+      .select(
+        "id", "nombres", "apellidos", "documento", "telefono", "correo", "direccion",
+        "cargo", "ciudad", "salario", "eps", "arl", "afp", "ccf",
+        "aprobacion", "otro_si", "segmento_contrato", "descripcion_cargo",
+        "tipo_contrato", "carpeta", "observaciones", "afiliaciones_familiares",
+        "curso", "correoAprendizaje", "institucion", "nitinstitucion", "centroSena",
+        db.raw("DATE_FORMAT(fechaNacimiento, '%Y-%m-%d') AS fechaNacimiento"),
+        db.raw("DATE_FORMAT(fechaterminacion, '%Y-%m-%d') AS fechaterminacion"),
+        db.raw("DATE_FORMAT(fecha_suscripcion, '%Y-%m-%d') AS fecha_suscripcion"),
+      )
+      .first();
+    if (!row) return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json(row);
   } catch (err) { next(err); }
 });
 

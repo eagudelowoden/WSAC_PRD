@@ -10,7 +10,17 @@ const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const { s3Client, BUCKET_NAME } = require("../services/s3Config");
 const { registrarActividad }    = require("../middlewares/auth");
 
-const upload      = multer({ storage: multer.memoryStorage() });
+const MB     = 1024 * 1024;
+const upload = multer({
+  storage   : multer.memoryStorage(),
+  limits    : { fileSize: 20 * MB, files: 10 },
+  fileFilter(req, file, cb) {
+    const allowed = /pdf|docx?|jpe?g|png/i;
+    allowed.test(file.mimetype) || allowed.test(file.originalname)
+      ? cb(null, true)
+      : cb(new Error(`Tipo de archivo no permitido: ${file.originalname}`));
+  },
+});
 const URL_BASE    = process.env.URL_BASE;
 const URL_BASEDEV = process.env.URL_BASEDEV || `http://localhost:${process.env.PORT}`;
 
@@ -64,14 +74,18 @@ router.post("/solicitar-subsanar", registrarActividad("Solicitar subsanación"),
   } catch (err) { next(err); }
 });
 
-// Validar token de subsanación
+// Validar token de subsanación (expira a las 72 h de haberse creado)
 router.get("/validar-token/:token", async (req, res, next) => {
   try {
     const [rows] = await db.raw(
-      "SELECT id, nombres, apellidos FROM usuarios WHERE token_subsanar = ?",
+      `SELECT id, nombres, apellidos, fecha_solicitud_subsanar
+       FROM usuarios
+       WHERE token_subsanar = ?
+         AND fecha_solicitud_subsanar >= NOW() - INTERVAL 72 HOUR`,
       [req.params.token],
     );
-    if (!rows.length) return res.status(404).json({ status: "error", message: "Enlace inválido o expirado." });
+    if (!rows.length)
+      return res.status(404).json({ status: "error", message: "Enlace inválido o expirado (72 h)." });
     res.json({ status: "ok", usuario: rows[0] });
   } catch (err) { next(err); }
 });
@@ -116,11 +130,18 @@ router.post("/subir-correccion", upload.any(), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Validar token de firma
+// Validar token de firma (expira a las 72 h)
 router.get("/validar-token-firma/:token", async (req, res, next) => {
   try {
-    const [rows] = await db.raw("SELECT id, nombres, apellidos FROM usuarios WHERE token_firma = ?", [req.params.token]);
-    if (!rows.length) return res.status(404).json({ status: "error", message: "Enlace inválido o ya utilizado." });
+    const [rows] = await db.raw(
+      `SELECT id, nombres, apellidos
+       FROM usuarios
+       WHERE token_firma = ?
+         AND fecha_solicitud_firma >= NOW() - INTERVAL 72 HOUR`,
+      [req.params.token],
+    );
+    if (!rows.length)
+      return res.status(404).json({ status: "error", message: "Enlace inválido o expirado (72 h)." });
     res.json({ status: "ok", usuario: rows[0] });
   } catch (err) { next(err); }
 });
