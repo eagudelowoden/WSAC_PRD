@@ -19,7 +19,7 @@ const { registrarActividad }        = require("../middlewares/auth");
 const MB     = 1024 * 1024;
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits : { fileSize: 20 * MB, files: 10 }, // máx 20 MB por archivo, 10 archivos
+  limits : { fileSize: 20 * MB, files: 30 }, // máx 20 MB por archivo, 30 archivos
   fileFilter(req, file, cb) {
     const allowed = /pdf|docx?|jpe?g|png|xlsx?/i;
     allowed.test(file.mimetype) || allowed.test(file.originalname)
