@@ -135,10 +135,8 @@ app.get("/postulaciones", verificarAuth, verificarModulo("modulo_postulaciones")
 app.get("/agendamiento", verificarAuth, vistaPrivada("agendamientos.html"));
 
 // ── PORTAL REQUISICIÓN (requiere login del sistema + permiso portal) ──
-app.get("/portal", (req, res) => {
-  if (!req.session?.usuario) return res.redirect("/login.html?redirect=/portal");
-  res.redirect("/portal/inicio");
-});
+// /portal redirige al login del portal
+app.get("/portal", (req, res) => res.redirect("/portal.html"));
 app.get("/portal/inicio", verificarAuth, verificarModulo("modulo_portal"), vistaPrivada("portal-requisicion.html"));
 
 // Exportamos tanto app como server (server lo necesita server.js para el listen)

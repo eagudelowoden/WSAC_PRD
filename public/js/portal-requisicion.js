@@ -125,7 +125,10 @@ createApp({
         cancelButtonText  : "Cancelar",
         customClass       : { popup: "swal-custom-popup" },
       });
-      if (isConfirmed) window.location.href = "/login.html";
+      if (isConfirmed) {
+        await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+        window.location.href = "/portal.html";
+      }
     },
 
     estadoLabel(estado) {

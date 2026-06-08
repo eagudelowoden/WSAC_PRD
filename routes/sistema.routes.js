@@ -29,6 +29,15 @@ router.post("/login", (req, res) => {
 
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if (isMatch) {
+          // Los usuarios con rol "jefe" solo pueden entrar por el Portal
+          if (user.rol === "jefe") {
+            return res.status(403).json({
+              status : "error",
+              message: "Tu usuario solo tiene acceso al Portal de Requisición. Ingresa desde /portal.html",
+              redirect: "/portal.html",
+            });
+          }
+
           const tokenPayload = {
             id: user.id,
             nombre: user.nombre,
@@ -45,10 +54,18 @@ router.post("/login", (req, res) => {
             { expiresIn: "8h" },
           );
 
+          // Si venía de un redirect (ej: /login.html?redirect=/portal/inicio), usarlo
+          const redirectParam = req.body.redirect || req.query.redirect || null;
+
           let redirectUrl = "/panel-administrativo";
-          if (user.rol === "superadmin") redirectUrl = "/superadmin";
-          else if (user.rol === "aprobadorDos")
-            redirectUrl = "/panel-aprobacionesDos";
+          if (user.rol === "superadmin")        redirectUrl = "/superadmin";
+          else if (user.rol === "aprobadorDos") redirectUrl = "/panel-aprobacionesDos";
+          else if (user.rol === "jefe")         redirectUrl = "/portal/inicio";
+
+          // Solo usar el redirect externo si es una ruta interna segura
+          if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
+            redirectUrl = redirectParam;
+          }
 
           req.session.save((err) => {
             if (err)

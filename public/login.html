@@ -139,10 +139,22 @@
               if (data.status === "ok") {
                 await Toast.fire({ icon: "success", title: "Acceso correcto" });
                 window.location.href = data.redirect;
+              } else if (data.redirect) {
+                // Usuario válido pero debe entrar por otra puerta (ej: portal)
+                await Swal.fire({
+                  title: "Acceso restringido",
+                  text: data.message,
+                  icon: "warning",
+                  confirmButtonText: "Ir al Portal",
+                  confirmButtonColor: "#1e3a8a",
+                  background: "#ffffff",
+                  color: "#0c111d",
+                });
+                window.location.href = data.redirect;
               } else {
                 Swal.fire({
                   title: "Error",
-                  text: "Credenciales inválidas",
+                  text: data.message || "Credenciales inválidas",
                   icon: "error",
                   confirmButtonColor: "#002f99",
                   background: "#ffffff",

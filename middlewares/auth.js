@@ -10,12 +10,15 @@ const DEFAULTS_MODULOS_POR_ROL = {
 function verificarAuth(req, res, next) {
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
 
+  const esAPI = req.originalUrl.startsWith("/api/");
+
   if (req.session && req.session.usuario && req.session.tokenSeguridad) {
     const ahora = Date.now();
     const diferencia = ahora - (req.session.lastActivity || ahora);
 
     if (diferencia > 30 * 60 * 1000) {
       return req.session.destroy(() => {
+        if (esAPI) return res.status(401).json({ status: "error", code: "sesion_expirada" });
         res.redirect("/login.html?error=sesion_expirada");
       });
     }
@@ -25,6 +28,7 @@ function verificarAuth(req, res, next) {
   }
 
   console.log(`🚫 Acceso denegado a ruta: ${req.originalUrl}`);
+  if (esAPI) return res.status(401).json({ status: "error", code: "auth_required" });
   res.redirect("/login.html?error=auth_required");
 }
 
@@ -92,19 +96,30 @@ function verificarModulo(modulo) {
 
     if (rol === "superadmin") return next();
 
+    const esAPI = req.originalUrl.startsWith("/api/");
+    const denegarAcceso = () => esAPI
+      ? res.status(403).json({ status: "error", code: "sin_acceso" })
+      : res.redirect("/login.html?error=sin_acceso");
+
     db.query(
       "SELECT puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion = ?",
       [id, modulo],
       (err, results) => {
-        if (results && results.length > 0) {
-          if (results[0].puede_editar === 1) return next();
-          return res.redirect("/login.html?error=sin_acceso");
+        // Defaults del rol (siempre se evalúan como red de seguridad)
+        const defaults = DEFAULTS_MODULOS_POR_ROL[rol] || {};
+
+        if (err) {
+          if (defaults[modulo]) return next();
+          return denegarAcceso();
         }
 
-        // Sin permiso explícito: usar defaults por rol
-        const defaults = DEFAULTS_MODULOS_POR_ROL[rol] || {};
+        if (results && results.length > 0) {
+          if (results[0].puede_editar === 1 || defaults[modulo]) return next();
+          return denegarAcceso();
+        }
+
         if (defaults[modulo]) return next();
-        return res.redirect("/login.html?error=sin_acceso");
+        return denegarAcceso();
       },
     );
   };
