@@ -112,10 +112,10 @@ app.use("/api", sistemaRoutes);
 app.use("/api/admin/users", usuariosRoutes);
 app.use("/api/admin/permisos", permisosRoutes);
 app.use("/api/admin", emailsRoutes);
-app.use("/api", apiRoutes);
+app.use("/api/requisiciones", requisicionesRoutes);
 app.use("/api/descripcion-cargo", descripcionCargoRoutes);
 app.use("/api/portal", portalRoutes);
-app.use("/api/requisiciones", requisicionesRoutes);
+app.use("/api", apiRoutes);
 
 // ── VISTAS ──────────────────────────────────────────────────────
 app.get("/", (req, res) => {
