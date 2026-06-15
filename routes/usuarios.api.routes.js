@@ -137,6 +137,22 @@ router.put("/usuario/:id", registrarActividad("Actualizar usuario"), async (req,
   } catch (err) { next(err); }
 });
 
+// Cambiar estado de aprobación de un colaborador (0=Sin proceso, 1=En proceso, 2=Completado, 3=Aprobado, 4=Rechazado)
+router.patch("/usuario/:id/estado", verificarAuth, registrarActividad("Cambiar estado colaborador"), async (req, res, next) => {
+  const { aprobacion, observaciones } = req.body;
+  const ESTADOS_VALIDOS = [0, 1, 2, 3, 4];
+  if (!ESTADOS_VALIDOS.includes(Number(aprobacion)))
+    return res.status(400).json({ status: "error", message: "Estado inválido." });
+
+  try {
+    const updates = { aprobacion: Number(aprobacion) };
+    if (observaciones !== undefined) updates.observaciones = String(observaciones).substring(0, 1000);
+
+    await db("usuarios").where({ id: req.params.id }).update(updates);
+    res.json({ status: "ok" });
+  } catch (err) { next(err); }
+});
+
 // Eliminar colaborador + archivos S3
 router.delete("/usuario/:id", registrarActividad("Eliminar usuario"), async (req, res, next) => {
   try {

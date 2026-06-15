@@ -6,7 +6,8 @@
 const jwt = require("jsonwebtoken");
 const db  = require("../databases/knex");
 
-const JWT_SECRET = process.env.JWT_SECRET || "Secret_WAS_Key_123";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("JWT_SECRET no está definido en las variables de entorno.");
 
 // Permisos por defecto cuando no hay fila explícita en permisos_edicion
 const DEFAULTS_MODULOS_POR_ROL = {
@@ -85,12 +86,14 @@ function verificarModulo(modulo) {
       );
 
       if (rows?.length > 0) {
+        // Registro explícito en BD — tiene prioridad absoluta sobre defaults
         const val      = rows[0].puede_editar;
         const permitido = val === 1 || val === true || val === "1";
-        if (permitido || defaults[modulo]) return next();
+        if (permitido) return next();
         return denegarAcceso();
       }
 
+      // Sin registro en BD — caer en defaults por rol
       if (defaults[modulo]) return next();
       return denegarAcceso();
     } catch {

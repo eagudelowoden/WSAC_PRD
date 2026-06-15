@@ -10,10 +10,14 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
     />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd"
+      crossorigin="anonymous"
     />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,8 +27,16 @@
       rel="stylesheet"
     />
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script
+      src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"
+      integrity="sha384-W/1Fp/LgAYO/oTn9Gs+PbeWuMuq1eQCnUMPCeg8POmMYchhzxctjEqtbiCIxDOON"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"
+      integrity="sha384-kR2tS24oEqwHzfBnAN4yxA8ib4vGEOMaANrncAlq8i0lsgvGoOzSPXFbj5dHYUZK"
+      crossorigin="anonymous"
+    ></script>
     <script src="js/actualizacion-check.js"></script>
     <script src="js/app-version.js"></script>
   </head>
@@ -79,6 +91,13 @@
             </div>
           </div>
 
+          <div
+            v-if="errorMsg"
+            style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:0.6rem 0.9rem;font-size:0.82rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem;"
+          >
+            <i class="bi bi-exclamation-circle-fill"></i> {{ errorMsg }}
+          </div>
+
           <button type="submit" class="btn-submit-premium" :disabled="loading">
             <template v-if="loading">
               <span
@@ -97,7 +116,7 @@
               class="my-4 opacity-25"
               style="border-color: rgba(0, 47, 153, 0.15)"
             />
-            <div class="footer-text">Versión <span data-app-version>2.0.8</span> • © 2026 SAC CLOUD</div>
+            <div class="footer-text">Versión <span data-app-version>2.0.9</span> • © 2026 SAC CLOUD</div>
           </div>
         </form>
       </div>
@@ -113,10 +132,16 @@
             password: "",
             loading: false,
             showPass: false,
+            errorMsg: "",
           };
         },
         methods: {
           async iniciarSesion() {
+            this.errorMsg = "";
+            if (!this.usuario.trim() || !this.password) {
+              this.errorMsg = "Completa usuario y contraseña.";
+              return;
+            }
             this.loading = true;
             const Toast = Swal.mixin({
               toast: true,
@@ -130,6 +155,7 @@
               const res = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
                 body: JSON.stringify({
                   usuario: this.usuario,
                   password: this.password,
@@ -141,17 +167,10 @@
                 await Toast.fire({ icon: "success", title: "Acceso correcto" });
                 window.location.href = data.redirect;
               } else {
-                Swal.fire({
-                  title: "Error",
-                  text: data.message || "Credenciales inválidas",
-                  icon: "error",
-                  confirmButtonColor: "#002f99",
-                  background: "#ffffff",
-                  color: "#0c111d",
-                });
+                this.errorMsg = data.message || "Credenciales inválidas";
               }
             } catch (e) {
-              Toast.fire({ icon: "error", title: "Error de conexión" });
+              this.errorMsg = "Error de conexión. Intenta de nuevo.";
             } finally {
               this.loading = false;
             }

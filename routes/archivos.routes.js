@@ -14,7 +14,7 @@ const {
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl }              = require("@aws-sdk/s3-request-presigner");
 const { s3Client, BUCKET_NAME }     = require("../services/s3Config");
-const { registrarActividad }        = require("../middlewares/auth");
+const { registrarActividad, verificarAuth } = require("../middlewares/auth");
 
 const MB     = 1024 * 1024;
 const upload = multer({
@@ -27,6 +27,9 @@ const upload = multer({
       : cb(new Error(`Tipo de archivo no permitido: ${file.originalname}`));
   },
 });
+
+// Todas las rutas de archivos requieren sesión autenticada
+router.use(verificarAuth);
 
 // ⚠️ /ver-archivo y /listar-firmados ANTES de /:carpeta
 

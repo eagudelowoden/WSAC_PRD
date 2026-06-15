@@ -8,6 +8,8 @@ const rateLimit = require("express-rate-limit");
 const db        = require("../databases/knex");
 const { verificarAuth, verificarModulo } = require("../middlewares/auth");
 
+const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
 const portalLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max     : 80,
@@ -102,17 +104,17 @@ router.post("/requisicion", async (req, res, next) => {
         html   : `
           <h3>Nueva Requisición de Personal</h3>
           <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse">
-            <tr><td style="padding:6px 12px;font-weight:bold">Solicitante</td><td>${nombre}</td></tr>
-            <tr><td style="padding:6px 12px;font-weight:bold">Área</td><td>${area || "—"}</td></tr>
-            <tr><td style="padding:6px 12px;font-weight:bold">Cargo</td><td>${cargo_requerido}</td></tr>
-            <tr><td style="padding:6px 12px;font-weight:bold">Cantidad</td><td>${cantidad}</td></tr>
-            <tr><td style="padding:6px 12px;font-weight:bold">Tipo contrato</td><td>${tipo_contrato || "—"}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Solicitante</td><td>${esc(nombre)}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Área</td><td>${esc(area) || "—"}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Cargo</td><td>${esc(cargo_requerido)}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Cantidad</td><td>${esc(cantidad)}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Tipo contrato</td><td>${esc(tipo_contrato) || "—"}</td></tr>
             <tr><td style="padding:6px 12px;font-weight:bold">Salario propuesto</td><td>${salario_propuesto ? "$ " + salario_propuesto.toLocaleString("es-CO") : "—"}</td></tr>
-            <tr><td style="padding:6px 12px;font-weight:bold">Fecha requerida</td><td>${fecha_requerida || "—"}</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:bold">Fecha requerida</td><td>${esc(fecha_requerida) || "—"}</td></tr>
           </table>
           <h4 style="margin-top:16px">Justificación</h4>
-          <p>${justificacion}</p>
-          ${perfil_requerido ? `<h4>Perfil requerido</h4><p>${perfil_requerido}</p>` : ""}
+          <p>${esc(justificacion)}</p>
+          ${perfil_requerido ? `<h4>Perfil requerido</h4><p>${esc(perfil_requerido)}</p>` : ""}
         `,
       }).catch(() => {});
     }

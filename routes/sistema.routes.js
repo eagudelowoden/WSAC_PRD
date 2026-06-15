@@ -51,7 +51,9 @@ router.post("/login", loginLimiter, async (req, res, next) => {
     else if (user.rol === "jefe")    redirectUrl = "/portal/inicio";
 
     const redirectParam = req.body.redirect || req.query.redirect || null;
-    if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
+    // Solo rutas internas: deben empezar con / pero NO con // ni /\ (open-redirect via protocol-relative)
+    const SAFE_REDIRECT = /^\/[^/\\]/;
+    if (redirectParam && SAFE_REDIRECT.test(redirectParam)) {
       redirectUrl = redirectParam;
     }
 

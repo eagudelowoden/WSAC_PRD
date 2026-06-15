@@ -1,8 +1,6 @@
 const { createApp } = Vue;
-const PORT = process.env.PORT;
-const URL_BASEDEV = process.env.URL_BASEDEV;
-// Ajusta esta URL si tu backend corre en otro puerto
-const API_URL = `${URL_BASEDEV}/api`; 
+// Usar ruta relativa: el backend sirve este archivo desde el mismo origen
+const API_URL = "/api";
 
 
 
@@ -166,35 +164,69 @@ createApp({
         // --------------------------------------------------------
         // 4. ACCIONES DE CONTRATO
         // --------------------------------------------------------
-        aprobar() {
-            if(!this.usuarioActual) return;
-            
-            Swal.fire({
+        async aprobar() {
+            if (!this.usuarioActual) return;
+
+            const { isConfirmed } = await Swal.fire({
                 title: '¿Confirmar contratación?',
                 html: `Colaborador: <b>${this.usuarioActual.nombres} ${this.usuarioActual.apellidos}</b>`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#2ecc71',
                 confirmButtonText: 'Sí, Aprobar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('¡Contratado!', 'Proceso finalizado.', 'success');
-                }
             });
+            if (!isConfirmed) return;
+
+            try {
+                Swal.showLoading();
+                const res = await fetch(`${API_URL}/usuario/${this.usuarioActual.id}/estado`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aprobacion: 3 }),
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    this.usuarioActual.aprobacion = 3;
+                    Swal.fire('¡Aprobado!', 'Estado actualizado a Aprobado.', 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo actualizar el estado.', 'error');
+                }
+            } catch {
+                Swal.fire('Error', 'Fallo de conexión con el servidor.', 'error');
+            }
         },
 
-        rechazar() {
-            Swal.fire({
+        async rechazar() {
+            if (!this.usuarioActual) return;
+
+            const { value: motivo, isConfirmed } = await Swal.fire({
                 title: 'Rechazar Candidato',
                 input: 'textarea',
-                inputPlaceholder: 'Motivo...',
+                inputPlaceholder: 'Motivo del rechazo...',
                 showCancelButton: true,
-                confirmButtonColor: '#e74c3c'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Registrado', 'Candidato rechazado.', 'info');
-                }
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Rechazar',
+                inputValidator: (v) => !v && 'Debes escribir un motivo.',
             });
+            if (!isConfirmed) return;
+
+            try {
+                Swal.showLoading();
+                const res = await fetch(`${API_URL}/usuario/${this.usuarioActual.id}/estado`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aprobacion: 4, observaciones: motivo }),
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    this.usuarioActual.aprobacion = 4;
+                    Swal.fire('Registrado', 'Candidato marcado como rechazado.', 'info');
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo actualizar el estado.', 'error');
+                }
+            } catch {
+                Swal.fire('Error', 'Fallo de conexión con el servidor.', 'error');
+            }
         },
 
         // ... dentro de methods: { ...

@@ -30,7 +30,20 @@ const serverID      = Date.now().toString();
 app.locals.serverID = serverID;
 
 // ── SEGURIDAD ────────────────────────────────────────────────────
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc : ["'self'"],
+      scriptSrc  : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net"],
+      styleSrc   : ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      fontSrc    : ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+      imgSrc     : ["'self'", "data:", "blob:"],
+      connectSrc : ["'self'", "wss:", "ws:", "https://cdn.jsdelivr.net"],
+      frameSrc   : ["'none'"],
+      objectSrc  : ["'none'"],
+    },
+  },
+}));
 
 // ── CORS ─────────────────────────────────────────────────────────
 app.use(cors({
@@ -48,8 +61,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ── ESTÁTICOS ────────────────────────────────────────────────────
-app.use(express.static("public"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static("public", { maxAge: "1d" }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), { maxAge: "1h" }));
 
 // ── CORREO ───────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
