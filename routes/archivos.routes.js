@@ -28,7 +28,56 @@ const upload = multer({
   },
 });
 
-// Todas las rutas de archivos requieren sesión autenticada
+// Ruta pública — registro de colaboradores (no requiere sesión)
+router.post("/enviar", upload.any(), async (req, res, next) => {
+  const data     = req.body;
+  const safeData = { ...data, afiliacionesFamiliares: data.afiliacionesFamiliares || "", observaciones: data.observaciones || "" };
+  const fullName = `${safeData.nombres} ${safeData.apellidos}`.trim();
+
+  // Subir archivos a S3
+  if (req.files?.length) {
+    await Promise.all(req.files.map(async (file) => {
+      try {
+        await s3Client.send(new PutObjectCommand({
+          Bucket     : BUCKET_NAME,
+          Key        : `${fullName}/${file.originalname}`,
+          Body       : file.buffer,
+          ContentType: file.mimetype,
+        }));
+      } catch { /* no crítico */ }
+    }));
+  }
+
+  try {
+    const [result] = await db("usuarios").insert({
+      nombres              : safeData.nombres,
+      apellidos            : safeData.apellidos,
+      documento            : safeData.documento,
+      telefono             : safeData.telefono,
+      direccion            : safeData.direccion,
+      correo               : safeData.correo,
+      fechaNacimiento      : safeData.fechaNacimiento,
+      afiliaciones_familiares: safeData.afiliacionesFamiliares,
+      eps                  : safeData.epsNombre,
+      arl                  : safeData.arlNombre,
+      afp                  : safeData.afpNombre,
+      ccf                  : safeData.ccfNombre,
+      carpeta              : fullName,
+    });
+
+    // Correo de confirmación al colaborador (best-effort)
+    req.transporter?.sendMail({
+      from   : `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
+      to     : safeData.correo,
+      subject: "Registro exitoso",
+      html   : `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente.</p>`,
+    }).catch(() => {});
+
+    res.status(200).json({ status: "ok", message: "Registro exitoso.", id: result });
+  } catch (err) { next(err); }
+});
+
+// Todas las demás rutas de archivos requieren sesión autenticada
 router.use(verificarAuth);
 
 // ⚠️ /ver-archivo y /listar-firmados ANTES de /:carpeta
@@ -164,54 +213,6 @@ router.delete("/eliminar-archivo", registrarActividad("Eliminar archivo"), async
   try {
     await s3Client.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
     res.json({ status: "ok", message: "Archivo eliminado de S3" });
-  } catch (err) { next(err); }
-});
-
-router.post("/enviar", upload.any(), async (req, res, next) => {
-  const data     = req.body;
-  const safeData = { ...data, afiliacionesFamiliares: data.afiliacionesFamiliares || "", observaciones: data.observaciones || "" };
-  const fullName = `${safeData.nombres} ${safeData.apellidos}`.trim();
-
-  // Subir archivos a S3
-  if (req.files?.length) {
-    await Promise.all(req.files.map(async (file) => {
-      try {
-        await s3Client.send(new PutObjectCommand({
-          Bucket     : BUCKET_NAME,
-          Key        : `${fullName}/${file.originalname}`,
-          Body       : file.buffer,
-          ContentType: file.mimetype,
-        }));
-      } catch { /* no crítico */ }
-    }));
-  }
-
-  try {
-    const [result] = await db("usuarios").insert({
-      nombres              : safeData.nombres,
-      apellidos            : safeData.apellidos,
-      documento            : safeData.documento,
-      telefono             : safeData.telefono,
-      direccion            : safeData.direccion,
-      correo               : safeData.correo,
-      fechaNacimiento      : safeData.fechaNacimiento,
-      afiliaciones_familiares: safeData.afiliacionesFamiliares,
-      eps                  : safeData.epsNombre,
-      arl                  : safeData.arlNombre,
-      afp                  : safeData.afpNombre,
-      ccf                  : safeData.ccfNombre,
-      carpeta              : fullName,
-    });
-
-    // Correo de confirmación al colaborador (best-effort)
-    req.transporter?.sendMail({
-      from   : `"WSAC Sistema" <${process.env.OUTLOOK_USER}>`,
-      to     : safeData.correo,
-      subject: "Registro exitoso",
-      html   : `<h3>Hola ${safeData.nombres},</h3><p>Tus documentos han sido recibidos correctamente.</p>`,
-    }).catch(() => {});
-
-    res.status(200).json({ status: "ok", message: "Registro exitoso.", id: result });
   } catch (err) { next(err); }
 });
 
