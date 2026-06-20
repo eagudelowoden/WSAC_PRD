@@ -5,7 +5,23 @@ on:
     branches: [main]
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
+
   deploy:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Desplegar en AWS vía SSH
@@ -17,4 +33,4 @@ jobs:
           port: 22
           fingerprint: ""
           script: |
-            powershell -Command "Set-Location 'C:\Users\Administrator\Documents\WSAC_PROD'; Write-Host '=== PASO 1:' (Get-Location); git fetch --all; Write-Host '=== PASO 2: reset'; git reset --hard origin/main; Write-Host '=== PASO 3: log'; git log --oneline -3; Write-Host '=== PASO 4: npm'; npm install --production; Write-Host '=== PASO 5: pm2'; pm2 delete wsac; pm2 start server.js --name wsac --update-env; pm2 save; Write-Host '=== DEPLOY COMPLETADO ==='"
+            powershell -Command "Set-Location 'C:\Users\Administrator\Documents\WSAC_PROD'; Write-Host '=== PASO 1:' (Get-Location); git fetch --all; Write-Host '=== PASO 2: reset'; git reset --hard origin/main; Write-Host '=== PASO 3: log'; git log --oneline -3; Write-Host '=== PASO 4: npm'; npm ci --omit=dev; Write-Host '=== PASO 5: pm2'; if (pm2 describe wsac > $null 2>&1) { pm2 reload wsac --update-env } else { pm2 start server.js --name wsac --update-env }; pm2 save; Write-Host '=== PASO 6: health check'; Start-Sleep -Seconds 5; $r = Invoke-WebRequest -Uri 'http://localhost:8081/health' -UseBasicParsing -TimeoutSec 10; if ($r.StatusCode -ne 200) { Write-Error 'Health check falló tras el deploy'; exit 1 }; Write-Host '=== DEPLOY COMPLETADO ==='"

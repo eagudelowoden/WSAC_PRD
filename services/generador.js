@@ -3,7 +3,7 @@ const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 const fs = require("fs");
 const path = require("path");
-const db = require("../databases/db");
+const db = require("../databases/knex");
 const { subirArchivo } = require("./s3Service");
 const { convertirWordAPdf } = require("./pdfConversion");
 
@@ -16,8 +16,7 @@ async function generarDocumento(
     // 1. CORRECCIÓN: Usar la tabla correcta 'usuarios'
     const sql = "SELECT * FROM usuarios WHERE id = ?";
 
-    db.query(sql, [idColaborador], async (err, results) => {
-      if (err) return reject("Error BD: " + err.message);
+    db.raw(sql, [idColaborador]).then(async ([results]) => {
       if (results.length === 0) return reject("Usuario no encontrado");
 
       const p = results[0];
@@ -179,33 +178,30 @@ async function generarDocumento(
                 `;
 
         // Ejecutamos la inserción sin esperar (fire and forget) o esperamos si prefieres
-        db.query(
-          sqlInsert,
-          [p.id, nombreArchivoPDF, resultadoS3.url],
-          (errInsert) => {
-            if (errInsert)
-              console.error(
-                "⚠️ Advertencia: Se subió el archivo pero falló el registro en BD:",
-                errInsert.message,
-              );
+        try {
+          await db.raw(sqlInsert, [p.id, nombreArchivoPDF, resultadoS3.url]);
+        } catch (errInsert) {
+          console.error(
+            "⚠️ Advertencia: Se subió el archivo pero falló el registro en BD:",
+            errInsert.message,
+          );
+        }
 
-            // Si el usuario no tenía carpeta asignada en BD, se la actualizamos
-            if (!p.carpeta) {
-              db.query("UPDATE usuariossys SET carpeta = ? WHERE id = ?", [
-                carpetaUsuario,
-                p.id,
-              ]);
-            }
+        // Si el usuario no tenía carpeta asignada en BD, se la actualizamos
+        if (!p.carpeta) {
+          db.raw("UPDATE usuariossys SET carpeta = ? WHERE id = ?", [
+            carpetaUsuario,
+            p.id,
+          ]).catch(() => {});
+        }
 
-            // RETORNAMOS ÉXITO
-            resolve({
-              status: "ok",
-              message: "PDF generado y guardado",
-              url: resultadoS3.url,
-              name: nombreArchivoPDF,
-            });
-          },
-        );
+        // RETORNAMOS ÉXITO
+        resolve({
+          status: "ok",
+          message: "PDF generado y guardado",
+          url: resultadoS3.url,
+          name: nombreArchivoPDF,
+        });
       } catch (error) {
         if (error.properties && error.properties.errors) {
           const msg = error.properties.errors
@@ -216,7 +212,7 @@ async function generarDocumento(
         console.error("Error general:", error);
         reject(error);
       }
-    });
+    }).catch((err) => reject("Error BD: " + err.message));
   });
 }
 

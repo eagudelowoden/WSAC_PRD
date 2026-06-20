@@ -1,4 +1,4 @@
-const db = require("../databases/db");
+const db = require("../databases/knex");
 const fs = require("fs");
 const path = require("path");
 const { s3Client, PutObjectCommand } = require("./s3Service"); // Cambiamos Copy por Put
@@ -14,8 +14,7 @@ async function vincularDescripcionCargo(
     // 1. Consulta de usuario para saber su carpeta de destino
     const sql = "SELECT * FROM usuarios WHERE id = ?";
 
-    db.query(sql, [idColaborador], async (err, results) => {
-      if (err) return reject("Error BD: " + err.message);
+    db.raw(sql, [idColaborador]).then(async ([results]) => {
       if (results.length === 0) return reject("Usuario no encontrado");
 
       const p = results[0];
@@ -69,24 +68,22 @@ async function vincularDescripcionCargo(
           ON DUPLICATE KEY UPDATE url = VALUES(url), fecha_carga = NOW()
         `;
 
-        db.query(
-          sqlInsert,
-          [p.id, `Descripción - ${nombreArchivoPdf}`, urlFinal],
-          (errInsert) => {
-            if (errInsert) console.error("⚠️ Error BD:", errInsert.message);
+        try {
+          await db.raw(sqlInsert, [p.id, `Descripción - ${nombreArchivoPdf}`, urlFinal]);
+        } catch (errInsert) {
+          console.error("⚠️ Error BD:", errInsert.message);
+        }
 
-            resolve({
-              status: "ok",
-              message: "Archivo subido y vinculado",
-              url: urlFinal,
-            });
-          },
-        );
+        resolve({
+          status: "ok",
+          message: "Archivo subido y vinculado",
+          url: urlFinal,
+        });
       } catch (error) {
         console.error("❌ Error durante la subida:", error);
         reject("Error al procesar archivo: " + error.message);
       }
-    });
+    }).catch((err) => reject("Error BD: " + err.message));
   });
 }
 

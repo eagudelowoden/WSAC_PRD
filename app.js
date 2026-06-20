@@ -2,15 +2,15 @@ require("dotenv").config();
 
 const express      = require("express");
 const path         = require("path");
-const helmet       = require("helmet");
 const cookieParser = require("cookie-parser");
-const cors         = require("cors");
-const nodemailer   = require("nodemailer");
 const http         = require("http");
-const { Server }   = require("socket.io");
 
 // Inicialización de BD (crea tablas y superadmin si no existen)
-const db = require("./databases/db");
+require("./databases/bootstrap");
+
+const { helmetMiddleware, corsMiddleware } = require("./config/security");
+const transporter = require("./config/mailer");
+const { initSockets } = require("./sockets");
 
 // ── LOGGER CONDICIONAL ───────────────────────────────────────────
 // En producción silencia los console.log informativos; los errores siempre se muestran
@@ -23,35 +23,18 @@ const { verificarAuth, verificarSuperAdmin, verificarModulo } = require("./middl
 
 const app    = express();
 const server = http.createServer(app);
-const io     = new Server(server);
-global.io    = io;
 
 const serverID      = Date.now().toString();
 app.locals.serverID = serverID;
 
+const io  = initSockets(server, serverID);
+global.io = io;
+
 // ── SEGURIDAD ────────────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc : ["'self'"],
-      scriptSrc  : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net"],
-      styleSrc   : ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
-      fontSrc    : ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
-      imgSrc     : ["'self'", "data:", "blob:"],
-      connectSrc : ["'self'", "wss:", "ws:", "https://cdn.jsdelivr.net", "blob:"],
-      frameSrc   : ["'self'", "blob:"],
-      objectSrc  : ["'none'"],
-    },
-  },
-}));
+app.use(helmetMiddleware);
 
 // ── CORS ─────────────────────────────────────────────────────────
-app.use(cors({
-  origin     : [process.env.URL_BASE, "http://localhost:8081", "http://127.0.0.1:8081"].filter(Boolean),
-  methods    : ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
+app.use(corsMiddleware);
 
 // ── COOKIES (necesario para leer req.cookies.wsac_token) ─────────
 app.use(cookieParser());
@@ -64,19 +47,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public", { maxAge: "1d" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), { maxAge: "1h" }));
 
-// ── CORREO ───────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host      : process.env.OUTLOOK_HOST,
-  port      : parseInt(process.env.OUTLOOK_PORT),
-  secure    : process.env.OUTLOOK_SECURE === "true",
-  requireTLS: process.env.OUTLOOK_REQUIRE_TLS === "true",
-  auth      : { user: process.env.OUTLOOK_USER, pass: process.env.OUTLOOK_PASS },
-});
-
-transporter.verify((error) => {
-  if (error) console.error("❌ Error conectando al correo:", error.message);
-  else       log("✅ Servidor de correo listo.");
-});
+// ── HEALTH CHECK (usado por el pipeline de despliegue) ───────────
+app.get("/health", (req, res) => res.json({ status: "ok", serverID }));
 
 // ── CACHÉ DE EMAILS DE NOTIFICACIÓN ─────────────────────────────
 // Evita un SELECT en cada request — se refresca cada 5 minutos
@@ -99,20 +71,6 @@ app.use(async (req, res, next) => {
   req.transporter          = transporter;
   req.emailsNotificaciones = await getEmailsNotificacion();
   next();
-});
-
-// ── SOCKETS ──────────────────────────────────────────────────────
-io.on("connection", (socket) => {
-  socket.emit("version-actual", serverID);
-
-  db.query(
-    "SELECT activo, mensaje, DATE_FORMAT(fecha, '%Y-%m-%d') as fecha FROM mantenimiento WHERE id = 1",
-    (err, result) => {
-      if (!err && result.length > 0) socket.emit("mantenimiento", result[0]);
-    },
-  );
-
-  socket.on("disconnect", () => {});
 });
 
 // ── RUTAS API (orden centralizado en routes/index.js) ────────────
