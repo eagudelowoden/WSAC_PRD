@@ -37,6 +37,36 @@
   padding: 15px 12px 5px 12px;
 }
 
+.refresh-icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 0;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.refresh-icon-btn:hover:not(:disabled) {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.refresh-icon-btn.is-spinning i {
+  display: inline-block;
+  animation: rotate-sync 0.8s infinite linear;
+  color: #3b82f6;
+}
+
+@keyframes rotate-sync {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Botón que despliega la lista */
 .btn-action-list {
   background-color: #f8f9fa;
