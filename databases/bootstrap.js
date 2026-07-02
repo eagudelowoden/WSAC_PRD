@@ -48,6 +48,14 @@ async function bootstrap() {
     `);
     console.log("✅ Tabla permisos_edicion verificada.");
 
+    const [colActivo] = await db.raw("SHOW COLUMNS FROM usuarios LIKE 'activo'");
+    if (colActivo.length === 0) {
+      await db.raw(
+        "ALTER TABLE usuarios ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1",
+      );
+      console.log("✅ Columna 'activo' agregada a usuarios.");
+    }
+
     console.log("✅ Conexión a MySQL (knex) establecida exitosamente.");
   } catch (err) {
     console.error("❌ Error inicializando BD:", err.message);

@@ -52,7 +52,7 @@ async function listarColaboradores(req, res, next) {
       db.raw("DATE_FORMAT(fechaNacimiento, '%Y-%m-%d') AS fechaNacimiento"),
       db.raw("DATE_FORMAT(fechaterminacion, '%Y-%m-%d') AS fechaterminacion"),
       db.raw("DATE_FORMAT(fecha_suscripcion, '%Y-%m-%d') AS fecha_suscripcion"),
-    ).orderBy("id", "desc");
+    ).where({ activo: 1 }).orderBy("id", "desc");
     res.json(rows);
   } catch (err) { next(err); }
 }
