@@ -3,6 +3,8 @@
    Requiere design-system.css (tokens + estilos del dropdown Opciones)
    ═══════════════════════════════════════════════════════════ */
 
+:root { --wsac-nav-h: 48px; }
+
 /* Layout: navbar fijo arriba + contenido ocupa el resto */
 body.wsac-shell {
   margin: 0;
@@ -27,14 +29,20 @@ body.wsac-shell .main-container {
 }
 
 /* ── Navbar compartido ──────────────────────────────────── */
+/* Fondo propio: NO depende de estilos.css (superadmin no lo carga). */
 .wsac-topnav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 48px;
+  min-height: var(--wsac-nav-h, 48px);
   padding: 0 18px;
+  background: linear-gradient(135deg, var(--navy-active) 0%, var(--navy) 100%);
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+/* Nota: no poner color:#fff a todos los <a>/<button> del nav — los ítems
+   del menú Opciones van sobre fondo blanco y quedarían invisibles. */
 .wsac-nav-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .wsac-topnav .navbar-brand { color: #fff !important; }
 .wsac-nav-brand { font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
@@ -85,3 +93,12 @@ body.wsac-shell .main-container {
 @media (max-width: 640px) {
   .wsac-nav-brand { display: none; }
 }
+
+/* ── Super Admin: su sidebar fijo debe empezar bajo el navbar global ── */
+body.wsac-shell .sa-sidebar {
+  top: var(--wsac-nav-h, 48px);
+  min-height: calc(100vh - var(--wsac-nav-h, 48px));
+  height: calc(100vh - var(--wsac-nav-h, 48px));
+}
+body.wsac-shell .sa-shell { min-height: 0; }
+body.wsac-shell .sa-main { min-height: 0; }

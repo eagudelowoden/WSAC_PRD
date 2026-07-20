@@ -13,6 +13,17 @@
   // Desactivamos el "drive" global para no interferir con formularios ni el resto de la app.
   try { if (window.Turbo && window.Turbo.session) window.Turbo.session.drive = false; } catch (e) {}
 
+  // El DOM de estas vistas lo renderiza Vue: si Turbo lo cachea, al volver atrás
+  // restauraría HTML ya renderizado y Vue montaría encima. Desactivamos ese caché.
+  try {
+    if (!document.querySelector('meta[name="turbo-cache-control"]')) {
+      var meta = document.createElement("meta");
+      meta.name = "turbo-cache-control";
+      meta.content = "no-cache";
+      document.head.appendChild(meta);
+    }
+  } catch (e) {}
+
   // Catálogo de módulos: orden, ruta, permiso, icono y etiqueta.
   var MODULOS = [
     { key: "seleccion",     ruta: "/panel-administrativo", perm: "modulo_seleccion",     icon: "bi-people",             label: "Colaboradores" },

@@ -24,6 +24,10 @@ async function login(req, res, next) {
     if (!isMatch)
       return res.status(401).json({ status: "error", message: "Contraseña incorrecta" });
 
+    // Cuenta desactivada por un superadmin: no se permite el acceso.
+    if (user.activo !== undefined && Number(user.activo) === 0)
+      return res.status(403).json({ status: "error", message: "Tu cuenta está desactivada. Contacta al administrador." });
+
     const payload = { id: user.id, nombre: user.nombre, rol: user.rol };
     const token   = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
 

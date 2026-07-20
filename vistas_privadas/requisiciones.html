@@ -11,6 +11,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js" integrity="sha384-kR2tS24oEqwHzfBnAN4yxA8ib4vGEOMaANrncAlq8i0lsgvGoOzSPXFbj5dHYUZK" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js" integrity="sha384-W/1Fp/LgAYO/oTn9Gs+PbeWuMuq1eQCnUMPCeg8POmMYchhzxctjEqtbiCIxDOON" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="css/design-system.css" />
+  <link rel="stylesheet" href="css/shell.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8/dist/turbo.es2017-umd.min.js"></script>
+  <script src="/js/shell-nav.js"></script>
     <link rel="stylesheet" href="css/estilos.css" />
   <style>
     body { overflow: auto; }
@@ -178,24 +181,11 @@
     [v-cloak] { display: none; }
   </style>
 </head>
-<body>
+<body class="wsac-shell" data-turbo="false">
+<nav id="wsac-topnav" class="navbar navbar-custom wsac-topnav" data-turbo-permanent aria-label="Navegación principal"></nav>
 <div id="app" v-cloak>
 
-  <!-- NAVBAR igual al resto de la app -->
-  <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between" style="flex-shrink:0;min-height:40px">
-    <div class="d-flex align-items-center gap-3">
-      <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
-        <i class="bi bi-clipboard2-check-fill fs-6"></i>
-        <span class="small-brand">Gestión de Requisiciones</span>
-      </span>
-      <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color:rgba(255,255,255,.2)!important">
-        <a href="/panel-administrativo" class="btn-module">
-          <i class="bi bi-people"></i>
-          <span class="d-none d-lg-inline">Panel</span>
-        </a>
-      </div>
-    </div>
-  </nav>
+  <!-- Navbar movido al shell compartido (#wsac-topnav) -->
 
   <!-- CONTENIDO -->
   <div class="rq-content">
@@ -358,7 +348,7 @@
 </div>
 
 <script>
-const { createApp } = Vue;
+var { createApp } = Vue; // var: con Turbo las vistas comparten contexto JS
 createApp({
   data() {
     return {

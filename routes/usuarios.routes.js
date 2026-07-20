@@ -7,12 +7,15 @@ const { verificarSuperAdmin, registrarActividad } = require("../middlewares/auth
 // Asegurar columnas cedula y fecha_nacimiento (compatible MySQL 5.7+, ignorar si ya existen)
 db.raw("ALTER TABLE usuariosSys ADD COLUMN cedula VARCHAR(20) DEFAULT NULL").catch(() => {});
 db.raw("ALTER TABLE usuariosSys ADD COLUMN fecha_nacimiento DATE DEFAULT NULL").catch(() => {});
+// Estado de la cuenta: 1 = activa, 0 = desactivada (no puede iniciar sesión)
+db.raw("ALTER TABLE usuariosSys ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1").catch(() => {});
 
 // ── Listar usuarios del sistema ──────────────────────────────────
+// Se devuelven también los desactivados (con activo=0) para poder reactivarlos.
 router.get("/", verificarSuperAdmin, async (req, res, next) => {
   try {
     const rows = await db("usuariosSys").select(
-      "id", "nombre", "usuario", "rol", "cedula",
+      "id", "nombre", "usuario", "rol", "cedula", "activo",
       db.raw("DATE_FORMAT(fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento"),
     );
     res.json(rows);
@@ -37,10 +40,32 @@ router.post("/", verificarSuperAdmin, registrarActividad("Crear usuario"), async
   }
 });
 
-// ── Eliminar usuario ─────────────────────────────────────────────
-router.delete("/:id", verificarSuperAdmin, registrarActividad("Eliminar usuario"), async (req, res, next) => {
+// ── Desactivar / reactivar usuario ───────────────────────────────
+// NO se borra el registro: se marca activo=0 para que no pueda iniciar sesión.
+// Body opcional { activo: 1 } para reactivar.
+router.patch("/:id/activo", verificarSuperAdmin, registrarActividad("Cambiar estado usuario"), async (req, res, next) => {
   try {
-    await db("usuariosSys").where({ id: req.params.id }).delete();
+    const activo = Number(req.body?.activo) === 1 ? 1 : 0;
+
+    // Evitar que el superadmin se desactive a sí mismo y pierda el acceso.
+    if (activo === 0 && Number(req.params.id) === Number(req.user?.id)) {
+      return res.status(400).json({ status: "error", message: "No puedes desactivar tu propia cuenta." });
+    }
+
+    const filas = await db("usuariosSys").where({ id: req.params.id }).update({ activo });
+    if (!filas) return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
+
+    res.json({ status: "ok", activo });
+  } catch (err) { next(err); }
+});
+
+// Compatibilidad: el antiguo DELETE ahora desactiva (nunca borra).
+router.delete("/:id", verificarSuperAdmin, registrarActividad("Desactivar usuario"), async (req, res, next) => {
+  try {
+    if (Number(req.params.id) === Number(req.user?.id)) {
+      return res.status(400).json({ status: "error", message: "No puedes desactivar tu propia cuenta." });
+    }
+    await db("usuariosSys").where({ id: req.params.id }).update({ activo: 0 });
     res.json({ status: "ok" });
   } catch (err) { next(err); }
 });

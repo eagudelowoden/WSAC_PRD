@@ -416,6 +416,43 @@ body {
 .sa-badge-role.editor     { background: var(--v-orange-soft); color: var(--v-orange); border-color: var(--v-orange-border); }
 .sa-badge-role.admin      { background: var(--v-blue-soft);   color: var(--v-blue);   border-color: var(--v-blue-border); }
 
+/* ── Estado de cuenta (activo / inactivo) ── */
+.sa-pill-activo   { background: var(--v-green-soft); color: var(--v-green); border-color: var(--v-green-border); }
+.sa-pill-inactivo { background: var(--v-border-2);   color: var(--v-text-3); border-color: var(--v-border); }
+
+/* Fila atenuada cuando la cuenta está desactivada */
+.sa-table tbody tr:has(.sa-pill-inactivo) td { opacity: 0.62; }
+.sa-table tbody tr:has(.sa-pill-inactivo):hover td { opacity: 1; }
+
+/* Botón desactivar / reactivar */
+.sa-btn-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--v-card);
+  border: 1px solid var(--v-border);
+  color: var(--v-text-2);
+  border-radius: var(--v-radius-sm);
+  padding: 5px 11px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .14s;
+  white-space: nowrap;
+}
+.sa-btn-estado:hover {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309; /* ámbar de advertencia (el acento ya es navy) */
+}
+/* Cuando está inactivo, la acción es reactivar (acento navy) */
+.sa-btn-estado.is-off:hover {
+  background: var(--navy-soft);
+  border-color: var(--navy-bd);
+  color: var(--navy);
+}
+
 .sa-btn-delete {
   background: white;
   border: 1px solid var(--v-border);

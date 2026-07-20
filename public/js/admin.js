@@ -1,13 +1,14 @@
-const { createApp } = Vue;
+// var (no const): con Turbo las vistas comparten contexto JS y const rompería al redeclarar.
+var { createApp } = Vue;
 // const PORT = process.env.PORT;
-const API_URL = "/api";
-const Router_URL = "/routes";
-const Pdf = "/servicePdf";
+var API_URL = "/api";
+var Router_URL = "/routes";
+var Pdf = "/servicePdf";
 
 // =======================================================
 // 1. DEFINIMOS LA LÓGICA DE SEGMENTOS AQUÍ MISMO
 // =======================================================
-const SegmentosMixin = {
+var SegmentosMixin = {
   data() {
     return {
       listaSegmentos: [], // Carpetas de segmentos
@@ -817,31 +818,34 @@ createApp({
 
     async eliminarUsuario(id) {
       const result = await Swal.fire({
-        title: "¿Eliminar colaborador?",
-        html: '<span style="font-size:0.88rem;color:#64748b;">Esta acción no se puede revertir.</span>',
+        title: "¿Desactivar colaborador?",
+        html: '<span style="font-size:0.88rem;color:#64748b;">Dejará de aparecer en el listado, pero <b>no se borra</b>: se conservan sus datos y documentos.</span>',
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: "#b45309",
         cancelButtonColor: "#6c757d",
-        confirmButtonText: "Sí, eliminar",
+        confirmButtonText: "Sí, desactivar",
         cancelButtonText: "Cancelar",
         customClass: { popup: "swal-custom-popup" },
       });
 
       if (!result.isConfirmed) return;
 
-      // 2. Enviar petición de borrado al Backend
+      // 2. Desactivar en el backend (activo = 0). No se elimina nada.
       try {
         Swal.showLoading();
 
-        const response = await fetch(`${API_URL}/usuario/${id}`, {
-          method: "DELETE",
+        const response = await fetch(`${API_URL}/usuario/${id}/activo`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ activo: 0 }),
         });
 
         const data = await response.json();
 
         if (data.status === "ok") {
-          Swal.fire({ icon: "success", title: "Colaborador eliminado", timer: 1800, showConfirmButton: false, customClass: { popup: "swal-custom-popup" } });
+          Swal.fire({ icon: "success", title: "Colaborador desactivado", timer: 1800, showConfirmButton: false, customClass: { popup: "swal-custom-popup" } });
 
           // 3. Actualizar la interfaz
           this.obtenerListaUsuarios(); // Recargar la lista
@@ -862,7 +866,7 @@ createApp({
         }
       } catch (error) {
         console.error(error);
-        Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el colaborador.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo desactivar el colaborador.", confirmButtonColor: "#0b2e70", customClass: { popup: "swal-custom-popup" } });
       }
     },
 

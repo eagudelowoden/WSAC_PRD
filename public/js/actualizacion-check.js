@@ -1,11 +1,12 @@
-const URL_BASEDEV = window.location.origin || "http://localhost:8081";
-const URL_BASEDEPRD = window.location.origin || "http://3.133.217.145:8081";
-const PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
-const isLocal = window.location.hostname === "localhost";
+// var (no const): con Turbo las vistas comparten contexto JS y const rompería al redeclarar.
+var URL_BASEDEV = window.location.origin || "http://localhost:8081";
+var URL_BASEDEPRD = window.location.origin || "http://3.133.217.145:8081";
+var PORT = "8081"; // Si usas HTTPS estándar, el puerto va vacío o integrado en la URL
+var isLocal = window.location.hostname === "localhost";
 //FIX PARA ACTULIZACION
 //FIX DOS
 //FIX TRES
-const BASE_URL =
+var BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:8081"
     : "https://saw.woden.com.co/api-backend"; // Un alias en tu servidor

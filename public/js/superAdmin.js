@@ -1,4 +1,5 @@
-const { createApp } = Vue;
+// var (no const): con Turbo las vistas comparten contexto JS y const rompería al redeclarar.
+var { createApp } = Vue;
 createApp({
   data() {
     return {
@@ -281,22 +282,48 @@ createApp({
       }
     },
 
-    async eliminarUsuario(id) {
+    // Desactiva o reactiva la cuenta. Nunca se borra el registro.
+    async toggleActivoUsuario(u) {
+      const desactivar = Number(u.activo) !== 0;
+
       const result = await Swal.fire({
-        title: "¿Eliminar usuario?",
-        text: "Esta acción no se puede deshacer.",
-        icon: "warning",
+        title: desactivar ? "¿Desactivar usuario?" : "¿Reactivar usuario?",
+        text: desactivar
+          ? `${u.nombre} no podrá iniciar sesión. Puedes reactivarlo cuando quieras.`
+          : `${u.nombre} volverá a tener acceso al sistema.`,
+        icon: desactivar ? "warning" : "question",
         showCancelButton: true,
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: desactivar ? "#b45309" : "#0b2e70",
         cancelButtonColor: "#6c757d",
-        confirmButtonText: "Sí, eliminar",
+        confirmButtonText: desactivar ? "Sí, desactivar" : "Sí, reactivar",
         cancelButtonText: "Cancelar",
         customClass: { popup: "swal-custom-popup" },
       });
-      if (result.isConfirmed) {
-        await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
-        this.cargarDatos();
+      if (!result.isConfirmed) return;
+
+      const res = await fetch(`/api/admin/users/${u.id}/activo`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ activo: desactivar ? 0 : 1 }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.status !== "ok") {
+        return Swal.fire({
+          icon: "error",
+          title: "No se pudo cambiar el estado",
+          text: data.message || "Intenta de nuevo.",
+          customClass: { popup: "swal-custom-popup" },
+        });
       }
+
+      this.cargarDatos();
+      Swal.fire({
+        toast: true, position: "top-end", timer: 1800, showConfirmButton: false,
+        icon: "success",
+        title: desactivar ? "Usuario desactivado" : "Usuario reactivado",
+      });
     },
 
     // --- LÓGICA EMAILS ---

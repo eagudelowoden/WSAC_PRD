@@ -23,8 +23,15 @@
   <script src="/socket.io/socket.io.js"></script>
 
 
-  <script>
-    document.write('<script src="/js/actualizacion-check.js?v=' + Date.now() + '"><\/script>');
+  <script data-turbo-eval="false">
+    // No usar document.write: con Turbo borraría el documento (pantalla en blanco).
+    (function () {
+      if (window.__wsacUpdCheck) return;
+      window.__wsacUpdCheck = true;
+      var s = document.createElement("script");
+      s.src = "/js/actualizacion-check.js?v=" + Date.now();
+      document.head.appendChild(s);
+    })();
   </script>
   <style>
     body, .swal2-popup {
@@ -176,8 +183,8 @@
                 <i class="bi bi-save me-1"></i> Guardar Datos
               </button>
               <button class="btn-delete-soft" @click="eliminarUsuario(usuarioActual.id)"
-                title="Eliminar usuario">
-                <i class="bi bi-trash"></i>
+                title="Desactivar colaborador">
+                <i class="bi bi-person-slash"></i>
               </button>
             </div>
           </div>

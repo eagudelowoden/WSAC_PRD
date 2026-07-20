@@ -2,11 +2,7 @@ const db         = require("../databases/knex");
 const path       = require("path");
 const fs         = require("fs");
 const fsPromises = require("fs").promises;
-const {
-  PutObjectCommand,
-  ListObjectsV2Command,
-  DeleteObjectsCommand,
-} = require("@aws-sdk/client-s3");
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const { s3Client, BUCKET_NAME } = require("../services/s3Config");
 
 const RUTA_SEGMENTOS = process.env.SEGMENTOS;
@@ -139,26 +135,20 @@ async function cambiarEstadoColaborador(req, res, next) {
   } catch (err) { next(err); }
 }
 
-async function eliminarColaborador(req, res, next) {
+// Desactiva al colaborador (activo = 0). NO borra el registro ni sus archivos de S3:
+// el histórico documental debe conservarse. Los listados ya filtran por activo = 1.
+async function desactivarColaborador(req, res, next) {
   try {
-    const [rows] = await db.raw("SELECT carpeta FROM usuarios WHERE id = ?", [req.params.id]);
-    if (!rows.length) return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
+    const activo = Number(req.body?.activo) === 1 ? 1 : 0;
 
-    const folderName = rows[0].carpeta;
-    if (folderName) {
-      const listResp = await s3Client.send(
-        new ListObjectsV2Command({ Bucket: BUCKET_NAME, Prefix: folderName + "/" }),
-      );
-      if (listResp.Contents?.length > 0) {
-        await s3Client.send(new DeleteObjectsCommand({
-          Bucket: BUCKET_NAME,
-          Delete: { Objects: listResp.Contents.map((i) => ({ Key: i.Key })) },
-        }));
-      }
-    }
+    const filas = await db("usuarios").where({ id: req.params.id }).update({ activo });
+    if (!filas) return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
 
-    await db("usuarios").where({ id: req.params.id }).delete();
-    res.json({ status: "ok", message: "Usuario y archivos eliminados" });
+    res.json({
+      status : "ok",
+      activo,
+      message: activo === 1 ? "Colaborador reactivado" : "Colaborador desactivado",
+    });
   } catch (err) { next(err); }
 }
 
@@ -170,5 +160,7 @@ module.exports = {
   obtenerColaborador,
   actualizarColaborador,
   cambiarEstadoColaborador,
-  eliminarColaborador,
+  desactivarColaborador,
+  // Alias para no romper importaciones existentes (ya no elimina: desactiva).
+  eliminarColaborador: desactivarColaborador,
 };

@@ -22,6 +22,9 @@ router.get("/", ctrl.listarColaboradores);
 router.get("/usuario/:id", ctrl.obtenerColaborador);
 router.put("/usuario/:id", registrarActividad("Actualizar usuario"), ctrl.actualizarColaborador);
 router.patch("/usuario/:id/estado", verificarAuth, registrarActividad("Cambiar estado colaborador"), ctrl.cambiarEstadoColaborador);
-router.delete("/usuario/:id", registrarActividad("Eliminar usuario"), ctrl.eliminarColaborador);
+// Desactivar / reactivar colaborador (nunca se borra el registro ni sus archivos).
+router.patch("/usuario/:id/activo", verificarAuth, registrarActividad("Cambiar estado activo colaborador"), ctrl.desactivarColaborador);
+// Compatibilidad: el antiguo DELETE ahora desactiva.
+router.delete("/usuario/:id", registrarActividad("Desactivar colaborador"), ctrl.desactivarColaborador);
 
 module.exports = router;
