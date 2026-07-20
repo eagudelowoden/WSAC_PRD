@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #4e73df;
+    --primary-color: var(--navy);
     --secondary-color: #858796;
     --bg-color: #f3f4f6;
     --card-bg: #ffffff;
@@ -91,7 +91,7 @@ input[type="file"].form-control:hover {
 
 /* Botón de envío */
 .btn-submit {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-h) 100%);
     border: none;
     padding: 15px;
     font-weight: 600;

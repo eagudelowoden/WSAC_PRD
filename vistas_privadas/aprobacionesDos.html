@@ -11,7 +11,11 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/design-system.css" />
+  <link rel="stylesheet" href="css/shell.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8/dist/turbo.es2017-umd.min.js"></script>
+  <script src="/js/shell-nav.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
   <link rel="stylesheet" href="css/aprobacionesDos.css" />
 
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js" integrity="sha384-W/1Fp/LgAYO/oTn9Gs+PbeWuMuq1eQCnUMPCeg8POmMYchhzxctjEqtbiCIxDOON" crossorigin="anonymous"></script>
@@ -47,8 +51,8 @@
 
 </head>
 
-<body>
-
+<body class="wsac-shell" data-turbo="false">
+  <nav id="wsac-topnav" class="navbar navbar-custom wsac-topnav" data-turbo-permanent aria-label="Navegación principal"></nav>
   <div id="app">
     <transition name="slide-down">
       <div v-if="avisoGlobal && avisoGlobal.activo" class="official-banner">
@@ -67,66 +71,8 @@
         </div>
       </div>
     </transition>
-    <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
-      style="flex-shrink: 0; min-height: 40px;">
+    <!-- Navbar movido al shell compartido (#wsac-topnav) -->
 
-      <div class="d-flex align-items-center gap-3">
-        <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
-          <i class="bi bi-building-gear fs-6"></i>
-          <span class="small-brand">Gestión Área de Nómina y Contratación</span>
-        </span>
-
-        <div class="nav-modules d-flex gap-2 border-start ps-3" style="border-color: rgba(255,255,255,0.2) !important;">
-          <a v-if="modulosPermitidos.modulo_seleccion" href="/panel-administrativo" class="btn-module">
-            <i class="bi bi-people"></i>
-            <span class="d-none d-lg-inline">Colaboradores</span>
-          </a>
-
-          <a v-if="modulosPermitidos.modulo_nomina" href="/panel-aprobacionesDos" class="btn-module active">
-            <i class="bi bi-cash-stack"></i>
-            <span class="d-none d-lg-inline">Nómina</span>
-          </a>
-
-          <a v-if="modulosPermitidos.modulo_postulaciones" href="/postulaciones" class="btn-module">
-            <i class="bi bi-file-earmark-text"></i>
-            <span class="d-none d-lg-inline">Postulaciones</span>
-          </a>
-
-          <a v-if="usuarioSys?.rol === 'superadmin'" href="/superadmin" class="btn-module">
-            <i class="bi bi-shield-lock"></i>
-            <span class="d-none d-lg-inline">Super Admin</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="d-flex align-items-center">
-        <div class="dropdown">
-          <button
-            class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 user-dropdown-btn py-0"
-            type="button" @click="menuAbierto = !menuAbierto">
-
-            <div class="avatar-circle-sm">
-              {{ usuarioSys?.nombre?.charAt(0).toUpperCase() || '?' }}
-            </div>
-
-            <span class="extra-small d-none d-md-inline" v-if="usuarioSys && usuarioSys.nombre">
-              {{ usuarioSys.nombre }}
-            </span>
-            <i class="bi bi-chevron-down x-small"></i>
-          </button>
-
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" :class="{ 'show': menuAbierto }"
-            style="position: absolute; right: 0; font-size: 0.8rem;">
-            <li>
-              <button class="dropdown-item text-danger d-flex align-items-center gap-2" @click="cerrarSesion">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Cerrar Sesión</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
 
 
     <div class="main-container">
@@ -152,72 +98,61 @@
             <i class="bi bi-search search-inside-icon"></i>
             <input type="text" class="form-control pro-search-input" v-model="busqueda"
               placeholder="Buscar nombre..." />
+            <button v-if="busqueda" class="search-clear-btn" @click="busqueda = ''" title="Limpiar">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
 
-          <div class="dropdown w-100">
-            <button ref="dropdownBoton" class="mini-select-btn w-100" type="button" data-bs-toggle="dropdown"
-              :class="filtroEstado">
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                  <span class="mini-status-dot me-2" :class="'bg-' + filtroEstado"></span>
-                  <span class="mini-text">{{ filtroEstado }}</span>
-                </div>
-                <i class="bi bi-chevron-expand opacity-50" style="font-size: 0.65rem;"></i>
-              </div>
+          <!-- Filtro segmentado -->
+          <div class="seg-filter">
+            <button type="button" :class="{ on: filtroEstado === 'pendientes' }"
+              @click="seleccionarFiltro('pendientes')">
+              <span class="seg-dot bg-pendientes"></span>Pendientes
             </button>
-
-            <ul class="dropdown-menu mini-dropdown-menu shadow-sm border-0">
-              <li>
-                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('pendientes')">
-                  <span class="dot-xs bg-pendientes"></span> Pendientes
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('aprobados')">
-                  <span class="dot-xs bg-aprobados"></span> Aprobados
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider my-1 opacity-50">
-              </li>
-              <li>
-                <a class="dropdown-item mini-item" href="#" @click.prevent="seleccionarFiltro('todos')">
-                  <span class="dot-xs bg-todos"></span> Todos
-                </a>
-              </li>
-            </ul>
+            <button type="button" :class="{ on: filtroEstado === 'aprobados' }"
+              @click="seleccionarFiltro('aprobados')">
+              <span class="seg-dot bg-aprobados"></span>Aprobados
+            </button>
+            <button type="button" :class="{ on: filtroEstado === 'todos' }"
+              @click="seleccionarFiltro('todos')">
+              <span class="seg-dot bg-todos"></span>Todos
+            </button>
           </div>
         </div>
 
-        <div class="user-list-container">
-          <div class="px-2" v-show="!sidebarContraida">
-            <button class="btn btn-sm btn-light w-100 d-flex justify-content-between align-items-center border mb-2"
-              @click="listaAbierta = !listaAbierta">
-              <span class="small fw-bold">Ver Lista de Usuarios</span>
-              <i class="bi" :class="listaAbierta ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-            </button>
+        <!-- Lista con desplegable; en modo riel muestra solo avatares -->
+        <div class="user-list-container px-2 pt-2">
+          <button class="collab-head" v-show="!sidebarContraida" :class="{ open: listaAbierta }"
+            @click="listaAbierta = !listaAbierta">
+            <span class="collab-head-l"><i class="bi bi-people-fill"></i> Lista de colaboradores</span>
+            <span class="collab-head-r">
+              <span class="collab-count">{{ usuariosFiltrados.length }}</span>
+              <i class="bi bi-chevron-down collab-chev"></i>
+            </span>
+          </button>
 
-            <div v-if="listaAbierta">
+          <transition name="collab">
+            <div v-show="listaAbierta || sidebarContraida" class="collab-body">
               <div v-if="cargandoUsuarios" class="text-center py-3">
                 <div class="spinner-border spinner-border-sm text-primary"></div>
               </div>
 
-              <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini"
-                :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)">
-
-                <div class="user-avatar-mini">
-                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </div>
-
-                <div class="user-info-mini">
-                  {{ u.nombres }} {{ u.apellidos }}
-                </div>
+              <div v-else-if="!usuariosFiltrados.length" class="sidebar-empty" v-show="!sidebarContraida">
+                <i class="bi bi-search"></i>
+                <span>Sin resultados</span>
               </div>
+
+              <template v-else>
+                <div v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini"
+                  :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)"
+                  :title="u.nombres + ' ' + u.apellidos">
+                  <div class="user-avatar-mini">{{ (u.nombres || '?').charAt(0) }}{{ (u.apellidos || '').charAt(0) }}</div>
+                  <div class="user-info-mini">{{ u.nombres }} {{ u.apellidos }}</div>
+                  <i class="bi bi-check-circle-fill user-check" v-if="usuarioActual?.id === u.id"></i>
+                </div>
+              </template>
             </div>
-          </div>
+          </transition>
         </div>
       </div>
 
@@ -531,7 +466,7 @@
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden mt-0 w-100"
                 style="background-color: #ffffff;">
                 <div class="card-header border-0 d-flex align-items-center justify-content-between py-2 px-3"
-                  style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">
+                  style="background: linear-gradient(135deg, var(--navy) 0%, var(--navy-h) 100%);">
                   <div class="d-flex align-items-center">
                     <i class="bi bi-file-earmark-word text-white me-2"></i>
                     <span class="text-white fw-bold small">Documentos Generados</span>
@@ -649,7 +584,7 @@
               <div class="col-12">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                   <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center"
-                    style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">
+                    style="background: linear-gradient(135deg, var(--navy) 0%, var(--navy-h) 100%);">
                     <div class="d-flex align-items-center">
                       <i class="bi bi-folder2-open text-info me-2"></i>
                       <span class="text-white fw-bold small text-uppercase">Archivos Cargados</span>

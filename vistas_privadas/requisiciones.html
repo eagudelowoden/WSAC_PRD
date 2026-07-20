@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js" integrity="sha384-kR2tS24oEqwHzfBnAN4yxA8ib4vGEOMaANrncAlq8i0lsgvGoOzSPXFbj5dHYUZK" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js" integrity="sha384-W/1Fp/LgAYO/oTn9Gs+PbeWuMuq1eQCnUMPCeg8POmMYchhzxctjEqtbiCIxDOON" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/design-system.css" />
+    <link rel="stylesheet" href="css/estilos.css" />
   <style>
     body { overflow: auto; }
     #app { height: auto; min-height: 100vh; }
@@ -63,18 +64,18 @@
       font-size: .83rem; font-family: 'Inter', sans-serif; color: #18181b;
       background: #fafafa; outline: none; transition: border-color .15s;
     }
-    .rq-search:focus { border-color: #1e3a8a; background: #fff; }
+    .rq-search:focus { border-color: var(--navy); background: #fff; }
     .rq-select {
       border: 1.5px solid #e4e4e7; border-radius: 8px;
       padding: 7px 12px; font-size: .82rem; font-family: 'Inter', sans-serif;
       color: #18181b; background: #fafafa; outline: none; cursor: pointer;
     }
-    .rq-select:focus { border-color: #1e3a8a; }
+    .rq-select:focus { border-color: var(--navy); }
     .rq-btn-refresh {
-      background: #1e3a8a; color: #fff; border: none; border-radius: 8px;
+      background: var(--navy); color: #fff; border: none; border-radius: 8px;
       padding: 7px 12px; font-size: .82rem; cursor: pointer; transition: background .15s;
     }
-    .rq-btn-refresh:hover { background: #1e40af; }
+    .rq-btn-refresh:hover { background: var(--navy-h); }
 
     /* Tabla */
     .rq-table-wrap {
@@ -102,17 +103,17 @@
       padding: 2px 8px; border-radius: 20px; border: 1px solid; white-space: nowrap;
     }
     .rq-pendiente  { background:#fffbeb; color:#d97706; border-color:#fde68a; }
-    .rq-en_proceso { background:#eff6ff; color:#1e3a8a; border-color:#bfdbfe; }
+    .rq-en_proceso { background:#eff6ff; color:var(--navy); border-color:#bfdbfe; }
     .rq-aprobada   { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
     .rq-rechazada  { background:#fef2f2; color:#dc2626; border-color:#fecaca; }
 
     .rq-btn-gestionar {
-      background: none; color: #1e3a8a; border: 1.5px solid #bfdbfe;
+      background: none; color: var(--navy); border: 1.5px solid #bfdbfe;
       border-radius: 6px; padding: 4px 11px;
       font-size: .75rem; font-weight: 600; font-family: 'Inter', sans-serif;
       cursor: pointer; transition: all .15s;
     }
-    .rq-btn-gestionar:hover { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+    .rq-btn-gestionar:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
 
     .rq-empty { text-align: center; padding: 48px 24px; color: #a1a1aa; }
     .rq-empty i { font-size: 2rem; display: block; margin-bottom: 8px; opacity: .35; }
@@ -159,7 +160,7 @@
       transition: border-color .15s;
     }
     .rq-modal-textarea { resize: vertical; line-height: 1.5; }
-    .rq-modal-select:focus, .rq-modal-textarea:focus { border-color: #1e3a8a; background: #fff; }
+    .rq-modal-select:focus, .rq-modal-textarea:focus { border-color: var(--navy); background: #fff; }
 
     .btn-cancel-modal {
       background: #f4f4f5; color: #52525b; border: none; border-radius: 7px;
@@ -167,11 +168,11 @@
       font-family: 'Inter', sans-serif; cursor: pointer;
     }
     .btn-save-modal {
-      background: #1e3a8a; color: #fff; border: none; border-radius: 7px;
+      background: var(--navy); color: #fff; border: none; border-radius: 7px;
       padding: 7px 17px; font-size: .81rem; font-weight: 600;
       font-family: 'Inter', sans-serif; cursor: pointer; transition: background .15s;
     }
-    .btn-save-modal:hover    { background: #1e40af; }
+    .btn-save-modal:hover    { background: var(--navy-h); }
     .btn-save-modal:disabled { opacity: .6; cursor: not-allowed; }
 
     [v-cloak] { display: none; }
@@ -210,7 +211,7 @@
         <div><div class="rq-stat-num">{{ count('pendiente') }}</div><div class="rq-stat-lbl">Pendientes</div></div>
       </div>
       <div class="rq-stat">
-        <div class="rq-stat-icon" style="background:#eff6ff;color:#1e3a8a"><i class="bi bi-arrow-repeat"></i></div>
+        <div class="rq-stat-icon" style="background:#eff6ff;color:var(--navy)"><i class="bi bi-arrow-repeat"></i></div>
         <div><div class="rq-stat-num">{{ count('en_proceso') }}</div><div class="rq-stat-lbl">En proceso</div></div>
       </div>
       <div class="rq-stat">

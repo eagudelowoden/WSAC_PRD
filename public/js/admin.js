@@ -23,6 +23,7 @@ const SegmentosMixin = {
       usuarioSys: null,
       cargandoUsuarios: false, // 1. AGREGAR ESTA VARIABLE
       menuAbierto: false, // Controla si se ve el menú
+      opcionesAbierto: false, // Controla el desplegable de módulos (navbar)
       sidebarContraida: false,
       archivosSeleccionados: [],
       estadoArchivos: [],
@@ -433,7 +434,7 @@ createApp({
       filtroEstado: "todos",
       busqueda: "",
       sidebarContraida: false,
-      listaAbierta: false, // Controla si se ven los usuarios
+      listaAbierta: true, // Controla si se ven los usuarios (desplegable abierto por defecto)
 
       form: {
         cargo: "",

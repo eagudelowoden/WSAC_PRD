@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════════════
+   WSAC · SISTEMA DE DISEÑO (fuente única de verdad)
+   Dirección: Vercel + GitHub · Modo claro · Azul marino profundo
+   Cárgalo ANTES del CSS propio de cada vista.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Acento: azul marino profundo (cámbialo aquí y afecta todo) ── */
+  --navy:        #0b2e70;
+  --navy-h:      #082353;   /* hover / pressed */
+  --navy-active: #061b41;   /* estado activo profundo */
+  --navy-soft:   #eef2fa;   /* fondos suaves */
+  --navy-soft-2: #dfe7f5;
+  --navy-bd:     #c3d0ea;   /* bordes suaves */
+  --navy-on:     #ffffff;   /* texto sobre navy */
+
+  /* ── Neutros (sesgo frío hacia el acento) ── */
+  --page:      #f7f8fa;
+  --surface:   #ffffff;
+  --surface-2: #fafafa;
+  --surface-3: #f4f4f6;
+  --border:    #e8e8ec;
+  --border-2:  #d9d9df;
+  --text:      #18181b;
+  --text-2:    #52525b;
+  --text-3:    #8b8b95;
+
+  /* ── Color semántico de estado (independiente del acento) ── */
+  --warn: #b45309; --warn-soft: #fffbeb; --warn-bd: #fde68a;
+  --info: #1d4ed8; --info-soft: #eff6ff; --info-bd: #bfdbfe;
+  --ok:   #15803d; --ok-soft:   #f0fdf4; --ok-bd:   #bbf7d0;
+  --dang: #b91c1c; --dang-soft: #fef2f2; --dang-bd: #fecaca;
+
+  /* ── Radios / sombras ── */
+  --radius:    10px;
+  --radius-sm: 7px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(16,17,26,.05);
+  --shadow:    0 1px 2px rgba(16,17,26,.04), 0 8px 24px rgba(16,17,26,.05);
+  --ring:      0 0 0 3px var(--navy-soft);
+
+  /* ── Alias hacia Bootstrap para compatibilidad ── */
+  --bs-primary: var(--navy);
+  --bs-primary-rgb: 11, 46, 112;
+}
+
+/* ── Tipografía base ─────────────────────────────────────── */
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar sutil unificado ───────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ═══════════════════════════════════════════════════════════
+   OVERRIDES DE BOOTSTRAP → azul marino profundo
+   (recolorea la mayor parte de la app sin tocar el marcado)
+   ═══════════════════════════════════════════════════════════ */
+
+.btn-primary {
+  --bs-btn-bg: var(--navy);
+  --bs-btn-border-color: var(--navy);
+  --bs-btn-hover-bg: var(--navy-h);
+  --bs-btn-hover-border-color: var(--navy-h);
+  --bs-btn-active-bg: var(--navy-active);
+  --bs-btn-active-border-color: var(--navy-active);
+  --bs-btn-disabled-bg: var(--navy);
+  --bs-btn-disabled-border-color: var(--navy);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--navy);
+  --bs-btn-border-color: var(--navy-bd);
+  --bs-btn-hover-bg: var(--navy);
+  --bs-btn-hover-border-color: var(--navy);
+  --bs-btn-active-bg: var(--navy);
+  --bs-btn-active-border-color: var(--navy);
+}
+
+.btn-link { --bs-btn-color: var(--navy); --bs-btn-hover-color: var(--navy-h); }
+
+.text-primary { color: var(--navy) !important; }
+.bg-primary   { background-color: var(--navy) !important; }
+.border-primary { border-color: var(--navy) !important; }
+
+a { color: var(--navy); }
+a:hover { color: var(--navy-h); }
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--navy);
+  box-shadow: var(--ring);
+}
+.form-check-input:checked {
+  background-color: var(--navy);
+  border-color: var(--navy);
+}
+.form-check-input:focus { border-color: var(--navy); box-shadow: var(--ring); }
+
+.badge.bg-primary { background-color: var(--navy) !important; }
+
+/* Spinner de acento */
+.text-primary.spinner-border, .spinner-border.text-primary { color: var(--navy) !important; }
+
+/* Botón pill primario que usan varias vistas */
+.btn.rounded-pill.btn-primary { box-shadow: 0 2px 8px rgba(11,46,112,.18); }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPONENTE: desplegable "Opciones" de la navbar (reutilizable)
+   ═══════════════════════════════════════════════════════════ */
+.nav-modules { position: relative; }
+.opciones-wrap { position: relative; }
+.btn-opciones {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255, 255, 255, 0.12); color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 11px; padding: 5px 13px;
+  font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  transition: all 0.18s ease; white-space: nowrap;
+}
+.btn-opciones:hover { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.4); }
+.btn-opciones.open { background: rgba(255, 255, 255, 0.26); border-color: rgba(255, 255, 255, 0.5); }
+.btn-opciones .chev { font-size: 0.68rem; transition: transform 0.25s ease; }
+.btn-opciones.open .chev { transform: rotate(180deg); }
+
+.opciones-backdrop { position: fixed; inset: 0; z-index: 1090; }
+.opciones-menu {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 1100;
+  background: #fff; border: 1px solid var(--border); border-radius: 13px;
+  box-shadow: 0 14px 38px rgba(16, 17, 26, 0.18); padding: 6px; min-width: 214px;
+}
+.opciones-title {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-3); padding: 7px 10px 5px;
+}
+.opciones-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 9px;
+  font-size: 0.82rem; font-weight: 500; color: var(--text); text-decoration: none; transition: 0.12s;
+}
+.opciones-item > i:first-child { font-size: 0.95rem; color: var(--text-3); width: 18px; text-align: center; flex-shrink: 0; }
+.opciones-item:hover { background: var(--navy-soft); color: var(--navy); }
+.opciones-item:hover > i:first-child { color: var(--navy); }
+.opciones-item.active { background: var(--navy-soft); color: var(--navy); font-weight: 600; }
+.opciones-item.active > i:first-child { color: var(--navy); }
+.opciones-check { margin-left: auto; color: var(--navy); font-size: 0.9rem; }
+.opciones-sep { height: 1px; background: var(--border); margin: 5px 8px; }
+.opciones-enter-active, .opciones-leave-active { transition: opacity 0.16s ease, transform 0.16s ease; }
+.opciones-enter-from, .opciones-leave-to { opacity: 0; transform: translateY(-6px); }

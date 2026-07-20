@@ -13,6 +13,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
+    <link rel="stylesheet" href="css/design-system.css" />
     <style>
       *,
       *::before,
@@ -34,9 +35,9 @@
         min-height: 100vh;
         background: linear-gradient(
           160deg,
-          #1e3a8a 0%,
-          #1e40af 60%,
-          #2563eb 100%
+          var(--navy) 0%,
+          var(--navy-h) 60%,
+          var(--navy-h) 100%
         );
         display: flex;
         flex-direction: column;
@@ -158,7 +159,7 @@
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        color: #1e3a8a;
+        color: var(--navy);
         margin-bottom: 0.3rem;
       }
       .form-title {
@@ -212,7 +213,7 @@
           background 0.2s;
       }
       input:focus {
-        border-color: #1e3a8a;
+        border-color: var(--navy);
         background: #fff;
         box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.08);
       }
@@ -220,7 +221,7 @@
       .btn {
         width: 100%;
         padding: 0.75rem;
-        background: #1e3a8a;
+        background: var(--navy);
         color: #fff;
         border: none;
         border-radius: 9px;
@@ -238,7 +239,7 @@
           transform 0.1s;
       }
       .btn:hover:not(:disabled) {
-        background: #1e40af;
+        background: var(--navy-h);
       }
       .btn:active:not(:disabled) {
         transform: scale(0.99);

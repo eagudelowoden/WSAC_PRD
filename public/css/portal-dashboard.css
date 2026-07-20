@@ -3,8 +3,8 @@
 ═══════════════════════════════════════════════════ */
 
 :root {
-  --pd-navy:        #1e3a8a;
-  --pd-navy-h:      #1e40af;
+  --pd-navy:        var(--navy);
+  --pd-navy-h:      var(--navy-h);
   --pd-navy-soft:   #eff6ff;
   --pd-navy-border: #bfdbfe;
   --pd-green:       #16a34a;

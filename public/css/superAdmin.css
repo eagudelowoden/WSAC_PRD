@@ -1,17 +1,18 @@
 /* ══════════════════════════════════════════════════
    SUPER ADMIN — Vercel-inspired style
-   Fonts: Inter | Base: #fafafa | Accent: #f37021
+   Fonts: Inter | Base: #fafafa | Accent: azul marino profundo (var(--navy))
 ══════════════════════════════════════════════════ */
 
 :root {
-  --v-orange:        #f37021;
-  --v-orange-h:      #d95e10;
-  --v-orange-soft:   #fff4ee;
-  --v-orange-border: #fdd9bc;
+  /* Acento principal: azul marino profundo (antes naranja) */
+  --v-orange:        var(--navy);
+  --v-orange-h:      var(--navy-h);
+  --v-orange-soft:   var(--navy-soft);
+  --v-orange-border: var(--navy-bd);
   --v-green:         #16a34a;
   --v-green-soft:    #f0fdf4;
   --v-green-border:  #bbf7d0;
-  --v-blue:          #2563eb;
+  --v-blue:          var(--navy-h);
   --v-blue-soft:     #eff6ff;
   --v-blue-border:   #bfdbfe;
   --v-red:           #dc2626;
@@ -19,8 +20,8 @@
   --v-red-border:    #fecaca;
   --v-sidebar:       #ffffff;
   --v-sidebar-2:     #f4f4f5;
-  --v-btn-primary:   #1e3a8a;
-  --v-btn-primary-h: #1e40af;
+  --v-btn-primary:   var(--navy);
+  --v-btn-primary-h: var(--navy-h);
   --v-bg:            #fafafa;
   --v-card:          #ffffff;
   --v-border:        #e4e4e7;
@@ -91,7 +92,7 @@ body {
   font-size: 1rem;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(243,112,33,.2);
+  box-shadow: 0 0 0 3px rgba(11,46,112,.18);
 }
 
 .sa-brand-title {
@@ -151,14 +152,14 @@ body {
 
 .sa-nav-item.active {
   background: #eff6ff;
-  color: #1e3a8a;
+  color: var(--navy);
   font-weight: 600;
-  border-left: 2px solid #1e3a8a;
+  border-left: 2px solid var(--navy);
   padding-left: 8px;
 }
 
 .sa-nav-item.active .sa-nav-icon {
-  color: #1e3a8a;
+  color: var(--navy);
 }
 
 .sa-nav-icon {
@@ -171,7 +172,7 @@ body {
   color: var(--v-text-3);
 }
 
-.sa-nav-item.active .sa-nav-icon { color: #1e3a8a; }
+.sa-nav-item.active .sa-nav-icon { color: var(--navy); }
 .sa-nav-item:hover .sa-nav-icon  { color: var(--v-text-2); }
 
 .sa-nav-text { flex: 1; }
@@ -286,7 +287,7 @@ body {
 .sa-panel-header-orange { border-top: 2px solid var(--v-orange); }
 .sa-panel-header-blue   { border-top: 2px solid var(--v-blue); }
 .sa-panel-header-green  { border-top: 2px solid var(--v-green); }
-.sa-panel-header-purple { border-top: 2px solid #7c3aed; }
+.sa-panel-header-purple { border-top: 2px solid var(--navy); }
 .sa-panel-header-dark   { border-top: 2px solid var(--v-sidebar); }
 
 .sa-header-icon {
@@ -304,7 +305,7 @@ body {
 
 .sa-icon-blue   { background: var(--v-blue-soft);  color: var(--v-blue); }
 .sa-icon-green  { background: var(--v-green-soft);  color: var(--v-green); }
-.sa-icon-purple { background: #f5f3ff; color: #7c3aed; }
+.sa-icon-purple { background: var(--navy-soft); color: var(--navy); }
 .sa-icon-dark   { background: var(--v-border-2); color: var(--v-text-2); }
 
 .sa-panel-title {
@@ -340,34 +341,46 @@ body {
 /* ══════════════════════════════════════════════════
    TABLE
 ══════════════════════════════════════════════════ */
+/* ── Tabla estilo Vercel: contenedor tarjeta con borde 1px ── */
+.sa-panel-inner .table-responsive {
+  border: 1px solid var(--v-border);
+  border-radius: var(--v-radius);
+  overflow: hidden;
+  background: var(--v-card);
+}
+
 .sa-table { width: 100%; border-collapse: collapse; }
 
 .sa-table thead th {
-  font-size: 0.69rem;
+  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .06em;
   color: var(--v-text-3);
-  padding: 8px 14px;
+  padding: 11px 16px;
+  background: var(--v-bg);
   border-bottom: 1px solid var(--v-border);
   white-space: nowrap;
+  text-align: left;
 }
 
 .sa-table tbody td {
-  padding: 11px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--v-border-2);
   vertical-align: middle;
   font-size: 0.83rem;
+  font-variant-numeric: tabular-nums;
 }
 
+.sa-table tbody tr { transition: background .12s ease; }
 .sa-table tbody tr:last-child td { border-bottom: none; }
-.sa-table tbody tr:hover td { background: #fafafa; }
+.sa-table tbody tr:hover td { background: var(--navy-soft); }
 
 .sa-avatar {
   width: 30px;
   height: 30px;
   border-radius: var(--v-radius-sm);
-  background: var(--v-sidebar);
+  background: var(--navy);
   color: white;
   font-size: 0.72rem;
   font-weight: 700;
@@ -431,7 +444,7 @@ body {
 
 .sa-input-group:focus-within {
   border-color: var(--v-orange);
-  box-shadow: 0 0 0 3px rgba(243,112,33,.1);
+  box-shadow: 0 0 0 3px rgba(11,46,112,.12);
 }
 
 .sa-input-icon { padding: 0 8px 0 12px; color: var(--v-text-3); font-size: 0.8rem; }
@@ -573,7 +586,7 @@ body {
   transition: border-color .12s, box-shadow .12s;
 }
 
-.sa-perm-card:hover { border-color: var(--v-orange-border); box-shadow: 0 0 0 3px rgba(243,112,33,.06); }
+.sa-perm-card:hover { border-color: var(--v-orange-border); box-shadow: 0 0 0 3px rgba(11,46,112,.07); }
 .sa-perm-card.active { border-color: var(--v-orange); background: var(--v-orange-soft); }
 
 .sa-perm-card-icon {
@@ -613,7 +626,7 @@ body {
   transition: border-color .12s, box-shadow .12s;
 }
 
-.sa-perm-toggle:hover { border-color: var(--v-orange-border); box-shadow: 0 0 0 3px rgba(243,112,33,.06); }
+.sa-perm-toggle:hover { border-color: var(--v-orange-border); box-shadow: 0 0 0 3px rgba(11,46,112,.07); }
 .sa-perm-toggle.active { border-color: var(--v-orange); background: var(--v-orange-soft); }
 
 .sa-perm-toggle-name { font-size: 0.8rem; font-weight: 600; color: var(--v-text); letter-spacing: -.01em; }
@@ -660,7 +673,7 @@ body {
 
 .sa-textarea:focus {
   border-color: var(--v-orange);
-  box-shadow: 0 0 0 3px rgba(243,112,33,.1);
+  box-shadow: 0 0 0 3px rgba(11,46,112,.12);
 }
 
 .sa-input-field {
@@ -678,14 +691,14 @@ body {
 
 .sa-input-field:focus {
   border-color: var(--v-orange);
-  box-shadow: 0 0 0 3px rgba(243,112,33,.1);
+  box-shadow: 0 0 0 3px rgba(11,46,112,.12);
 }
 
 /* ══════════════════════════════════════════════════
    BUTTONS
 ══════════════════════════════════════════════════ */
 .sa-btn-primary {
-  background: #1e3a8a;
+  background: var(--navy);
   color: white;
   border: 1px solid #1e3075;
   border-radius: var(--v-radius-sm);
@@ -702,7 +715,7 @@ body {
 }
 
 .sa-btn-primary:hover {
-  background: #1e40af;
+  background: var(--navy-h);
   box-shadow: 0 0 0 3px rgba(30,58,138,.15);
 }
 
@@ -729,7 +742,7 @@ body {
 }
 
 .sa-btn-save {
-  background: #1e3a8a;
+  background: var(--navy);
   color: white;
   border: 1px solid #1e3075;
   border-radius: var(--v-radius-sm);
@@ -747,7 +760,7 @@ body {
 }
 
 .sa-btn-save:hover {
-  background: #1e40af;
+  background: var(--navy-h);
   box-shadow: 0 0 0 3px rgba(30,58,138,.15);
 }
 
@@ -866,9 +879,9 @@ body {
 }
 
 @keyframes pulseOrange {
-  0%   { box-shadow: 0 0 0 0 rgba(243,112,33,.6); }
-  70%  { box-shadow: 0 0 0 7px rgba(243,112,33,0); }
-  100% { box-shadow: 0 0 0 0 rgba(243,112,33,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(11,46,112,.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(11,46,112,0); }
+  100% { box-shadow: 0 0 0 0 rgba(11,46,112,0); }
 }
 
 .slide-fade-enter-active { transition: all .3s ease-out; }

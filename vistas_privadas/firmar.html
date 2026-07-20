@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js" integrity="sha384-kR2tS24oEqwHzfBnAN4yxA8ib4vGEOMaANrncAlq8i0lsgvGoOzSPXFbj5dHYUZK" crossorigin="anonymous"></script>
 
     <script src="js/actualizacion-check.js"></script>
+    <link rel="stylesheet" href="/css/design-system.css" />
     <style>
       body {
         background-color: #f8fafc;
@@ -53,12 +54,12 @@
       .drop-zone-premium:hover,
       .drop-zone-premium.active {
         background: #f0f7ff;
-        border-color: #3b82f6;
+        border-color: var(--navy);
       }
 
       /* Botón estilo moderno (Blue Primary) */
       .btn-upload-tech {
-        background-color: #3b82f6;
+        background-color: var(--navy);
         color: white;
         font-weight: 600;
         border-radius: 12px;
@@ -69,7 +70,7 @@
       }
 
       .btn-upload-tech:hover:not(:disabled) {
-        background-color: #2563eb;
+        background-color: var(--navy-h);
         transform: translateY(-1px);
         box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
       }

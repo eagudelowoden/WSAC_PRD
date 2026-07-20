@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WSAC | Sistema de Aprobaciones</title>
     <link rel="icon" type="image/png" href="imagenes/doc.png" />
+    <link rel="stylesheet" href="css/design-system.css" />
     <link rel="stylesheet" href="css/loginv2.css" />
 
     <link
@@ -23,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -91,10 +92,7 @@
             </div>
           </div>
 
-          <div
-            v-if="errorMsg"
-            style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:0.6rem 0.9rem;font-size:0.82rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem;"
-          >
+          <div v-if="errorMsg" class="login-error">
             <i class="bi bi-exclamation-circle-fill"></i> {{ errorMsg }}
           </div>
 

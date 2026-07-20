@@ -12,7 +12,11 @@
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
 
-  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/design-system.css" />
+  <link rel="stylesheet" href="css/shell.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8/dist/turbo.es2017-umd.min.js"></script>
+  <script src="/js/shell-nav.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
   <link rel="stylesheet" href="css/aprobUno.css" />
 
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"
@@ -73,10 +77,151 @@
       border: none;
       width: 100%;
     }
+
+    /* ═══ SIDEBAR COLABORADORES — moderno (riel + desplegable) ═══ */
+    .sidebar { display: flex; flex-direction: column; }
+    .sidebar.collapsed { width: 64px; }
+
+    .sidebar-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-3);
+    }
+    .count-pill {
+      background: var(--navy-soft); color: var(--navy); border: 1px solid var(--navy-bd);
+      font-size: 0.7rem; font-weight: 700; padding: 1px 9px; border-radius: 20px;
+    }
+    .refresh-icon-btn {
+      background: none; border: none; color: var(--text-3); padding: 0;
+      font-size: 0.95rem; line-height: 1; cursor: pointer; transition: 0.2s;
+    }
+    .refresh-icon-btn:hover:not(:disabled) { color: var(--navy); transform: scale(1.1); }
+    .refresh-icon-btn.is-spinning i { display: inline-block; animation: rotate-sync 0.8s infinite linear; color: var(--navy); }
+    @keyframes rotate-sync { to { transform: rotate(360deg); } }
+
+    /* Buscador */
+    .search-wrapper { position: relative; }
+    .search-inside-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 0.85rem; }
+    .pro-search-input {
+      border: 1px solid var(--border); background: var(--surface-2); border-radius: 9px;
+      padding: 8px 30px 8px 32px; font-size: 0.83rem; width: 100%;
+    }
+    .pro-search-input:focus { border-color: var(--navy); box-shadow: 0 0 0 3px var(--navy-soft); background: #fff; outline: none; }
+    .search-clear-btn {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      border: none; background: var(--surface-3); color: var(--text-2);
+      width: 18px; height: 18px; border-radius: 50%; padding: 0;
+      display: grid; place-items: center; cursor: pointer; font-size: 0.62rem; line-height: 1;
+    }
+    .search-clear-btn:hover { background: var(--border-2); color: var(--text); }
+
+    /* Filtro segmentado */
+    .seg-filter { display: flex; gap: 2px; padding: 2px; background: var(--surface-3); border: 1px solid var(--border); border-radius: 9px; }
+    .seg-filter button {
+      flex: 1; border: none; background: none; cursor: pointer; font-family: inherit;
+      font-size: 0.68rem; font-weight: 600; color: var(--text-2);
+      padding: 5px 4px; border-radius: 7px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s;
+    }
+    .seg-filter button.on { background: var(--surface); color: var(--navy); box-shadow: 0 1px 2px rgba(16,17,26,.08); }
+    .seg-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .seg-dot.bg-todos { background: var(--text-3); }
+    .seg-dot.bg-pendientes { background: var(--warn); }
+    .seg-dot.bg-hoy { background: var(--info); }
+
+    /* Desplegable de la lista */
+    .user-list-container { flex: 1; overflow-y: auto; min-width: 0; }
+    .collab-head {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px;
+      padding: 8px 11px; margin-bottom: 6px; cursor: pointer; transition: 0.15s;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-2);
+    }
+    .collab-head:hover { border-color: var(--navy-bd); color: var(--navy); background: var(--navy-soft); }
+    .collab-head-l { display: flex; align-items: center; gap: 7px; }
+    .collab-head-r { display: flex; align-items: center; gap: 8px; }
+    .collab-count { background: var(--navy-soft); color: var(--navy); border: 1px solid var(--navy-bd); border-radius: 20px; font-size: 0.65rem; padding: 0 7px; }
+    .collab-chev { transition: transform 0.28s ease; font-size: 0.8rem; }
+    .collab-head.open .collab-chev { transform: rotate(180deg); }
+    .collab-body { overflow: hidden; }
+    .collab-enter-active, .collab-leave-active { transition: max-height 0.3s ease, opacity 0.2s ease; }
+    .collab-enter-from, .collab-leave-to { max-height: 0; opacity: 0; }
+    .collab-enter-to, .collab-leave-from { max-height: 1500px; opacity: 1; }
+
+    /* Tarjetas */
+    .user-card-mini {
+      display: flex; align-items: center; gap: 10px; padding: 8px 9px; margin-bottom: 3px;
+      border-radius: 9px; border: 1px solid transparent; border-left: 3px solid transparent;
+      position: relative; cursor: pointer; transition: background 0.15s; width: 100%;
+    }
+    .user-card-mini:hover { background: var(--surface-2); }
+    .user-card-mini.active { background: var(--navy-soft); border-color: var(--navy-bd); border-left: 3px solid var(--navy); }
+    .user-avatar-mini {
+      width: 34px; height: 34px; flex-shrink: 0; margin-right: 0;
+      background: var(--navy-soft); color: var(--navy); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    }
+    .user-card-mini.active .user-avatar-mini { background: var(--navy); color: #fff; }
+    .user-info-mini { flex: 1; min-width: 0; overflow: hidden; }
+    .user-name-mini { font-size: 0.8rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+    .user-doc-mini { font-size: 0.68rem; color: var(--text-3); }
+    .user-check { margin-left: auto; color: var(--navy); font-size: 0.9rem; flex-shrink: 0; }
+
+    .sidebar-empty { text-align: center; color: var(--text-3); padding: 28px 12px; font-size: 0.8rem; }
+    .sidebar-empty i { display: block; font-size: 1.4rem; opacity: 0.4; margin-bottom: 6px; }
+
+    /* ═══ NAVBAR — desplegable "Opciones" (semi-redondo) ═══ */
+    .nav-modules { position: relative; }
+    .opciones-wrap { position: relative; }
+    .btn-opciones {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255, 255, 255, 0.12); color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 11px; padding: 5px 13px;
+      font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: all 0.18s ease; white-space: nowrap;
+    }
+    .btn-opciones:hover { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.4); }
+    .btn-opciones.open { background: rgba(255, 255, 255, 0.26); border-color: rgba(255, 255, 255, 0.5); }
+    .btn-opciones .chev { font-size: 0.68rem; transition: transform 0.25s ease; }
+    .btn-opciones.open .chev { transform: rotate(180deg); }
+
+    .opciones-backdrop { position: fixed; inset: 0; z-index: 1090; }
+    .opciones-menu {
+      position: absolute; top: calc(100% + 8px); left: 0; z-index: 1100;
+      background: #fff; border: 1px solid var(--border); border-radius: 13px;
+      box-shadow: 0 14px 38px rgba(16, 17, 26, 0.18); padding: 6px; min-width: 214px;
+    }
+    .opciones-title {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-3); padding: 7px 10px 5px;
+    }
+    .opciones-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 9px;
+      font-size: 0.82rem; font-weight: 500; color: var(--text); text-decoration: none; transition: 0.12s;
+    }
+    .opciones-item > i:first-child { font-size: 0.95rem; color: var(--text-3); width: 18px; text-align: center; flex-shrink: 0; }
+    .opciones-item:hover { background: var(--navy-soft); color: var(--navy); }
+    .opciones-item:hover > i:first-child { color: var(--navy); }
+    .opciones-item.active { background: var(--navy-soft); color: var(--navy); font-weight: 600; }
+    .opciones-item.active > i:first-child { color: var(--navy); }
+    .opciones-check { margin-left: auto; color: var(--navy); font-size: 0.9rem; }
+    .opciones-sep { height: 1px; background: var(--border); margin: 5px 8px; }
+    .opciones-enter-active, .opciones-leave-active { transition: opacity 0.16s ease, transform 0.16s ease; }
+    .opciones-enter-from, .opciones-leave-to { opacity: 0; transform: translateY(-6px); }
+
+    /* Modo riel (colapsado): solo avatares */
+    .sidebar.collapsed .user-list-container { padding: 6px 0; }
+    .sidebar.collapsed .collab-head { display: none; }
+    .sidebar.collapsed .user-card-mini { justify-content: center; padding: 7px 0; gap: 0; border-left-color: transparent; }
+    .sidebar.collapsed .user-info-mini, .sidebar.collapsed .user-check { display: none; }
+    .sidebar.collapsed .user-avatar-mini { margin: 0; }
   </style>
 </head>
 
-<body>
+<body class="wsac-shell" data-turbo="false">
+  <nav id="wsac-topnav" class="navbar navbar-custom wsac-topnav" data-turbo-permanent aria-label="Navegación principal"></nav>
   <div id="app">
     <transition name="slide-down">
       <div v-if="avisoGlobal && avisoGlobal.activo" class="official-banner">
@@ -97,70 +242,8 @@
         </div>
       </div>
     </transition>
-    <nav class="navbar navbar-custom px-3 py-1 shadow-sm justify-content-between"
-      style="flex-shrink: 0; min-height: 40px">
-      <div class="d-flex align-items-center gap-3">
-        <span class="navbar-brand mb-0 d-flex align-items-center gap-2">
-          <i class="bi bi-building-gear fs-6"></i>
-          <span class="small-brand">Gestión Área de Selección</span>
-        </span>
+    <!-- Navbar movido al shell compartido (#wsac-topnav) -->
 
-        <div class="nav-modules d-flex gap-2 border-start ps-3"
-          style="border-color: rgba(255, 255, 255, 0.2) !important">
-          <a v-if="modulosPermitidos.modulo_seleccion" href="/panel-administrativo" class="btn-module active">
-            <i class="bi bi-people"></i>
-            <span class="d-none d-lg-inline">Colaboradores</span>
-          </a>
-
-          <a v-if="modulosPermitidos.modulo_nomina" href="/panel-aprobacionesDos" class="btn-module">
-            <i class="bi bi-cash-stack"></i>
-            <span class="d-none d-lg-inline">Nómina</span>
-          </a>
-
-          <a v-if="modulosPermitidos.modulo_postulaciones" href="/postulaciones" class="btn-module">
-            <i class="bi bi-file-earmark-text"></i>
-            <span class="d-none d-lg-inline">Postulaciones</span>
-          </a>
-
-          <a v-if="modulosPermitidos.modulo_requisiciones" href="/requisiciones" class="btn-module">
-            <i class="bi bi-clipboard2-check"></i>
-            <span class="d-none d-lg-inline">Requisiciones</span>
-          </a>
-
-          <a v-if="usuarioSys?.rol === 'superadmin'" href="/superadmin" class="btn-module">
-            <i class="bi bi-shield-lock"></i>
-            <span class="d-none d-lg-inline">Super Admin</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="d-flex align-items-center">
-        <div class="dropdown">
-          <button
-            class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 user-dropdown-btn py-0"
-            type="button" @click="menuAbierto = !menuAbierto">
-            <div class="avatar-circle-sm">
-              {{ usuarioSys?.nombre?.charAt(0).toUpperCase() || '?' }}
-            </div>
-
-            <span class="extra-small d-none d-md-inline" v-if="usuarioSys && usuarioSys.nombre">
-              {{ usuarioSys.nombre }}
-            </span>
-            <i class="bi bi-chevron-down x-small"></i>
-          </button>
-
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-1" :class="{ 'show': menuAbierto }"
-            style="position: absolute; right: 0; font-size: 0.8rem">
-            <li>
-              <button class="dropdown-item text-danger d-flex align-items-center gap-2" @click="cerrarSesion">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Cerrar Sesión</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
 
     <div class="main-container">
       <div class="sidebar shadow-sm" :class="{ 'collapsed': sidebarContraida }">
@@ -168,58 +251,77 @@
           <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
         </button>
 
-        <div v-show="!sidebarContraida" class="sidebar-content animate-fade-in">
-          <div class="search-header-mini">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="d-flex align-items-center gap-2">
-                <h6 class="fw-bold m-0 text-primary" style="font-size: 0.85rem">
-                  Colaboradores
-                </h6>
-                <button class="refresh-icon-btn" :class="{ 'is-spinning': cargandoUsuarios }"
-                  @click="obtenerListaUsuarios" :disabled="cargandoUsuarios">
-                  <i class="bi bi-arrow-clockwise"></i>
-                </button>
-              </div>
-              <span class="badge rounded-pill bg-light text-dark border small">{{ usuariosFiltrados.length }}</span>
+        <div class="search-header px-3 pt-3 pb-2" v-show="!sidebarContraida">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <h6 class="sidebar-label m-0">Colaboradores</h6>
+              <button class="refresh-icon-btn" :class="{ 'is-spinning': cargandoUsuarios }"
+                @click="obtenerListaUsuarios" :disabled="cargandoUsuarios">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
             </div>
-
-            <div class="input-group input-group-sm mb-3">
-              <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-              <input type="text" class="form-control border-start-0 ps-0" v-model="busqueda" placeholder="Buscar..." />
-            </div>
+            <span class="count-pill">{{ usuariosFiltrados.length }}</span>
           </div>
 
-          <div class="user-list-container px-2">
-            <button class="btn btn-sm btn-action-list w-100 d-flex justify-content-between align-items-center mb-2"
-              @click="listaAbierta = !listaAbierta">
-              <span class="fw-bold"><i class="bi bi-people-fill me-2"></i>Ver Lista</span>
-              <i class="bi" :class="listaAbierta ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          <div class="search-wrapper mb-2">
+            <i class="bi bi-search search-inside-icon"></i>
+            <input type="text" class="form-control pro-search-input" v-model="busqueda"
+              placeholder="Buscar nombre o cédula..." />
+            <button v-if="busqueda" class="search-clear-btn" @click="busqueda = ''" title="Limpiar">
+              <i class="bi bi-x-lg"></i>
             </button>
+          </div>
 
-            <transition name="slide-down">
-              <div v-if="listaAbierta" class="user-scroll-area">
-                <div v-if="cargandoUsuarios" class="text-center py-3">
-                  <div class="spinner-border spinner-border-sm text-primary"></div>
-                </div>
+          <!-- Filtro segmentado -->
+          <div class="seg-filter">
+            <button type="button" :class="{ on: filtroEstado === 'todos' }" @click="filtroEstado = 'todos'">
+              <span class="seg-dot bg-todos"></span>Todos
+            </button>
+            <button type="button" :class="{ on: filtroEstado === 'pendientes' }" @click="filtroEstado = 'pendientes'">
+              <span class="seg-dot bg-pendientes"></span>Pendientes
+            </button>
+            <button type="button" :class="{ on: filtroEstado === 'hoy' }" @click="filtroEstado = 'hoy'">
+              <span class="seg-dot bg-hoy"></span>Hoy
+            </button>
+          </div>
+        </div>
 
-                <div v-else v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini"
-                  :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)">
-                  <div class="user-avatar-mini">
-                    {{ u.nombres?.charAt(0) }}{{ u.apellidos?.charAt(0) }}
-                  </div>
+        <div class="user-list-container px-2 pt-2">
+          <!-- Desplegable de la lista -->
+          <button class="collab-head" v-show="!sidebarContraida" :class="{ open: listaAbierta }"
+            @click="listaAbierta = !listaAbierta">
+            <span class="collab-head-l"><i class="bi bi-people-fill"></i> Lista de colaboradores</span>
+            <span class="collab-head-r">
+              <span class="collab-count">{{ usuariosFiltrados.length }}</span>
+              <i class="bi bi-chevron-down collab-chev"></i>
+            </span>
+          </button>
 
+          <transition name="collab">
+            <div v-show="listaAbierta || sidebarContraida" class="collab-body">
+              <div v-if="cargandoUsuarios" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+
+              <div v-else-if="!usuariosFiltrados.length" class="sidebar-empty" v-show="!sidebarContraida">
+                <i class="bi bi-search"></i>
+                <span>Sin resultados</span>
+              </div>
+
+              <template v-else>
+                <div v-for="u in usuariosFiltrados" :key="u.id" class="user-card-mini"
+                  :class="{ 'active': usuarioActual?.id === u.id }" @click="seleccionarUsuario(u.id)"
+                  :title="u.nombres + ' ' + u.apellidos">
+                  <div class="user-avatar-mini">{{ (u.nombres || '?').charAt(0) }}{{ (u.apellidos || '').charAt(0) }}</div>
                   <div class="user-info-mini">
-                    <div class="user-name-mini">
-                      {{ u.nombres }} {{ u.apellidos }}
-                    </div>
+                    <div class="user-name-mini">{{ u.nombres }} {{ u.apellidos }}</div>
                     <div class="user-doc-mini">CC: {{ u.documento }}</div>
                   </div>
-
-                  <i v-if="usuarioActual?.id === u.id" class="bi bi-check-circle-fill ms-auto text-primary"></i>
+                  <i v-if="usuarioActual?.id === u.id" class="bi bi-check-circle-fill user-check"></i>
                 </div>
-              </div>
-            </transition>
-          </div>
+              </template>
+            </div>
+          </transition>
         </div>
       </div>
       <div class="content-area">
@@ -654,7 +756,7 @@
               <div class="col-12">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                   <div class="card-header border-0 d-flex justify-content-between align-items-center py-3"
-                    style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)">
+                    style="background: linear-gradient(135deg, var(--navy) 0%, var(--navy-h) 100%)">
                     <span class="text-white fw-bold small text-uppercase tracking-wider">
                       <i class="bi bi-folder2-open me-2 text-info"></i>
                       Archivos Cargados

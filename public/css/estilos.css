@@ -45,8 +45,8 @@ body {
   background-color: #e9ecef;
 }
 .user-item.active {
-  background-color: #e7f1ff;
-  border-left: 4px solid #124ea8;
+  background-color: var(--navy-soft);
+  border-left: 4px solid var(--navy);
 }
 .user-item h6 {
   margin: 0;
@@ -105,7 +105,7 @@ body {
 }
 .form-control:focus {
   box-shadow: none;
-  border-color: #0a48a5;
+  border-color: var(--navy);
 }
 
 /* GRID DE DOCUMENTOS */
@@ -123,7 +123,7 @@ body {
   transition: 0.2s;
 }
 .doc-item:hover {
-  border-color: #0a4092;
+  border-color: var(--navy);
   background: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -155,7 +155,7 @@ body {
   top: 60px;
   width: 24px;
   height: 24px;
-  background: #0d6efd;
+  background: var(--navy);
   color: white;
   border-radius: 50%;
   border: none;
@@ -179,14 +179,14 @@ body {
   transition: 0.2s;
 }
 .user-card-mini:hover { background: #f0f4ff; }
-.user-card-mini.active { 
-  background: #e7f1ff; 
-  border-color: #0d6efd; 
+.user-card-mini.active {
+  background: var(--navy-soft);
+  border-color: var(--navy);
 }
 .user-avatar-mini {
   width: 24px;
   height: 24px;
-  background: #4f46e5;
+  background: var(--navy);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -280,9 +280,9 @@ body {
   height: 40px;
   background: linear-gradient(
     135deg,
-    #0a48a5,
-    #0a48a5
-  ); /* Gradiente morado/azul */
+    var(--navy),
+    var(--navy-h)
+  ); /* Azul marino profundo */
   color: white;
   border-radius: 50%; /* Círculo perfecto */
   display: flex;
@@ -297,7 +297,7 @@ body {
 
 /* Estado Activo cambia el color del avatar */
 .user-card.active .user-avatar {
-  background: linear-gradient(135deg, #0d6efd, #0a58ca); /* Azul bootstrap */
+  background: linear-gradient(135deg, var(--navy), var(--navy-h)); /* Azul marino profundo */
 }
 
 /* 6. Tipografía */
@@ -340,13 +340,13 @@ body {
   background: #f0f8ff;
 }
 .user-item.active {
-  background: #0a48a5;
+  background: var(--navy);
   color: white !important;
 }
 /* Clase personalizada para el Navbar */
 .navbar-custom {
-  /* Un degradado sutil se ve más moderno que un color sólido */
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); 
+  /* Azul marino profundo, un degradado sutil se ve más moderno */
+  background: linear-gradient(135deg, var(--navy-active) 0%, var(--navy) 100%);
   color: white;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }

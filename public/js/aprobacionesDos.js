@@ -314,7 +314,7 @@ createApp({
       busqueda: "",
       sidebarContraida: false, // Controla el ancho del sidebar
       usuarios: [],
-      listaAbierta: false, // Controla si se ven los usuarios
+      listaAbierta: true, // Controla si se ven los usuarios (desplegable abierto por defecto)
       selectedId: "",
       usuarioActual: null,
       listaFirmados: [], // Los que el colaborador sube
@@ -340,6 +340,7 @@ createApp({
       aprobacion: "",
       busqueda: "",
       menuAbierto: false,
+      opcionesAbierto: false, // Desplegable de módulos (navbar)
 
       form: {
         cargo: "",

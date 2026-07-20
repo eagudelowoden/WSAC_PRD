@@ -1,14 +1,14 @@
 /* ═══════════════════════════════════════════════════════════════
    PORTAL COLABORADOR — CSS
-   Same design system: Inter, orange #f37021, navy #1e3a8a
+   Same design system: Inter, orange #f37021, navy var(--navy)
 ═══════════════════════════════════════════════════════════════ */
 
 :root {
   --p-orange:       #f37021;
   --p-orange-h:     #d95e10;
   --p-orange-soft:  #fff4ee;
-  --p-navy:         #1e3a8a;
-  --p-navy-h:       #1e40af;
+  --p-navy:         var(--navy);
+  --p-navy-h:       var(--navy-h);
   --p-navy-soft:    #eff6ff;
   --p-text:         #18181b;
   --p-text-2:       #52525b;
@@ -62,7 +62,7 @@ body {
 .pg-bg-blob-2 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, #1e3a8a22, transparent 70%);
+  background: radial-gradient(circle, var(--navy)22, transparent 70%);
   bottom: -150px;
   right: -150px;
 }
@@ -78,7 +78,7 @@ body {
 /* ── ASIDE (branding) ──────────────────────────────────────── */
 .pg-aside {
   width: 420px;
-  background: linear-gradient(160deg, #1e3a8a 0%, #1e40af 60%, #1d4ed8 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-h) 60%, var(--navy-h) 100%);
   display: flex;
   align-items: stretch;
   position: sticky;
