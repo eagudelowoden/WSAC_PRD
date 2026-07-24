@@ -690,6 +690,8 @@
                             <template v-else-if="item.estado === 'error'">
                               <i class="bi bi-x-circle-fill text-danger me-1"></i>
                               <span class="text-danger">Error al subir</span>
+                              <span v-if="item.mensajeError" class="text-danger fw-normal ms-1"
+                                style="font-size: 0.65rem">({{ item.mensajeError }})</span>
                             </template>
                             <template v-else>
                               <span class="text-muted">Pendiente</span>
