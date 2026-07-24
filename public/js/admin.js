@@ -133,12 +133,27 @@ var SegmentosMixin = {
             body: formData,
           });
 
+          let mensajeError = "";
+          if (!response.ok) {
+            try {
+              const data = await response.json();
+              mensajeError = data.message || "";
+            } catch {
+              mensajeError = "";
+            }
+          }
+
           this.estadoArchivos[i] = {
             ...this.estadoArchivos[i],
             estado: response.ok ? "ok" : "error",
+            mensajeError,
           };
         } catch {
-          this.estadoArchivos[i] = { ...this.estadoArchivos[i], estado: "error" };
+          this.estadoArchivos[i] = {
+            ...this.estadoArchivos[i],
+            estado: "error",
+            mensajeError: "",
+          };
         }
       }
 
