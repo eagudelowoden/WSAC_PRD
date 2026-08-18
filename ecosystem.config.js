@@ -5,7 +5,7 @@ module.exports = {
     watch: false,         // Desactivamos el watch local para usar el flujo de Git
     env: {
       NODE_ENV: "production",
-      PORT: 3000 // Asegúrate de que coincida con tu .env o server.js
+      PORT: 3005 // Asegúrate de que coincida con tu .env o server.js
     }
   }],
 
