@@ -1,6 +1,6 @@
 const { server, serverID } = require("./app");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 const URL_BASEDEV = process.env.URL_BASEDEV;
 
 server.listen(PORT, () => {
