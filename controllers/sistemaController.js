@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const db = require("../databases/knex");
 const { DEFAULTS_MODULOS_POR_ROL, JWT_SECRET } = require("../middlewares/auth");
+const { detectarSqlInjection, registrarEventoSeguridad } = require("../services/securityLogger");
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -14,32 +15,81 @@ const COOKIE_OPTS = {
 async function login(req, res, next) {
   try {
     const { usuario, password } = req.body;
+    const ip = req.ip;
+    const userAgent = req.headers["user-agent"];
+
+    // Señal de alerta: no bloquea la petición (la query ya usa parámetros
+    // bindeados y no es inyectable), solo queda registrado para revisión.
+    const sqliUsuario = detectarSqlInjection(usuario);
+    const sqliPassword = detectarSqlInjection(password);
+    const payloadSospechoso = sqliUsuario
+      ? `usuario="${usuario}"`
+      : sqliPassword
+        ? "password con patrón sospechoso"
+        : null;
+
     const [users] = await db.raw(
       "SELECT * FROM usuariosSys WHERE usuario = ?",
       [usuario],
     );
 
-    if (!users.length)
+    if (!users.length) {
+      await registrarEventoSeguridad({
+        evento: "login_fail",
+        usuarioIntentado: usuario,
+        ip,
+        userAgent,
+        motivo: "usuario_no_encontrado",
+        payloadSospechoso,
+      });
       return res
         .status(401)
         .json({ status: "error", message: "Usuario no encontrado" });
+    }
 
     const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch)
+    if (!isMatch) {
+      await registrarEventoSeguridad({
+        evento: "login_fail",
+        usuarioIntentado: usuario,
+        ip,
+        userAgent,
+        motivo: "contraseña_incorrecta",
+        payloadSospechoso,
+      });
       return res
         .status(401)
         .json({ status: "error", message: "Contraseña incorrecta" });
+    }
 
     // Cuenta desactivada por un superadmin: no se permite el acceso.
-    if (user.activo !== undefined && Number(user.activo) === 0)
+    if (user.activo !== undefined && Number(user.activo) === 0) {
+      await registrarEventoSeguridad({
+        evento: "login_fail",
+        usuarioIntentado: usuario,
+        ip,
+        userAgent,
+        motivo: "cuenta_desactivada",
+        payloadSospechoso,
+      });
       return res
         .status(403)
         .json({
           status: "error",
           message: "Tu cuenta está desactivada. Contacta al administrador.",
         });
+    }
+
+    await registrarEventoSeguridad({
+      evento: "login_ok",
+      usuarioIntentado: usuario,
+      ip,
+      userAgent,
+      motivo: null,
+      payloadSospechoso,
+    });
 
     const payload = { id: user.id, nombre: user.nombre, rol: user.rol };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });

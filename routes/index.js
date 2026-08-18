@@ -10,6 +10,7 @@ const router = require("express").Router();
 router.use("/api/docs",              require("./routesDocs"));
 router.use("/api/admin/users",       require("./usuarios.routes"));
 router.use("/api/admin/permisos",    require("./permisos.routes"));
+router.use("/api/admin/seguridad",   require("./seguridad.routes"));
 router.use("/api/admin",             require("./emails.routes"));
 router.use("/api/requisiciones",     require("./requisiciones.routes"));
 router.use("/api/descripcion-cargo", require("./descripcionCargo.routes"));

@@ -48,6 +48,23 @@ async function bootstrap() {
     `);
     console.log("✅ Tabla permisos_edicion verificada.");
 
+    await db.raw(`
+      CREATE TABLE IF NOT EXISTS logs_seguridad (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        evento VARCHAR(30) NOT NULL,
+        usuario_intentado VARCHAR(100),
+        ip VARCHAR(64),
+        user_agent VARCHAR(255),
+        motivo VARCHAR(150),
+        sospechoso_sqli TINYINT(1) DEFAULT 0,
+        payload_sospechoso VARCHAR(500),
+        creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_creado_en (creado_en),
+        INDEX idx_evento (evento)
+      )
+    `);
+    console.log("✅ Tabla logs_seguridad verificada.");
+
     const [colActivo] = await db.raw("SHOW COLUMNS FROM usuarios LIKE 'activo'");
     if (colActivo.length === 0) {
       await db.raw(
