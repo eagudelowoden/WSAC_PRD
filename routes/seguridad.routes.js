@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { verificarSuperAdmin } = require("../middlewares/auth");
 const db = require("../databases/knex");
+const {
+  loginLimiterByIp,
+  loginLimiterByUser,
+  claveIp,
+  claveUsuario,
+} = require("../middlewares/loginRateLimiters");
 
 // GET /api/admin/seguridad/logs-login?limite=100&evento=rate_limit_ip&sospechoso=1
 router.get("/logs-login", verificarSuperAdmin, async (req, res, next) => {
@@ -19,6 +25,30 @@ router.get("/logs-login", verificarSuperAdmin, async (req, res, next) => {
     res.json({ status: "ok", total: logs.length, logs });
   } catch (err) {
     next(err);
+  }
+});
+
+// POST /api/admin/seguridad/reset-limite  { tipo: "ip" | "usuario", valor: "..." }
+// Libera el contador de rate limit sin reiniciar el servidor completo.
+router.post("/reset-limite", verificarSuperAdmin, async (req, res) => {
+  const { tipo, valor } = req.body || {};
+
+  if (!valor || !["ip", "usuario"].includes(tipo)) {
+    return res.status(400).json({
+      status: "error",
+      message: "Debes indicar tipo ('ip' o 'usuario') y valor.",
+    });
+  }
+
+  try {
+    if (tipo === "ip") {
+      await loginLimiterByIp.resetKey(claveIp(valor));
+    } else {
+      await loginLimiterByUser.resetKey(claveUsuario(valor));
+    }
+    res.json({ status: "ok", message: `Contador de ${tipo} "${valor}" reseteado.` });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
   }
 });
 
