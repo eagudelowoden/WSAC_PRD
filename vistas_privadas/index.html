@@ -254,6 +254,14 @@
           <i class="bi" :class="sidebarContraida ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
         </button>
 
+        <div class="sidebar-header-block" v-show="!sidebarContraida">
+          <div class="sidebar-logo-box"><i class="bi bi-people-fill"></i></div>
+          <div class="sidebar-header-text">
+            <strong>Colaboradores</strong>
+            <span>Gestión de personal</span>
+          </div>
+        </div>
+
         <div class="search-header px-3 pt-3 pb-2" v-show="!sidebarContraida">
           <div class="d-flex align-items-center justify-content-between mb-3">
             <div class="d-flex align-items-center gap-2">
@@ -337,9 +345,9 @@
 
         <div v-else>
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="text-primary m-0">
-              <i class="bi bi-person-badge"></i> {{ usuarioActual.nombres }}
-              {{ usuarioActual.apellidos }}
+            <h5 class="page-title-row m-0">
+              <span class="page-icon-box"><i class="bi bi-person-badge"></i></span>
+              {{ usuarioActual.nombres }} {{ usuarioActual.apellidos }}
             </h5>
             <div>
               <button class="btn-save-main me-1" @click="guardarCambiosPersonales"
@@ -380,20 +388,20 @@
                       <input type="text" class="form-control form-custom" v-model="usuarioActual.apellidos" />
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <label class="form-label-custom"><i class="bi bi-card-text me-1"></i> Cédula</label>
                       <input type="text" class="form-control form-custom" v-model="usuarioActual.documento" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <label class="form-label-custom"><i class="bi bi-telephone me-1"></i> Teléfono</label>
                       <input type="text" class="form-control form-custom" v-model="usuarioActual.telefono" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <label class="form-label-custom"><i class="bi bi-calendar-event me-1"></i>Fecha
                         Nacimiento</label>
                       <input type="date" class="form-control form-custom" v-model="usuarioActual.fechaNacimiento" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <label class="form-label-custom"><i class="bi bi-calendar-event me-1"></i>Fecha
                         Suscripción</label>
                       <input type="date" class="form-control form-custom" v-model="usuarioActual.fechaSuscripcion" />

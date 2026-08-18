@@ -134,7 +134,7 @@
 }
 /* Colores de acento para la card */
 .text-orange {
-  color: var(--orange-accent) !important;
+  color: #FF5400 !important;
 }
 
 .icon-circle-sm {
@@ -153,7 +153,7 @@
 .form-select:focus {
   background-color: #fff !important;
   box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.2);
-  border: 1px solid var(--orange-accent) !important;
+  border: 1px solid #FF5400 !important;
 }
 
 /* Separador estético */
@@ -199,16 +199,7 @@
   color: #ffca2c;
 }
 
-/* Estilo para los labels de los formularios */
-.form-label-custom {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--orange-accent);
-  margin-bottom: 0.4rem;
-  display: block;
-}
+/* .form-label-custom se movió a design-system.css (componente reutilizable) */
 
 /* Inputs personalizados */
 .form-custom {
@@ -222,7 +213,7 @@
 
 .form-custom:focus {
   background-color: var(--bs-body-bg);
-  border-color: var(--orange-accent);
+  border-color: #FF5400;
   box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.15);
 }
 
@@ -234,8 +225,8 @@
 }
 
 .custom-switch .form-check-input:checked {
-  background-color: var(--orange-accent);
-  border-color: var(--orange-accent);
+  background-color: #FF5400;
+  border-color: #FF5400;
 }
 
 /* Estilo para la caja de seguridad social */
@@ -251,7 +242,7 @@
 }
 
 .text-primary-custom {
-  color: var(--primary-blue) !important;
+  color: var(--navy) !important;
 }
 /* Texto muy pequeño para etiquetas */
 .ultra-small {
@@ -360,7 +351,7 @@
 
 .doc-card-modern:hover {
   transform: translateY(-8px);
-  border-color: var(--orange-accent);
+  border-color: #FF5400;
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -896,24 +887,10 @@ button:disabled {
 
 /* =============================================
    DESIGN SYSTEM — Panel Administrativo v2
+   (card-accent-*, icon-circle-sm por acento, form-label-custom,
+   section-title, status-chip, btn-save-main y btn-delete-soft
+   se movieron a design-system.css como componentes reutilizables)
    ============================================= */
-
-/* Acento superior de cards */
-.card-accent-blue  { border-top: 3px solid #1a56db !important; }
-.card-accent-orange { border-top: 3px solid #f37021 !important; }
-.card-accent-dark  { border-top: 3px solid var(--navy) !important; }
-.card-accent-teal  { border-top: 3px solid #0891b2 !important; }
-
-/* Labels estandarizados */
-.form-label-custom {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #64748b;
-  margin-bottom: 0.35rem;
-  display: block;
-}
 
 /* Inputs con foco naranja más visible */
 .form-custom:focus,
@@ -921,72 +898,6 @@ button:disabled {
   background-color: #fff;
   border-color: #f37021;
   box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.12);
-}
-
-/* Section title dentro de cards */
-.section-title {
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #94a3b8;
-  margin-bottom: 0.75rem;
-}
-
-/* Badge de estado */
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 3px 8px;
-  border-radius: 20px;
-}
-
-.status-chip-success { background: #dcfce7; color: #166534; }
-.status-chip-danger  { background: #fee2e2; color: #991b1b; }
-.status-chip-warning { background: #fef9c3; color: #854d0e; }
-.status-chip-info    { background: #dbeafe; color: var(--navy-h); }
-
-/* Botón de guardar — más prominente */
-.btn-save-main {
-  background: linear-gradient(135deg, var(--navy), var(--navy-h));
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
-}
-
-.btn-save-main:hover {
-  background: linear-gradient(135deg, var(--navy-h), var(--navy-h));
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
-}
-
-/* Botón de eliminar — soft */
-.btn-delete-soft {
-  background: #fff1f2;
-  color: #be123c;
-  border: 1px solid #fecdd3;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  transition: all 0.2s;
-}
-
-.btn-delete-soft:hover {
-  background: #dc2626;
-  color: white;
-  border-color: #dc2626;
 }
 
 /* ---- SweetAlert2 Custom ---- */

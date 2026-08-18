@@ -17,7 +17,7 @@ const helmetMiddleware = helmet({
 });
 
 const corsMiddleware = cors({
-  origin     : [process.env.URL_BASE, "http://localhost:8081", "http://127.0.0.1:8081"].filter(Boolean),
+  origin     : [process.env.URL_BASE, "http://localhost:3005", "http://127.0.0.1:3005"].filter(Boolean),
   methods    : ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,

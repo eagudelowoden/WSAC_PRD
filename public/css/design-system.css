@@ -42,6 +42,14 @@
   /* ── Alias hacia Bootstrap para compatibilidad ── */
   --bs-primary: var(--navy);
   --bs-primary-rgb: 11, 46, 112;
+
+  /* ── Acentos secundarios (tarjetas/paneles tipo consola, dirección "Kaspersky") ── */
+  --accent-blue:      #2563eb;
+  --accent-blue-soft: #eff5ff;
+  --accent-blue-bd:   #c9daf5;
+  --accent-orange:      #ff5400;
+  --accent-orange-soft: #fff3eb;
+  --accent-orange-bd:   #ffd5c0;
 }
 
 /* ── Tipografía base ─────────────────────────────────────── */
@@ -151,3 +159,119 @@ a:hover { color: var(--navy-h); }
 .opciones-sep { height: 1px; background: var(--border); margin: 5px 8px; }
 .opciones-enter-active, .opciones-leave-active { transition: opacity 0.16s ease, transform 0.16s ease; }
 .opciones-enter-from, .opciones-leave-to { opacity: 0; transform: translateY(-6px); }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPONENTES: paneles tipo consola (piloto: panel-administrativo)
+   Tarjetas con acento de color, cajas de icono, cabecera de página
+   y de sidebar. Reutilizar en cualquier vista nueva de este estilo.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Acento superior de tarjetas */
+.card-accent-blue   { border-top: 3px solid var(--accent-blue) !important; }
+.card-accent-orange { border-top: 3px solid var(--accent-orange) !important; }
+.card-accent-dark   { border-top: 3px solid var(--navy) !important; }
+.card-accent-teal   { border-top: 3px solid #0891b2 !important; }
+
+/* Caja de icono dentro de una tarjeta con acento (usa .icon-circle-sm en el marcado) */
+.card-accent-blue .icon-circle-sm {
+  background: var(--accent-blue-soft);
+  color: var(--navy);
+}
+.card-accent-orange .icon-circle-sm {
+  background: var(--accent-orange-soft);
+  color: var(--accent-orange);
+}
+
+/* Caja de icono genérica reutilizable (nuevas vistas) */
+.icon-box {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; font-size: 1.1rem;
+}
+.icon-box-navy   { background: var(--navy-soft);         color: var(--navy); }
+.icon-box-blue   { background: var(--accent-blue-soft);  color: var(--navy); }
+.icon-box-orange { background: var(--accent-orange-soft); color: var(--accent-orange); }
+
+/* Label de campo estandarizado (icono + mayúsculas) */
+.form-label-custom {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-2);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+/* Título de sección dentro de una tarjeta */
+.section-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-3);
+  margin-bottom: 0.75rem;
+}
+
+/* Chip de estado */
+.status-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 3px 8px; border-radius: 20px;
+}
+.status-chip-success { background: var(--ok-soft);   color: #166534; }
+.status-chip-danger  { background: var(--dang-soft); color: #991b1b; }
+.status-chip-warning { background: #fef9c3;           color: #854d0e; }
+.status-chip-info    { background: var(--info-soft);  color: var(--navy-h); }
+
+/* Botón de guardar principal, compacto */
+.btn-save-main {
+  display: inline-flex; align-items: center; height: 34px;
+  background: linear-gradient(135deg, var(--navy), var(--navy-h));
+  color: white; border: none; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 600; padding: 6px 14px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
+}
+.btn-save-main:hover {
+  background: linear-gradient(135deg, var(--navy-h), var(--navy-h));
+  color: white; transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+/* Botón de eliminar/desactivar, suave */
+.btn-delete-soft {
+  display: inline-flex; align-items: center; height: 34px;
+  background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;
+  border-radius: 8px; font-size: 0.78rem; font-weight: 600; padding: 6px 12px;
+  transition: all 0.2s;
+}
+.btn-delete-soft:hover { background: #dc2626; color: white; border-color: #dc2626; }
+
+/* Cabecera de marca del sidebar */
+.sidebar-header-block {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo-box {
+  width: 38px; height: 38px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-bd); color: var(--navy); font-size: 1rem;
+}
+.sidebar-header-text { min-width: 0; }
+.sidebar-header-text strong { display: block; font-size: 0.82rem; font-weight: 750; color: var(--text); }
+.sidebar-header-text span   { display: block; margin-top: 2px; font-size: 0.68rem; color: var(--text-3); }
+
+/* Cabecera de página (título con icono + acciones) */
+.page-title-row {
+  display: flex; align-items: center; gap: 9px;
+  color: var(--navy); font-size: 1.12rem; font-weight: 700; letter-spacing: -0.2px;
+}
+.page-icon-box {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px; background: var(--accent-blue-soft); color: var(--navy); font-size: 0.85rem;
+}
