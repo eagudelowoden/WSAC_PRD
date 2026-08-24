@@ -903,6 +903,21 @@
                     errorMsg: "",
                 };
             },
+            mounted() {
+                const params = new URLSearchParams(window.location.search);
+                const error = params.get("error");
+                const MENSAJES_ERROR = {
+                    sin_acceso: "Tu usuario no tiene acceso a ningún módulo todavía. Contacta al administrador.",
+                    auth_required: "Debes iniciar sesión para continuar.",
+                };
+                if (error) {
+                    this.errorMsg = MENSAJES_ERROR[error] || "No se pudo completar el acceso. Intenta de nuevo.";
+                    // Limpia el parámetro de la URL para que no reaparezca al recargar.
+                    params.delete("error");
+                    const query = params.toString();
+                    window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : ""));
+                }
+            },
             methods: {
                 async iniciarSesion() {
                     this.errorMsg = "";

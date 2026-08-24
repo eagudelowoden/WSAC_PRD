@@ -13,8 +13,44 @@ if (!JWT_SECRET) throw new Error("JWT_SECRET no está definido en las variables 
 const DEFAULTS_MODULOS_POR_ROL = {
   aprobadorUno: { modulo_seleccion: true,  modulo_nomina: false, modulo_postulaciones: false, modulo_portal: false, modulo_requisiciones: false },
   aprobadorDos: { modulo_seleccion: false, modulo_nomina: true,  modulo_postulaciones: false, modulo_portal: false, modulo_requisiciones: false },
-  jefe:         { modulo_seleccion: false, modulo_nomina: false, modulo_postulaciones: false, modulo_portal: true,  modulo_requisiciones: false },
+  jefe:         { modulo_seleccion: false, modulo_nomina: false, modulo_postulaciones: false, modulo_portal: true,  modulo_requisiciones: true },
 };
+
+// Módulos conocidos por el sistema (para mezclar defaults + overrides explícitos).
+const MODULOS_CONOCIDOS = ["modulo_seleccion", "modulo_nomina", "modulo_postulaciones", "modulo_portal", "modulo_requisiciones"];
+
+// superadmin no tiene fila de defaults (siempre bypassa verificarModulo),
+// pero para MOSTRAR el estado correcto en el panel de permisos necesita "todo en true".
+function defaultsModulosPara(rol) {
+  if (rol === "superadmin") {
+    return MODULOS_CONOCIDOS.reduce((acc, m) => { acc[m] = true; return acc; }, {});
+  }
+  return DEFAULTS_MODULOS_POR_ROL[rol] || {};
+}
+
+// Mezcla el default del rol con los overrides explícitos de permisos_edicion.
+// Única fuente de verdad para "qué módulos tiene realmente este usuario",
+// usada por verificarModulo, el login (para avisar si no tiene ninguno) y
+// el panel de permisos del superadmin.
+async function obtenerModulosEfectivos(userId, rol) {
+  const defaultsRol = defaultsModulosPara(rol);
+
+  const rows = await db("permisos_edicion")
+    .where({ usuario_id: userId })
+    .whereIn("seccion", MODULOS_CONOCIDOS)
+    .select("seccion", db.raw("CAST(puede_editar AS UNSIGNED) AS puede_editar"));
+
+  const explicitos = rows.reduce((acc, p) => {
+    acc[p.seccion] = p.puede_editar === 1;
+    return acc;
+  }, {});
+
+  const mapa = {};
+  MODULOS_CONOCIDOS.forEach((m) => {
+    mapa[m] = m in explicitos ? explicitos[m] : !!defaultsRol[m];
+  });
+  return mapa;
+}
 
 // ── Helpers ─────────────────────────────────────────────────────
 function leerToken(req) {
@@ -136,5 +172,8 @@ module.exports = {
   verificarModulo,
   registrarActividad,
   DEFAULTS_MODULOS_POR_ROL,
+  MODULOS_CONOCIDOS,
+  defaultsModulosPara,
+  obtenerModulosEfectivos,
   JWT_SECRET,
 };

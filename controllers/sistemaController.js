@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const db = require("../databases/knex");
-const { DEFAULTS_MODULOS_POR_ROL, JWT_SECRET } = require("../middlewares/auth");
+const { DEFAULTS_MODULOS_POR_ROL, JWT_SECRET, obtenerModulosEfectivos } = require("../middlewares/auth");
 const { detectarSqlInjection, registrarEventoSeguridad } = require("../services/securityLogger");
 
 const COOKIE_OPTS = {
@@ -80,6 +80,28 @@ async function login(req, res, next) {
           status: "error",
           message: "Tu cuenta está desactivada. Contacta al administrador.",
         });
+    }
+
+    // superadmin siempre tiene acceso; los demás roles necesitan al menos
+    // un módulo habilitado (default por rol u override explícito).
+    if (user.rol !== "superadmin") {
+      const modulos = await obtenerModulosEfectivos(user.id, user.rol);
+      const tieneAlgunModulo = Object.values(modulos).some(Boolean);
+
+      if (!tieneAlgunModulo) {
+        await registrarEventoSeguridad({
+          evento: "login_fail",
+          usuarioIntentado: usuario,
+          ip,
+          userAgent,
+          motivo: "sin_permisos_habilitados",
+          payloadSospechoso,
+        });
+        return res.status(403).json({
+          status: "error",
+          message: "Tu usuario no tiene permisos habilitados. Contacta al administrador.",
+        });
+      }
     }
 
     await registrarEventoSeguridad({
