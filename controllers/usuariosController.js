@@ -73,11 +73,52 @@ async function obtenerColaborador(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// Campos de la "tarjeta de contratación" gobernados por el permiso fino
+// tarjeta_contratacion (independiente de editar_salario / editar_ciudad).
+const CAMPOS_TARJETA_CONTRATACION = [
+  "segmento_contrato", "descripcion_cargo", "tipo_contrato", "cargo", "observaciones",
+];
+
+// Aplica los permisos finos (permisos_edicion) a cualquier usuario autenticado
+// que no sea superadmin (superadmin siempre tiene control total). Si el campo
+// está restringido, se descarta el valor recibido y se conserva el actual en BD
+// — así una petición directa a la API (sin pasar por el input deshabilitado)
+// tampoco puede modificarlo.
+async function aplicarPermisosFinos(req, id, data) {
+  if (!req.user || req.user.rol === "superadmin") return;
+
+  const [permRows] = await db.raw(
+    "SELECT seccion, CAST(puede_editar AS UNSIGNED) AS puede_editar FROM permisos_edicion WHERE usuario_id = ? AND seccion IN ('tarjeta_contratacion','editar_salario','editar_ciudad')",
+    [req.user.id],
+  );
+  const permisos = permRows.reduce((acc, p) => {
+    acc[p.seccion] = p.puede_editar === 1;
+    return acc;
+  }, {});
+
+  const camposRestringidos = [];
+  if (!permisos.tarjeta_contratacion) camposRestringidos.push(...CAMPOS_TARJETA_CONTRATACION);
+  if (!permisos.editar_salario) camposRestringidos.push("salario");
+  if (!permisos.editar_ciudad) camposRestringidos.push("ciudad");
+
+  if (!camposRestringidos.length) return;
+
+  const [actual] = await db.raw(
+    `SELECT ${camposRestringidos.join(",")} FROM usuarios WHERE id = ?`,
+    [id],
+  );
+  if (actual.length) {
+    camposRestringidos.forEach((campo) => { data[campo] = actual[0][campo]; });
+  }
+}
+
 async function actualizarColaborador(req, res, next) {
   const id   = req.params.id;
   const data = req.body;
 
   try {
+    await aplicarPermisosFinos(req, id, data);
+
     // Vincular descripción de cargo a S3 si aplica
     if (data.segmento_contrato && data.descripcion_cargo) {
       const [userRows] = await db.raw(

@@ -20,7 +20,7 @@ router.get("/", ctrl.listarColaboradores);
 // ⚠️ /:id al final
 
 router.get("/usuario/:id", ctrl.obtenerColaborador);
-router.put("/usuario/:id", registrarActividad("Actualizar usuario"), ctrl.actualizarColaborador);
+router.put("/usuario/:id", verificarAuth, registrarActividad("Actualizar usuario"), ctrl.actualizarColaborador);
 router.patch("/usuario/:id/estado", verificarAuth, registrarActividad("Cambiar estado colaborador"), ctrl.cambiarEstadoColaborador);
 // Desactivar / reactivar colaborador (nunca se borra el registro ni sus archivos).
 router.patch("/usuario/:id/activo", verificarAuth, registrarActividad("Cambiar estado activo colaborador"), ctrl.desactivarColaborador);

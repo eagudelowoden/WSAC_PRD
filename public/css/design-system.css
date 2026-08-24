@@ -58,6 +58,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Campos bloqueados por permisos de edición (tarjeta_contratacion, editar_salario, editar_ciudad, etc.) */
+.cursor-not-allowed { cursor: not-allowed; }
+
 /* ── Scrollbar sutil unificado ───────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

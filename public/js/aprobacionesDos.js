@@ -445,6 +445,9 @@ createApp({
       // Solo si el usuario cargó bien, traemos su lista
       if (this.usuarioSys) {
         this.obtenerListaUsuarios();
+        // Permisos finos (tarjeta de contratación / salario / ciudad) del usuario logueado,
+        // NO del colaborador seleccionado — deshabilitados por defecto si no hay fila en BD.
+        this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
       }
     } catch (e) {
       console.error("❌ Error al identificar usuario:", e);
@@ -567,13 +570,6 @@ createApp({
         // await this.obtenerHistorialS3(); // Contratos generados por admin
         await this.obtenerDocumentosFirmados(); // Documentos subidos por el colaborador
       }
-    },
-
-    async cargarPermisos() {
-      const res = await fetch(
-        `/api/usuarios/permisos/${this.usuarioActual.id}`,
-      );
-      this.permisos = await res.json();
     },
 
     async cargarUsuarioDesdeBD() {

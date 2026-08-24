@@ -12,6 +12,7 @@ createApp({
       isDarkMode: false,
       userPermisoId: null,
       userPermisoNombre: "",
+      mostrarPermisosModal: false,
       mapaPermisos: {
         // Acceso a módulos
         modulo_seleccion: false,
@@ -93,6 +94,17 @@ createApp({
       };
     },
 
+    // Abre el modal de módulos/permisos para un usuario (click en la fila de Usuarios).
+    async abrirPermisosUsuario(user) {
+      await this.seleccionarUsuarioPermisos(user);
+      this.mostrarPermisosModal = true;
+    },
+
+    cerrarPermisosModal() {
+      this.mostrarPermisosModal = false;
+      this.userPermisoId = null;
+    },
+
     async guardarPermisos() {
       const res = await fetch("/api/admin/permisos", {
         method: "POST",
@@ -103,6 +115,7 @@ createApp({
         }),
       });
       if (res.ok) {
+        this.cerrarPermisosModal();
         Swal.fire({ icon: "success", title: "Permisos actualizados", text: "Los cambios se guardaron correctamente.", confirmButtonColor: "#f37021", customClass: { popup: "swal-custom-popup" } });
       }
     },
@@ -323,6 +336,50 @@ createApp({
         toast: true, position: "top-end", timer: 1800, showConfirmButton: false,
         icon: "success",
         title: desactivar ? "Usuario desactivado" : "Usuario reactivado",
+      });
+    },
+
+    // Cambia la contraseña de un usuario (acción de superadmin, no requiere la actual).
+    async cambiarPasswordUsuario(u) {
+      const { value: password } = await Swal.fire({
+        title: `Cambiar contraseña de ${u.nombre}`,
+        input: "password",
+        inputLabel: "Nueva contraseña",
+        inputPlaceholder: "Mínimo 6 caracteres",
+        inputAttributes: { autocomplete: "new-password", minlength: 6 },
+        showCancelButton: true,
+        confirmButtonText: "Guardar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#0b2e70",
+        cancelButtonColor: "#6c757d",
+        customClass: { popup: "swal-custom-popup" },
+        inputValidator: (value) => {
+          if (!value || value.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
+        },
+      });
+      if (!password) return;
+
+      const res = await fetch(`/api/admin/users/${u.id}/password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.status !== "ok") {
+        return Swal.fire({
+          icon: "error",
+          title: "No se pudo cambiar la contraseña",
+          text: data.message || "Intenta de nuevo.",
+          customClass: { popup: "swal-custom-popup" },
+        });
+      }
+
+      Swal.fire({
+        toast: true, position: "top-end", timer: 1800, showConfirmButton: false,
+        icon: "success",
+        title: "Contraseña actualizada",
       });
     },
 

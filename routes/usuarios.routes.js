@@ -59,6 +59,22 @@ router.patch("/:id/activo", verificarSuperAdmin, registrarActividad("Cambiar est
   } catch (err) { next(err); }
 });
 
+// ── Cambiar contraseña de un usuario (acción de superadmin) ─────
+router.patch("/:id/password", verificarSuperAdmin, registrarActividad("Cambiar contraseña usuario"), async (req, res, next) => {
+  try {
+    const { password } = req.body || {};
+    if (!password || password.length < 6) {
+      return res.status(400).json({ status: "error", message: "La contraseña debe tener al menos 6 caracteres." });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const filas = await db("usuariosSys").where({ id: req.params.id }).update({ password: hash });
+    if (!filas) return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
+
+    res.json({ status: "ok" });
+  } catch (err) { next(err); }
+});
+
 // Compatibilidad: el antiguo DELETE ahora desactiva (nunca borra).
 router.delete("/:id", verificarSuperAdmin, registrarActividad("Desactivar usuario"), async (req, res, next) => {
   try {

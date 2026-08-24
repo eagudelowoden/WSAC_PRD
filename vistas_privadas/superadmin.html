@@ -50,10 +50,6 @@
             <span class="sa-nav-icon"><i class="bi bi-envelope-paper-fill"></i></span>
             <span class="sa-nav-text">Alertas Email</span>
           </button>
-          <button class="sa-nav-item" :class="{ active: tab === 'permisos' }" @click="tab = 'permisos'">
-            <span class="sa-nav-icon"><i class="bi bi-key-fill"></i></span>
-            <span class="sa-nav-text">Permisos</span>
-          </button>
           <button class="sa-nav-item" :class="{ active: tab === 'mantenimiento' }" @click="tab = 'mantenimiento'">
             <span class="sa-nav-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
             <span class="sa-nav-text">Despliegue</span>
@@ -80,22 +76,17 @@
             <div class="sa-topbar-breadcrumb">
               <span class="sa-topbar-module" v-if="tab === 'users'"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</span>
               <span class="sa-topbar-module" v-if="tab === 'emails'"><i class="bi bi-envelope-paper-fill me-2"></i>Alertas Email</span>
-              <span class="sa-topbar-module" v-if="tab === 'permisos'"><i class="bi bi-key-fill me-2"></i>Permisos Especiales</span>
               <span class="sa-topbar-module" v-if="tab === 'mantenimiento'"><i class="bi bi-rocket-takeoff-fill me-2"></i>Control de Despliegue</span>
             </div>
             <p class="sa-topbar-desc mb-0">
-              <span v-if="tab === 'users'">Administra las cuentas de acceso al sistema</span>
+              <span v-if="tab === 'users'">Administra las cuentas de acceso al sistema — haz clic en un usuario para ver sus módulos y permisos</span>
               <span v-if="tab === 'emails'">Configura los destinatarios de notificaciones automáticas</span>
-              <span v-if="tab === 'permisos'">Asigna permisos granulares por usuario</span>
               <span v-if="tab === 'mantenimiento'">Gestiona avisos y control de versiones</span>
             </p>
           </div>
           <div class="sa-topbar-right d-flex align-items-center gap-2">
             <button v-if="tab === 'users'" class="sa-btn-primary" @click="abrirModalUsuario">
               <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Usuario
-            </button>
-            <button class="sa-btn-logout" @click="cerrarSesion" title="Cerrar sesión">
-              <i class="bi bi-box-arrow-right me-1"></i> Salir
             </button>
           </div>
         </header>
@@ -122,7 +113,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="u in usuarios" :key="u.id">
+                    <tr v-for="u in usuarios" :key="u.id" class="sa-row-clickable" @click="abrirPermisosUsuario(u)" title="Ver módulos y permisos">
                       <td>
                         <div class="d-flex align-items-center gap-2">
                           <div class="sa-avatar">{{ u.nombre ? u.nombre.charAt(0).toUpperCase() : '?' }}</div>
@@ -148,15 +139,24 @@
                           {{ Number(u.activo) === 0 ? 'Inactivo' : 'Activo' }}
                         </span>
                       </td>
-                      <td class="text-center">
-                        <button
-                          class="sa-btn-estado"
-                          :class="{ 'is-off': Number(u.activo) === 0 }"
-                          @click="toggleActivoUsuario(u)"
-                          :title="Number(u.activo) === 0 ? 'Reactivar usuario' : 'Desactivar usuario'">
-                          <i class="bi" :class="Number(u.activo) === 0 ? 'bi-person-check-fill' : 'bi-person-slash'"></i>
-                          <span>{{ Number(u.activo) === 0 ? 'Reactivar' : 'Desactivar' }}</span>
-                        </button>
+                      <td class="text-center" @click.stop>
+                        <div class="d-inline-flex gap-2">
+                          <button
+                            class="sa-btn-password"
+                            @click="cambiarPasswordUsuario(u)"
+                            title="Cambiar contraseña">
+                            <i class="bi bi-key-fill"></i>
+                            <span>Contraseña</span>
+                          </button>
+                          <button
+                            class="sa-btn-estado"
+                            :class="{ 'is-off': Number(u.activo) === 0 }"
+                            @click="toggleActivoUsuario(u)"
+                            :title="Number(u.activo) === 0 ? 'Reactivar usuario' : 'Desactivar usuario'">
+                            <i class="bi" :class="Number(u.activo) === 0 ? 'bi-person-check-fill' : 'bi-person-slash'"></i>
+                            <span>{{ Number(u.activo) === 0 ? 'Reactivar' : 'Desactivar' }}</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                     <tr v-if="!usuarios.length">
@@ -259,165 +259,6 @@
           </div>
 
           <!-- ══════════════════════════
-               TAB: PERMISOS
-          ══════════════════════════ -->
-          <div v-if="tab === 'permisos'" class="animate-fade">
-            <div class="row g-4">
-
-              <!-- Lista usuarios -->
-              <div class="col-md-4">
-                <div class="sa-panel h-100">
-                  <div class="sa-panel-header sa-panel-header-blue">
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="sa-header-icon sa-icon-blue"><i class="bi bi-people-fill"></i></div>
-                      <div>
-                        <div class="sa-panel-title">Seleccionar Usuario</div>
-                        <div class="sa-panel-subtitle">Elige a quién configurar</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="sa-panel-inner p-2">
-                    <div class="sa-user-list">
-                      <button
-                        v-for="u in usuarios"
-                        :key="u.id"
-                        @click="seleccionarUsuarioPermisos(u)"
-                        class="sa-user-btn"
-                        :class="{ active: userPermisoId === u.id }"
-                      >
-                        <div class="sa-avatar sa-avatar-sm">{{ u.nombre ? u.nombre.charAt(0).toUpperCase() : '?' }}</div>
-                        <div class="sa-user-info">
-                          <div class="sa-user-name">{{ u.nombre }}</div>
-                          <div class="sa-user-role">{{ u.rol }}<span v-if="u.cedula"> · CC {{ u.cedula }}</span></div>
-                        </div>
-                        <i class="bi bi-chevron-right sa-user-arrow"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Panel permisos -->
-              <div class="col-md-8">
-                <div class="sa-panel h-100" v-if="userPermisoId">
-                  <div class="sa-panel-header sa-panel-header-purple">
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="sa-header-icon sa-icon-purple"><i class="bi bi-shield-check"></i></div>
-                      <div>
-                        <div class="sa-panel-title">Configurando: <span class="text-white">{{ userPermisoNombre }}</span></div>
-                        <div class="sa-panel-subtitle">Activa o desactiva accesos y funciones</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="sa-panel-inner">
-
-                    <!-- Módulos -->
-                    <div class="sa-perm-section">
-                      <div class="sa-perm-section-title">
-                        <i class="bi bi-grid-3x3-gap-fill"></i> Acceso a Módulos
-                      </div>
-                      <div class="sa-perm-grid">
-                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_seleccion }">
-                          <div class="sa-perm-card-icon sa-icon-blue-soft"><i class="bi bi-people"></i></div>
-                          <div class="sa-perm-card-body">
-                            <div class="sa-perm-card-name">Área de Selección</div>
-                            <div class="sa-perm-card-desc">Colaboradores y agendamiento</div>
-                          </div>
-                          <div class="sa-perm-card-switch">
-                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_seleccion" />
-                          </div>
-                        </label>
-                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_nomina }">
-                          <div class="sa-perm-card-icon sa-icon-green-soft"><i class="bi bi-cash-stack"></i></div>
-                          <div class="sa-perm-card-body">
-                            <div class="sa-perm-card-name">Nómina y Contratación</div>
-                            <div class="sa-perm-card-desc">Panel nómina y contratos</div>
-                          </div>
-                          <div class="sa-perm-card-switch">
-                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_nomina" />
-                          </div>
-                        </label>
-                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_postulaciones }">
-                          <div class="sa-perm-card-icon sa-icon-yellow-soft"><i class="bi bi-file-earmark-text"></i></div>
-                          <div class="sa-perm-card-body">
-                            <div class="sa-perm-card-name">Postulaciones</div>
-                            <div class="sa-perm-card-desc">Módulo de postulaciones</div>
-                          </div>
-                          <div class="sa-perm-card-switch">
-                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_postulaciones" />
-                          </div>
-                        </label>
-                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_portal }">
-                          <div class="sa-perm-card-icon" style="background:#fdf4ff;color:#9333ea"><i class="bi bi-clipboard2-plus-fill"></i></div>
-                          <div class="sa-perm-card-body">
-                            <div class="sa-perm-card-name">Portal Requisición</div>
-                            <div class="sa-perm-card-desc">Crear solicitudes de personal</div>
-                          </div>
-                          <div class="sa-perm-card-switch">
-                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_portal" />
-                          </div>
-                        </label>
-                        <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_requisiciones }">
-                          <div class="sa-perm-card-icon" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-clipboard2-check-fill"></i></div>
-                          <div class="sa-perm-card-body">
-                            <div class="sa-perm-card-name">Gestión Requisiciones</div>
-                            <div class="sa-perm-card-desc">Ver y gestionar solicitudes de jefes</div>
-                          </div>
-                          <div class="sa-perm-card-switch">
-                            <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_requisiciones" />
-                          </div>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="sa-perm-divider"></div>
-
-                    <!-- Edición -->
-                    <div class="sa-perm-section">
-                      <div class="sa-perm-section-title">
-                        <i class="bi bi-pencil-square"></i> Permisos de Edición
-                      </div>
-                      <div class="sa-perm-toggle-list">
-                        <label class="sa-perm-toggle" :class="{ active: mapaPermisos.tarjeta_contratacion }">
-                          <div>
-                            <div class="sa-perm-toggle-name">Tarjeta de Contratación</div>
-                            <div class="sa-perm-toggle-desc">Permite ver y usar la tarjeta lateral de gestión</div>
-                          </div>
-                          <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.tarjeta_contratacion" />
-                        </label>
-                        <label class="sa-perm-toggle" :class="{ active: mapaPermisos.editar_salario }">
-                          <div>
-                            <div class="sa-perm-toggle-name">Editar Salario</div>
-                            <div class="sa-perm-toggle-desc">Permite modificar el campo salario del colaborador</div>
-                          </div>
-                          <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.editar_salario" />
-                        </label>
-                        <label class="sa-perm-toggle" :class="{ active: mapaPermisos.editar_ciudad }">
-                          <div>
-                            <div class="sa-perm-toggle-name">Editar Ciudad</div>
-                            <div class="sa-perm-toggle-desc">Permite modificar el campo ciudad del colaborador</div>
-                          </div>
-                          <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.editar_ciudad" />
-                        </label>
-                      </div>
-                    </div>
-
-                    <button class="sa-btn-save mt-3" @click="guardarPermisos">
-                      <i class="bi bi-floppy-fill me-2"></i> Guardar Permisos
-                    </button>
-                  </div>
-                </div>
-
-                <div class="sa-panel sa-empty-state h-100" v-else>
-                  <i class="bi bi-arrow-left-circle sa-empty-icon"></i>
-                  <p class="sa-empty-text">Selecciona un usuario para gestionar sus permisos</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ══════════════════════════
                TAB: MANTENIMIENTO
           ══════════════════════════ -->
           <div v-if="tab === 'mantenimiento'" class="animate-fade">
@@ -513,6 +354,128 @@
 
         </div><!-- /sa-content -->
       </main>
+
+      <!-- ══════════════════════════════════════════
+           MODAL: MÓDULOS Y PERMISOS (por usuario)
+           Debe quedar DENTRO de #app para que Vue la procese
+           (v-if, v-cloak, @click); <teleport> la mueve al <body>
+           en tiempo de ejecución de todas formas.
+      ══════════════════════════════════════════ -->
+      <teleport to="body">
+      <div v-if="mostrarPermisosModal" v-cloak class="sa-modal-overlay" @click.self="cerrarPermisosModal">
+        <div class="sa-modal">
+          <div class="sa-panel-header sa-panel-header-purple">
+            <div class="d-flex align-items-center gap-2">
+              <div class="sa-header-icon sa-icon-purple"><i class="bi bi-shield-check"></i></div>
+              <div>
+                <div class="sa-panel-title">Módulos y permisos: <span class="text-white">{{ userPermisoNombre }}</span></div>
+                <div class="sa-panel-subtitle">Activa o desactiva accesos y funciones</div>
+              </div>
+            </div>
+            <button class="sa-modal-close" @click="cerrarPermisosModal" title="Cerrar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <div class="sa-panel-inner sa-modal-body">
+
+            <!-- Módulos -->
+            <div class="sa-perm-section">
+              <div class="sa-perm-section-title">
+                <i class="bi bi-grid-3x3-gap-fill"></i> Acceso a Módulos
+              </div>
+              <div class="sa-perm-grid">
+                <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_seleccion }">
+                  <div class="sa-perm-card-icon sa-icon-blue-soft"><i class="bi bi-people"></i></div>
+                  <div class="sa-perm-card-body">
+                    <div class="sa-perm-card-name">Área de Selección</div>
+                    <div class="sa-perm-card-desc">Colaboradores y agendamiento</div>
+                  </div>
+                  <div class="sa-perm-card-switch">
+                    <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_seleccion" />
+                  </div>
+                </label>
+                <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_nomina }">
+                  <div class="sa-perm-card-icon sa-icon-green-soft"><i class="bi bi-cash-stack"></i></div>
+                  <div class="sa-perm-card-body">
+                    <div class="sa-perm-card-name">Nómina y Contratación</div>
+                    <div class="sa-perm-card-desc">Panel nómina y contratos</div>
+                  </div>
+                  <div class="sa-perm-card-switch">
+                    <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_nomina" />
+                  </div>
+                </label>
+                <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_postulaciones }">
+                  <div class="sa-perm-card-icon sa-icon-yellow-soft"><i class="bi bi-file-earmark-text"></i></div>
+                  <div class="sa-perm-card-body">
+                    <div class="sa-perm-card-name">Postulaciones</div>
+                    <div class="sa-perm-card-desc">Módulo de postulaciones</div>
+                  </div>
+                  <div class="sa-perm-card-switch">
+                    <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_postulaciones" />
+                  </div>
+                </label>
+                <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_portal }">
+                  <div class="sa-perm-card-icon" style="background:#fdf4ff;color:#9333ea"><i class="bi bi-clipboard2-plus-fill"></i></div>
+                  <div class="sa-perm-card-body">
+                    <div class="sa-perm-card-name">Portal Requisición</div>
+                    <div class="sa-perm-card-desc">Crear solicitudes de personal</div>
+                  </div>
+                  <div class="sa-perm-card-switch">
+                    <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_portal" />
+                  </div>
+                </label>
+                <label class="sa-perm-card" :class="{ active: mapaPermisos.modulo_requisiciones }">
+                  <div class="sa-perm-card-icon" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-clipboard2-check-fill"></i></div>
+                  <div class="sa-perm-card-body">
+                    <div class="sa-perm-card-name">Gestión Requisiciones</div>
+                    <div class="sa-perm-card-desc">Ver y gestionar solicitudes de jefes</div>
+                  </div>
+                  <div class="sa-perm-card-switch">
+                    <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.modulo_requisiciones" />
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="sa-perm-divider"></div>
+
+            <!-- Edición -->
+            <div class="sa-perm-section">
+              <div class="sa-perm-section-title">
+                <i class="bi bi-pencil-square"></i> Permisos de Edición
+              </div>
+              <div class="sa-perm-toggle-list">
+                <label class="sa-perm-toggle" :class="{ active: mapaPermisos.tarjeta_contratacion }">
+                  <div>
+                    <div class="sa-perm-toggle-name">Tarjeta de Contratación</div>
+                    <div class="sa-perm-toggle-desc">Permite ver y usar la tarjeta lateral de gestión</div>
+                  </div>
+                  <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.tarjeta_contratacion" />
+                </label>
+                <label class="sa-perm-toggle" :class="{ active: mapaPermisos.editar_salario }">
+                  <div>
+                    <div class="sa-perm-toggle-name">Editar Salario</div>
+                    <div class="sa-perm-toggle-desc">Permite modificar el campo salario del colaborador</div>
+                  </div>
+                  <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.editar_salario" />
+                </label>
+                <label class="sa-perm-toggle" :class="{ active: mapaPermisos.editar_ciudad }">
+                  <div>
+                    <div class="sa-perm-toggle-name">Editar Ciudad</div>
+                    <div class="sa-perm-toggle-desc">Permite modificar el campo ciudad del colaborador</div>
+                  </div>
+                  <input class="form-check-input sa-switch" type="checkbox" v-model="mapaPermisos.editar_ciudad" />
+                </label>
+              </div>
+            </div>
+
+            <button class="sa-btn-save mt-3" @click="guardarPermisos">
+              <i class="bi bi-floppy-fill me-2"></i> Guardar Permisos
+            </button>
+          </div>
+        </div>
+      </div>
+      </teleport>
     </div><!-- /sa-shell -->
 
     <script src="js/superAdmin.js"></script>

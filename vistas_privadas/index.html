@@ -543,7 +543,9 @@
                     <div class="input-group input-group-sm">
                       <span class="input-group-text bg-light border-0"><i class="bi bi-diagram-3"></i></span>
                       <select class="form-select border-0 bg-light" v-model="form.segmento_contrato"
-                        @change="cargarCargosPorSegmento">
+                        @change="cargarCargosPorSegmento"
+                        :disabled="!permisos.tarjeta_contratacion"
+                        :class="{ 'opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">-- Seleccione Segmento --</option>
                         <option v-for="seg in listaSegmentos" :key="seg" :value="seg">
                           {{ seg }}
@@ -563,7 +565,8 @@
                     <div v-else class="input-group input-group-sm">
                       <span class="input-group-text bg-light border-0"><i class="bi bi-file-pdf"></i></span>
                       <select class="form-select border-0 bg-light" v-model="form.descripcion_cargo"
-                        :disabled="!form.segmento_contrato">
+                        :disabled="!permisos.tarjeta_contratacion || !form.segmento_contrato"
+                        :class="{ 'opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">-- Seleccione Archivo --</option>
                         <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">
                           {{ pdf }}
@@ -579,7 +582,9 @@
                         <i class="bi bi-diagram-3"></i>
                       </span>
 
-                      <select class="form-select border-0 bg-light" v-model="form.tipo_contrato">
+                      <select class="form-select border-0 bg-light" v-model="form.tipo_contrato"
+                        :disabled="!permisos.tarjeta_contratacion"
+                        :class="{ 'opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">
                           -- Seleccione Tipo de Contrato --
                         </option>
@@ -595,7 +600,9 @@
                   <div class="mb-2">
                     <label class="form-label small fw-bold opacity-75">Cargo (Nombre)</label>
                     <input type="text" class="form-control form-control-sm border-0 bg-light" v-model="form.cargo"
-                      placeholder="Ej: Analista" />
+                      placeholder="Ej: Analista"
+                      :disabled="!permisos.tarjeta_contratacion"
+                      :class="{ 'opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }" />
                   </div>
 
                   <div class="row g-2 mb-3">
@@ -603,19 +610,25 @@
                       <label class="form-label small fw-bold opacity-75">Salario</label>
                       <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light border-0">$</span>
-                        <input type="number" class="form-control border-0 bg-light" v-model="form.salario" />
+                        <input type="number" class="form-control border-0 bg-light" v-model="form.salario"
+                          :disabled="!permisos.editar_salario"
+                          :class="{ 'opacity-75 cursor-not-allowed': !permisos.editar_salario }" />
                       </div>
                     </div>
                     <div class="col-6">
                       <label class="form-label small fw-bold opacity-75">Ciudad</label>
-                      <input type="text" class="form-control form-control-sm border-0 bg-light" v-model="form.ciudad" />
+                      <input type="text" class="form-control form-control-sm border-0 bg-light" v-model="form.ciudad"
+                        :disabled="!permisos.editar_ciudad"
+                        :class="{ 'opacity-75 cursor-not-allowed': !permisos.editar_ciudad }" />
                     </div>
                   </div>
 
                   <div class="mb-3 flex-grow-1">
                     <label class="form-label small fw-bold opacity-75">Observaciones</label>
                     <textarea class="form-control border-0 bg-light" style="min-height: 80px; font-size: 0.85rem"
-                      v-model="form.observaciones" placeholder="Notas adicionales..."></textarea>
+                      v-model="form.observaciones" placeholder="Notas adicionales..."
+                      :disabled="!permisos.tarjeta_contratacion"
+                      :class="{ 'opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }"></textarea>
                   </div>
 
                   <div class="d-grid gap-2 mt-2">

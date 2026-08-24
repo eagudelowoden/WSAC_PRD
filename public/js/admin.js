@@ -478,6 +478,14 @@ createApp({
       sidebarContraida: false,
       archivos: [],
       cargandoArchivos: false,
+
+      // Permisos finos del usuario logueado (superadmin > Usuarios > clic en el usuario).
+      // Deshabilitados por defecto hasta que se confirme lo que hay en BD.
+      permisos: {
+        tarjeta_contratacion: false,
+        editar_salario: false,
+        editar_ciudad: false,
+      },
     };
   },
   computed: {
@@ -555,6 +563,8 @@ createApp({
       // Solo si el usuario cargó bien, traemos su lista
       if (this.usuarioSys) {
         this.obtenerListaUsuarios();
+        // Permisos finos (tarjeta de contratación / salario / ciudad) del usuario logueado.
+        this.cargarPermisosDeEsteUsuario(this.usuarioSys.id);
       }
     } catch (e) {
       console.error("❌ Error al identificar usuario:", e);
@@ -601,6 +611,20 @@ createApp({
     }
   },
   methods: {
+    async cargarPermisosDeEsteUsuario(userId) {
+      try {
+        const res = await fetch(`/api/admin/permisos/${userId}`);
+        const data = await res.json();
+        this.permisos = {
+          tarjeta_contratacion: data.tarjeta_contratacion || false,
+          editar_salario: data.editar_salario || false,
+          editar_ciudad: data.editar_ciudad || false,
+        };
+      } catch (e) {
+        console.error("❌ Error cargando permisos:", e);
+      }
+    },
+
     async obtenerListaUsuarios() {
       // 1. Activamos el spinner antes de empezar
       this.cargandoUsuarios = true;

@@ -372,7 +372,9 @@
                     <div class="input-group-mini">
                       <i class="bi bi-diagram-3 icon-mini"></i>
                       <select class="form-select-mini" v-model="form.segmento_contrato"
-                        @change="cargarCargosPorSegmento">
+                        @change="cargarCargosPorSegmento"
+                        :disabled="!permisos.tarjeta_contratacion"
+                        :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">-- Seleccione Segmento --</option>
                         <option v-for="seg in listaSegmentos" :key="seg" :value="seg">{{ seg }}</option>
                       </select>
@@ -391,7 +393,8 @@
                     <div v-else class="input-group-mini">
                       <i class="bi bi-file-pdf icon-mini"></i>
                       <select class="form-select-mini" v-model="form.descripcion_cargo"
-                        :disabled="!form.segmento_contrato">
+                        :disabled="!permisos.tarjeta_contratacion || !form.segmento_contrato"
+                        :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">-- Seleccione Archivo --</option>
                         <option v-for="pdf in listaCargosPDF" :key="pdf" :value="pdf">{{ pdf }}</option>
                       </select>
@@ -403,7 +406,9 @@
                       TIPO DE CONTRATO</label>
                     <div class="input-group-mini">
                       <i class="bi bi-diagram-3 icon-mini"></i>
-                      <select class="form-select-mini" v-model="form.tipo_contrato">
+                      <select class="form-select-mini" v-model="form.tipo_contrato"
+                        :disabled="!permisos.tarjeta_contratacion"
+                        :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                         <option value="">-- Seleccione Tipo de Contrato --</option>
                         <option v-for="tipo in listadoTiposContratos" :key="tipo" :value="tipo">
                           {{ tipo }}
@@ -416,7 +421,9 @@
 
                   <div class="mb-2">
                     <label class="form-label-mini">Cargo (Nombre)</label>
-                    <input type="text" class="form-control-mini" placeholder="Ej: Analista" v-model="form.cargo">
+                    <input type="text" class="form-control-mini" placeholder="Ej: Analista" v-model="form.cargo"
+                      :disabled="!permisos.tarjeta_contratacion"
+                      :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }">
                   </div>
 
                   <div class="row g-2 mb-2">
@@ -431,14 +438,18 @@
                     </div>
                     <div class="col-6">
                       <label class="form-label-mini">Ciudad</label>
-                      <input type="text" class="form-control-mini" v-model="form.ciudad" placeholder="Ciudad">
+                      <input type="text" class="form-control-mini" v-model="form.ciudad" placeholder="Ciudad"
+                        :disabled="!permisos.editar_ciudad"
+                        :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.editar_ciudad }">
                     </div>
                   </div>
 
                   <div class="mb-3 flex-grow-1">
                     <label class="form-label-mini">Observaciones</label>
                     <textarea class="form-control-mini" rows="2" placeholder="Notas..." v-model="form.observaciones"
-                      style="min-height: 60px;"></textarea>
+                      style="min-height: 60px;"
+                      :disabled="!permisos.tarjeta_contratacion"
+                      :class="{ 'bg-light opacity-75 cursor-not-allowed': !permisos.tarjeta_contratacion }"></textarea>
                   </div>
 
                   <div class="d-grid gap-2 mt-auto">

@@ -40,6 +40,11 @@
 
 * { box-sizing: border-box; }
 
+/* Oculta elementos con v-if/v-cloak hasta que Vue monte y los procese;
+   sin esto, el HTML crudo (p.ej. un overlay de modal) se ve un instante
+   al recargar, antes de que el script de Vue termine de cargar. */
+[v-cloak] { display: none !important; }
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--v-bg);
@@ -77,8 +82,10 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 16px 16px;
+  height: var(--v-topbar-h); /* Debe calzar con .sa-topbar para que las líneas del sidebar y el navbar alineen */
+  padding: 0 16px;
   border-bottom: 1px solid var(--v-border);
+  box-sizing: border-box;
 }
 
 .sa-brand-icon {
@@ -451,6 +458,75 @@ body {
   background: var(--navy-soft);
   border-color: var(--navy-bd);
   color: var(--navy);
+}
+
+/* Fila de usuario clickeable (abre el modal de módulos/permisos) */
+.sa-row-clickable { cursor: pointer; }
+.sa-row-clickable:hover { background: var(--v-sidebar-2); }
+
+/* ══════════════════════════════════════════════════
+   MODAL: Módulos y permisos por usuario
+══════════════════════════════════════════════════ */
+.sa-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.sa-modal {
+  background: var(--v-card);
+  border-radius: var(--v-radius);
+  width: 100%;
+  max-width: 720px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,.28);
+}
+.sa-modal-body {
+  overflow-y: auto;
+}
+.sa-modal-close {
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .12s;
+}
+.sa-modal-close:hover { background: rgba(255,255,255,.28); }
+
+.sa-btn-password {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--v-card);
+  border: 1px solid var(--v-border);
+  color: var(--v-text-2);
+  border-radius: var(--v-radius-sm);
+  padding: 5px 11px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .14s;
+  white-space: nowrap;
+}
+.sa-btn-password:hover {
+  background: var(--v-blue-soft);
+  border-color: var(--v-blue-border);
+  color: var(--v-blue);
 }
 
 .sa-btn-delete {
